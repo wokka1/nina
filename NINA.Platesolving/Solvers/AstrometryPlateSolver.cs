@@ -115,9 +115,10 @@ namespace NINA.PlateSolving.Solvers {
             return JObject.Parse(response);
         }
 
-        private Task<BitmapSource> GetJobImage(string jobid, CancellationToken canceltoken) {
+        private async Task<BitmapSource> GetJobImage(string jobid, CancellationToken canceltoken) {
             var request = new HttpDownloadImageRequest(_apiurl + ANNOTATEDIMAGEURL, jobid);
-            return request.Request(canceltoken);
+            var bytes = await request.Request(canceltoken);
+            return NINA.Image.ImageAnalysis.ImageUtility.FromEncodedBytes(bytes);
         }
 
         private async Task<string> GetAuthenticationToken(CancellationToken cancelToken) {

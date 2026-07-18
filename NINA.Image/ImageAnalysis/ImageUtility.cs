@@ -172,6 +172,22 @@ namespace NINA.Image.ImageAnalysis {
             }
         }
 
+        /// <summary>
+        /// Decodes an in-memory encoded image (e.g. a downloaded JPEG/PNG/GIF) into a frozen,
+        /// UI-thread-independent BitmapSource. Used to keep image-format decoding out of
+        /// NINA.Core, which does not reference WPF.
+        /// </summary>
+        public static BitmapSource FromEncodedBytes(byte[] data) {
+            using var ms = new System.IO.MemoryStream(data);
+            var bitmap = new BitmapImage();
+            bitmap.BeginInit();
+            bitmap.StreamSource = ms;
+            bitmap.CacheOption = BitmapCacheOption.OnLoad;
+            bitmap.EndInit();
+            bitmap.Freeze();
+            return bitmap;
+        }
+
         public static Bitmap BitmapFromSource(BitmapSource source) {
             return BitmapFromSource(source, System.Drawing.Imaging.PixelFormat.Format16bppGrayScale);
         }

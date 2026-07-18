@@ -45,7 +45,8 @@ namespace NINA.WPF.Base.SkySurvey {
                     pixels,
                     arcSecPerPixel);
 
-                image = await request.Request(ct, progress);
+                var bytes = await request.Request(ct, progress);
+                image = NINA.Image.ImageAnalysis.ImageUtility.FromEncodedBytes(bytes);
             } catch (OperationCanceledException) {
                 throw;
             } catch (Exception ex) {

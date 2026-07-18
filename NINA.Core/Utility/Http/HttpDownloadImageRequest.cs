@@ -19,11 +19,16 @@ using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows.Media.Imaging;
 
 namespace NINA.Core.Utility.Http {
 
-    public class HttpDownloadImageRequest : HttpRequest<BitmapSource> {
+    /// <summary>
+    /// Downloads a URL and returns the raw response bytes. Decoding into a UI-framework-specific
+    /// bitmap type (e.g. WPF's BitmapSource) is left to the caller, so NINA.Core does not need to
+    /// reference a UI framework - see NINA.Image.ImageAnalysis.ImageUtility.FromEncodedBytes for the
+    /// WPF-side decode helper.
+    /// </summary>
+    public class HttpDownloadImageRequest : HttpRequest<byte[]> {
 
         public HttpDownloadImageRequest(string url, params object[] parameters) : base(url) {
             this.Parameters = parameters;
@@ -31,9 +36,7 @@ namespace NINA.Core.Utility.Http {
 
         public object[] Parameters { get; }
 
-        public override async Task<BitmapSource> Request(CancellationToken ct, IProgress<int> progress = null) {
-            var img = new BitmapImage();
-
+        public override async Task<byte[]> Request(CancellationToken ct, IProgress<int> progress = null) {
             var formattedUrl = Url;
             if (Parameters != null) {
                 formattedUrl = string.Format(CultureInfo.InvariantCulture, Url, Parameters);
@@ -46,24 +49,14 @@ namespace NINA.Core.Utility.Http {
                 using var data = await httpClient.GetStreamAsync(formattedUrl, ct);
                 using var ms = new MemoryStream();
                 await data.CopyToAsync(ms, ct);
-                ms.Seek(0, SeekOrigin.Begin);
 
-                var bitmap = new BitmapImage();
-                bitmap.BeginInit();
-                bitmap.StreamSource = ms;
-                bitmap.CacheOption = BitmapCacheOption.OnLoad;
-                bitmap.EndInit();
-                bitmap.Freeze();
-
-                img = bitmap;
+                return ms.ToArray();
             } catch (OperationCanceledException) {
                 throw;
             } catch (Exception ex) {
                 Logger.Error(ex);
                 throw;
             }
-
-            return img;
         }
     }
 }

@@ -25,9 +25,7 @@ namespace NINA.WPF.Base.SkySurvey {
     internal class StsciSkySurvey : MosaicSkySurvey, ISkySurvey {
         private const string Url = "https://archive.stsci.edu/cgi-bin/dss_search?format=GIF&r={0}&d={1}&e=J2000&w={2}&h={3}&v=1";
 
-        protected override Task<BitmapSource> GetSingleImage(Coordinates coordinates, double fovW, double fovH, CancellationToken ct, int width, int height) {
-            Task<BitmapSource> image;
-
+        protected override async Task<BitmapSource> GetSingleImage(Coordinates coordinates, double fovW, double fovH, CancellationToken ct, int width, int height) {
             try {
                 var request = new HttpDownloadImageRequest(
                     Url,
@@ -37,14 +35,13 @@ namespace NINA.WPF.Base.SkySurvey {
                     fovH
                 );
 
-                image = request.Request(ct);
+                var bytes = await request.Request(ct);
+                return NINA.Image.ImageAnalysis.ImageUtility.FromEncodedBytes(bytes);
             } catch (OperationCanceledException) {
                 throw;
             } catch (Exception ex) {
                 throw new SkySurveyUnavailableException(ex.Message);
             }
-
-            return image;
         }
     }
 }

@@ -30,9 +30,7 @@ namespace NINA.WPF.Base.SkySurvey {
 
         private const string Url = "http://archive.eso.org/dss/dss/image?ra={0}&dec={1}&x={2}&y={3}&mime-type=download-gif&Sky-Survey=DSS2&equinox=J2000&statsmode=VO";
 
-        protected override Task<BitmapSource> GetSingleImage(Coordinates coordinates, double fovW, double fovH, CancellationToken ct, int width, int height) {
-            Task<BitmapSource> image;
-
+        protected override async Task<BitmapSource> GetSingleImage(Coordinates coordinates, double fovW, double fovH, CancellationToken ct, int width, int height) {
             try {
                 var request = new HttpDownloadImageRequest(
                     Url,
@@ -42,14 +40,13 @@ namespace NINA.WPF.Base.SkySurvey {
                     fovH
                 );
 
-                image = request.Request(ct);
+                var bytes = await request.Request(ct);
+                return NINA.Image.ImageAnalysis.ImageUtility.FromEncodedBytes(bytes);
             } catch (OperationCanceledException) {
                 throw;
             } catch (Exception ex) {
                 throw new SkySurveyUnavailableException(ex.Message);
             }
-
-            return image;
         }
     }
 }

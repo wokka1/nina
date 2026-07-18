@@ -79,7 +79,8 @@ namespace NINA.WPF.Base.SkySurvey {
                    coordinates.RADegrees,
                    coordinates.Dec
                 );
-            return await request.Request(ct, progress);
+            var bytes = await request.Request(ct, progress);
+            return NINA.Image.ImageAnalysis.ImageUtility.FromEncodedBytes(bytes);
         }
 
         private BitmapSource ConvertBitmapTo96DPI(BitmapSource bitmapImage) {
