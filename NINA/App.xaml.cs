@@ -18,6 +18,7 @@ using NINA.Profile;
 using NINA.Profile.Interfaces;
 using NINA.Utility;
 using NINA.View;
+using NINA.WPF.Base.Utility;
 using NINA.ViewModel;
 using NINA.ViewModel.Interfaces;
 using Nito.AsyncEx;
@@ -127,6 +128,7 @@ namespace NINA {
         }
 
         protected override void OnStartup(StartupEventArgs e) {
+            DispatcherProvider.Current = new WpfDispatcher();
             AttachConsole(ATTACH_PARENT_PROCESS);
             _commandLineOptions = new CommandLineOptions(e.Args);
             FreeConsole(ATTACH_PARENT_PROCESS);

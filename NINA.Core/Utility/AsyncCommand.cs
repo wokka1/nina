@@ -13,11 +13,11 @@
 #endregion "copyright"
 
 using CommunityToolkit.Mvvm.Input;
+using NINA.Core.Interfaces.Utility;
 using System;
 using System.ComponentModel;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows;
 using System.Windows.Input;
 
 namespace NINA.Core.Utility {
@@ -117,7 +117,7 @@ namespace NINA.Core.Utility {
             observable.PropertyChanged += (object sender, PropertyChangedEventArgs e) => {
                 foreach (var propertyName in propertyNames) {
                     if (e.PropertyName == propertyName) {
-                        Application.Current.Dispatcher.BeginInvoke(value.NotifyCanExecuteChanged);
+                        DispatcherProvider.Current?.BeginInvoke(value.NotifyCanExecuteChanged);
                         return;
                     }
                 }

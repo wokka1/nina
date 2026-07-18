@@ -17,18 +17,11 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
-using System.Threading;
-using System.Windows;
-using System.Windows.Threading;
+using NINA.Core.Interfaces.Utility;
 
 namespace NINA.Core.Utility {
 
     public class AsyncObservableCollection<T> : ObservableCollection<T> {
-
-        private readonly SynchronizationContext _synchronizationContext =
-            Application.Current?.Dispatcher != null
-            ? new DispatcherSynchronizationContext(Application.Current.Dispatcher)
-            : null;
 
         public AsyncObservableCollection() {
         }
@@ -38,10 +31,11 @@ namespace NINA.Core.Utility {
         }
 
         protected void RunOnSynchronizationContext(Action action) {
-            if (SynchronizationContext.Current == _synchronizationContext) {
+            var dispatcher = DispatcherProvider.Current;
+            if (dispatcher == null) {
                 action();
             } else {
-                _synchronizationContext.Send(_ => action(), null);
+                dispatcher.Invoke(action);
             }
         }
 
