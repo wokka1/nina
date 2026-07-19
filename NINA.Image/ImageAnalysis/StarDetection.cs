@@ -43,28 +43,21 @@ namespace NINA.Image.ImageAnalysis {
             public IImageArray _iarr;
             public ImageProperties imageProperties;
             public BitmapSource _originalBitmapSource;
+            // Portable (Bitmap/WPF-free) equivalent of _originalBitmapSource, populated only
+            // by GetInitialPortableState - always Gray16, RGB48 sources are pre-reduced via
+            // GrayscalePortable the same way GetInitialState reduces them via Grayscale+Bitmap.
+            public ushort[] _originalPixelsGray16;
             public double _resizefactor;
             public double _inverseResizefactor;
             public int _minStarSize;
             public int _maxStarSize;
         }
 
-        private static State GetInitialState(IRenderedImage renderedImage, System.Windows.Media.PixelFormat pf, StarDetectionParams p) {
-            var state = new State();
-            var imageData = renderedImage.RawImageData;
-            state.imageProperties = imageData.Properties;
-
-            state._iarr = imageData.Data;
-            //If image was debayered, use debayered array for star HFR and local maximum identification
-            if (state.imageProperties.IsBayered && (renderedImage is IDebayeredImage)) {
-                var debayeredImage = (IDebayeredImage)renderedImage;
-                var debayeredData = debayeredImage.DebayeredData;
-                if (debayeredData != null && debayeredData.Lum != null && debayeredData.Lum.Length > 0) {
-                    state._iarr = new ImageArray(debayeredData.Lum);
-                }
-            }
-
-            state._originalBitmapSource = renderedImage.Image;
+        // Shared by GetInitialState and GetInitialPortableState - resize factor / min-max star
+        // size derivation has no Bitmap/WPF dependency at all, it only reads imageProperties and
+        // renderedImage.RawImageData.MetaData, so both the WPF and portable init paths use the
+        // exact same computation rather than keeping two copies of this branching logic in sync.
+        private static void ComputeSizingState(State state, IRenderedImage renderedImage, StarDetectionParams p) {
             state._resizefactor = 1.0;
             if (state.imageProperties.Width > _maxWidth) {
                 if (p.Sensitivity == StarSensitivityEnum.Highest) {
@@ -107,6 +100,26 @@ namespace NINA.Image.ImageAnalysis {
             }
 
             state._maxStarSize = (int)Math.Ceiling(150 * state._resizefactor);
+        }
+
+        private static State GetInitialState(IRenderedImage renderedImage, System.Windows.Media.PixelFormat pf, StarDetectionParams p) {
+            var state = new State();
+            var imageData = renderedImage.RawImageData;
+            state.imageProperties = imageData.Properties;
+
+            state._iarr = imageData.Data;
+            //If image was debayered, use debayered array for star HFR and local maximum identification
+            if (state.imageProperties.IsBayered && (renderedImage is IDebayeredImage)) {
+                var debayeredImage = (IDebayeredImage)renderedImage;
+                var debayeredData = debayeredImage.DebayeredData;
+                if (debayeredData != null && debayeredData.Lum != null && debayeredData.Lum.Length > 0) {
+                    state._iarr = new ImageArray(debayeredData.Lum);
+                }
+            }
+
+            state._originalBitmapSource = renderedImage.Image;
+            ComputeSizingState(state, renderedImage, p);
+
             if (pf == PixelFormats.Rgb48) {
                 using (var source = ImageUtility.BitmapFromSource(state._originalBitmapSource, System.Drawing.Imaging.PixelFormat.Format48bppRgb)) {
                     using (var img = new Grayscale(0.2125, 0.7154, 0.0721).Apply(source)) {
@@ -117,6 +130,42 @@ namespace NINA.Image.ImageAnalysis {
             }
 
             Logger.Trace($"Star Detection initialized using resizeFactor: {state._resizefactor}, minimum star size: {state._minStarSize}");
+
+            return state;
+        }
+
+        /// <summary>
+        /// Portable, Bitmap/WPF-free equivalent of GetInitialState - reads pixel data straight
+        /// from IRenderedImage.RawPixels (added alongside the existing BitmapSource-based
+        /// Image/OriginalImage properties) instead of round-tripping through a BitmapFromSource
+        /// -> Grayscale.Apply -> ConvertBitmap chain. Shares ComputeSizingState with the WPF
+        /// path above so the resize-factor/min-max-star-size logic can't drift between the two.
+        /// </summary>
+        private static State GetInitialPortableState(IRenderedImage renderedImage, StarDetectionParams p) {
+            var state = new State();
+            var imageData = renderedImage.RawImageData;
+            state.imageProperties = imageData.Properties;
+
+            state._iarr = imageData.Data;
+            //If image was debayered, use debayered array for star HFR and local maximum identification
+            if (state.imageProperties.IsBayered && (renderedImage is IDebayeredImage)) {
+                var debayeredImage = (IDebayeredImage)renderedImage;
+                var debayeredData = debayeredImage.DebayeredData;
+                if (debayeredData != null && debayeredData.Lum != null && debayeredData.Lum.Length > 0) {
+                    state._iarr = new ImageArray(debayeredData.Lum);
+                }
+            }
+
+            ComputeSizingState(state, renderedImage, p);
+
+            var rawPixels = renderedImage.RawPixels;
+            if (rawPixels.Format == PortablePixelFormat.Rgb48) {
+                state._originalPixelsGray16 = new GrayscalePortable(0.2125, 0.7154, 0.0721).ApplyToRgb48Array(rawPixels.Data, rawPixels.Width, rawPixels.Height);
+            } else {
+                state._originalPixelsGray16 = rawPixels.Data;
+            }
+
+            Logger.Trace($"Star Detection (portable) initialized using resizeFactor: {state._resizefactor}, minimum star size: {state._minStarSize}");
 
             return state;
         }
@@ -459,7 +508,7 @@ namespace NINA.Image.ImageAnalysis {
 
                     progress?.Report(new ApplicationStatus() { Status = "Analyzing stars" });
 
-                    result.StarList = IdentifyStars(p, state, blobCounter, bitmapToAnalyze, result, token, out var detectedStars);
+                    result.StarList = IdentifyStars(p, state, blobCounter, bitmapToAnalyze.Width, bitmapToAnalyze.Height, result, token, out var detectedStars);
 
                     token.ThrowIfCancellationRequested();
 
@@ -496,15 +545,95 @@ namespace NINA.Image.ImageAnalysis {
             return result;
         }
 
-        private bool InROI(Bitmap bitmapToAnalyze, StarDetectionParams p, Blob blob) {
+        /// <summary>
+        /// Portable, Bitmap/WPF-free equivalent of Detect() - runs the exact same detection
+        /// pipeline (16->8bpp reduction, optional noise reduction, resize, Canny/threshold/
+        /// dilation structure prep, blob detection, star identification/filtering/statistics)
+        /// entirely on raw byte[]/ushort[] arrays via the *Portable helpers built alongside
+        /// this method, instead of System.Drawing.Bitmap. IdentifyStars, EstimateBackground and
+        /// the whole Star.Calculate() measurement path are unchanged and shared as-is with
+        /// Detect() above - they never touched Bitmap/BitmapSource to begin with. Added as a
+        /// new method on the concrete class rather than on IStarDetection, since no Avalonia
+        /// consumer exists yet to require it there; StarDetection is IStarDetection's only real
+        /// implementation in this repo (NINA.Test's usages are Moq mocks), so extending the
+        /// interface later, once something actually calls this, is a low-risk follow-up.
+        /// </summary>
+        public async Task<StarDetectionResult> DetectPortable(IRenderedImage image, StarDetectionParams p, IProgress<ApplicationStatus> progress, CancellationToken token) {
+            var result = new StarDetectionResult();
+            try {
+                using (MyStopWatch.Measure()) {
+                    progress?.Report(new ApplicationStatus() { Status = "Preparing image for star detection" });
+
+                    var state = GetInitialPortableState(image, p);
+                    var pixelsToAnalyze = ImageUtility.Convert16BppTo8BppArray(state._originalPixelsGray16);
+                    int width = state.imageProperties.Width;
+                    int height = state.imageProperties.Height;
+
+                    token.ThrowIfCancellationRequested();
+
+                    /* Perform initial noise reduction on full size image if necessary */
+                    if (p.NoiseReduction != NoiseReductionEnum.None) {
+                        pixelsToAnalyze = ReduceNoisePortable(pixelsToAnalyze, width, height, p);
+                    }
+
+                    /* Resize to speed up manipulation */
+                    (pixelsToAnalyze, width, height) = DetectionUtility.ResizeForDetectionArray(pixelsToAnalyze, width, height, _maxWidth, state._resizefactor);
+
+                    /* prepare image for structure detection */
+                    pixelsToAnalyze = PrepareForStructureDetectionPortable(pixelsToAnalyze, width, height, p, token);
+
+                    progress?.Report(new ApplicationStatus() { Status = "Detecting structures" });
+
+                    /* get structure info */
+                    var blobCounter = DetectStructuresPortable(pixelsToAnalyze, width, height, token);
+
+                    progress?.Report(new ApplicationStatus() { Status = "Analyzing stars" });
+
+                    result.StarList = IdentifyStars(p, state, blobCounter, width, height, result, token, out var detectedStars);
+
+                    token.ThrowIfCancellationRequested();
+
+                    if (result.StarList.Count > 0) {
+                        var validHfrValues = result.StarList.Select(star => star.HFR).Where(hfr => !double.IsNaN(hfr)).ToList();
+                        result.DetectedStars = detectedStars;
+
+                        if (validHfrValues.Count > 0) {
+                            var mean = validHfrValues.Average();
+                            var stdDev = 0d;
+                            if (validHfrValues.Count > 1) {
+                                stdDev = Math.Sqrt(validHfrValues.Sum(hfr => (hfr - mean) * (hfr - mean)) / (validHfrValues.Count - 1));
+                            }
+
+                            var validFwhmValues = result.StarList.Select(star => star.FWHM).Where(fwhm => !double.IsNaN(fwhm)).ToList();
+                            var averageFwhm = validFwhmValues.Count > 0 ? validFwhmValues.Average() : double.NaN;
+                            var validEccentricities = result.StarList.Select(star => star.Eccentricity).Where(ecc => !double.IsNaN(ecc)).ToList();
+                            var averageEccentricity = validEccentricities.Count > 0 ? validEccentricities.Average() : double.NaN;
+
+                            Logger.Info($"Average HFR: {mean}, Average FWHM: {averageFwhm}, Average Eccentricity: {averageEccentricity}, HFR σ: {stdDev}, Detected Stars {detectedStars}, Sensitivity {p.Sensitivity}, ResizeFactor: {Math.Round(state._resizefactor, 2)}");
+
+                            result.AverageHFR = mean;
+                            result.AverageFWHM = averageFwhm;
+                            result.AverageEccentricity = averageEccentricity;
+                            result.HFRStdDev = stdDev;
+                        }
+                    }
+                }
+            } catch (OperationCanceledException) {
+            } finally {
+                progress?.Report(new ApplicationStatus() { Status = string.Empty });
+            }
+            return result;
+        }
+
+        private bool InROI(int detectionWidth, int detectionHeight, StarDetectionParams p, Blob blob) {
             return DetectionUtility.InROI(
-                new Size(width: bitmapToAnalyze.Width, height: bitmapToAnalyze.Height),
+                new Size(width: detectionWidth, height: detectionHeight),
                 blob: blob.Rectangle,
                 outerCropRatio: p.OuterCropRatio,
                 innerCropRatio: p.InnerCropRatio);
         }
 
-        private List<DetectedStar> IdentifyStars(StarDetectionParams p, State state, BlobCounter blobCounter, Bitmap bitmapToAnalyze, StarDetectionResult result, CancellationToken token, out int detectedStars) {
+        private List<DetectedStar> IdentifyStars(StarDetectionParams p, State state, BlobCounter blobCounter, int detectionWidth, int detectionHeight, StarDetectionResult result, CancellationToken token, out int detectedStars) {
             using (MyStopWatch.Measure()) {
                 detectedStars = 0;
                 Blob[] blobs = blobCounter.GetObjectsInformation();
@@ -523,7 +652,7 @@ namespace NINA.Image.ImageAnalysis {
                     }
 
                     // If camera cannot subSample, but crop ratio is set, use blobs that are either within or without the ROI
-                    if (p.UseROI && !InROI(bitmapToAnalyze, p, blob)) {
+                    if (p.UseROI && !InROI(detectionWidth, detectionHeight, p, blob)) {
                         continue;
                     }
 
@@ -592,7 +721,7 @@ namespace NINA.Image.ImageAnalysis {
                     double largeRectMean = backgroundStats.Background;
                     s.SurroundingMean = largeRectMean;
                     double largeRectStdev = backgroundStats.Sigma;
-                    int minimumNumberOfPixels = (int)Math.Ceiling(Math.Max(state._originalBitmapSource.PixelWidth, state._originalBitmapSource.PixelHeight) / 1000d);
+                    int minimumNumberOfPixels = (int)Math.Ceiling(Math.Max(state.imageProperties.Width, state.imageProperties.Height) / 1000d);
 
                     if (s.MeanBrightness >= largeRectMean + Math.Min(0.1 * largeRectMean, largeRectStdev) && innerStarPixelValues.Count(pv => pv > largeRectMean + 1.5 * largeRectStdev) > minimumNumberOfPixels) {
                         s.Calculate(pixelDataList);
@@ -789,6 +918,92 @@ namespace NINA.Image.ImageAnalysis {
                     bitmapToAnalyze = bmp;
                 }
                 return bitmapToAnalyze;
+            }
+        }
+
+        /// <summary>
+        /// Portable, Bitmap/GDI+-free equivalent of DetectStructures - BlobCounter already
+        /// exposes a public ProcessImage(UnmanagedImage) overload (see BlobCounterBase), so
+        /// unlike the filters above it needs no subclass wrapper at all, just a pinned-array
+        /// UnmanagedImage. GetObjectsInformation()/GetBlobsEdgePoints() only ever read the
+        /// int[] object-label map that ProcessImage builds internally, never the original
+        /// image memory again afterwards, so it's safe for the pinned pointer to go out of
+        /// scope once ProcessImage() returns.
+        /// </summary>
+        private BlobCounter DetectStructuresPortable(byte[] data, int width, int height, CancellationToken token) {
+            using (MyStopWatch.Measure()) {
+                BlobCounter blobCounter = new BlobCounter();
+                unsafe {
+                    fixed (byte* ptr = data) {
+                        var unmanagedImage = new UnmanagedImage((IntPtr)ptr, width, height, width, System.Drawing.Imaging.PixelFormat.Format8bppIndexed);
+                        blobCounter.ProcessImage(unmanagedImage);
+                    }
+                }
+
+                token.ThrowIfCancellationRequested();
+
+                return blobCounter;
+            }
+        }
+
+        /// <summary>
+        /// Portable, Bitmap/GDI+-free equivalent of PrepareForStructureDetection, threading a
+        /// byte[] through the same Canny/NoBlurCanny -> SISThreshold -> BinaryDilation3x3 chain
+        /// via the *Portable wrapper types, each one returning a fresh array rather than
+        /// mutating a shared Bitmap in place.
+        /// </summary>
+        private byte[] PrepareForStructureDetectionPortable(byte[] data, int width, int height, StarDetectionParams p, CancellationToken token) {
+            using (MyStopWatch.Measure()) {
+                using (MyStopWatch.Measure("PrepareForStructureDetectionPortable - CannyEdge")) {
+                    if (p.NoiseReduction == NoiseReductionEnum.None || p.NoiseReduction == NoiseReductionEnum.Median) {
+                        //Still need to apply Gaussian blur, using normal Canny
+                        data = new CannyEdgeDetectorPortable(10, 80).ApplyInPlaceToGray8Array(data, width, height);
+                    } else {
+                        //Gaussian blur already applied, using no-blur Canny
+                        data = new NoBlurCannyEdgeDetector(10, 80).ApplyInPlaceToGray8Array(data, width, height);
+                    }
+                }
+
+                token.ThrowIfCancellationRequested();
+                using (MyStopWatch.Measure("PrepareForStructureDetectionPortable - SISThreshold")) {
+                    data = StarDetectionFiltersPortable.SISThresholdArray(data, width, height);
+                }
+
+                token.ThrowIfCancellationRequested();
+                using (MyStopWatch.Measure("PrepareForStructureDetectionPortable - BinaryDilation3x3")) {
+                    data = new BinaryDilation3x3Portable().ApplyInPlaceToGray8Array(data, width, height);
+                }
+                token.ThrowIfCancellationRequested();
+
+                return data;
+            }
+        }
+
+        /// <summary>
+        /// Portable, Bitmap/GDI+-free equivalent of ReduceNoise.
+        /// </summary>
+        private byte[] ReduceNoisePortable(byte[] data, int width, int height, StarDetectionParams p) {
+            using (MyStopWatch.Measure()) {
+                if (width > _maxWidth) {
+                    switch (p.NoiseReduction) {
+                        case NoiseReductionEnum.High:
+                            data = new FastGaussianBlur(data, width, height).ProcessArray(2);
+                            break;
+
+                        case NoiseReductionEnum.Highest:
+                            data = new FastGaussianBlur(data, width, height).ProcessArray(3);
+                            break;
+
+                        case NoiseReductionEnum.Median:
+                            data = new MedianPortable().ApplyInPlaceToGray8Array(data, width, height);
+                            break;
+
+                        default:
+                            data = new FastGaussianBlur(data, width, height).ProcessArray(1);
+                            break;
+                    }
+                }
+                return data;
             }
         }
 

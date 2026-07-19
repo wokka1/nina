@@ -60,6 +60,23 @@ namespace NINA.Image.ImageAnalysis {
             }
         }
 
+        /// <summary>
+        /// Portable, Bitmap/GDI+-free equivalent of ResizeForDetection, operating on a raw
+        /// 8bpp grayscale array via ResizeBicubicPortable instead of a System.Drawing.Bitmap.
+        /// Returns the (possibly unchanged) buffer along with its resulting width/height.
+        /// </summary>
+        public static (byte[] Data, int Width, int Height) ResizeForDetectionArray(byte[] image, int width, int height, int maxWidth, double resizeFactor) {
+            using (MyStopWatch.Measure()) {
+                if (width > maxWidth) {
+                    int newWidth = (int)Math.Floor(width * resizeFactor);
+                    int newHeight = (int)Math.Floor(height * resizeFactor);
+                    var resized = new ResizeBicubicPortable(newWidth, newHeight).ApplyToGray8Array(image, width, height, newWidth, newHeight);
+                    return (resized, newWidth, newHeight);
+                }
+                return (image, width, height);
+            }
+        }
+
         public static bool InROI(Size imageSize, Rectangle blob, double outerCropRatio = 1.0, double innerCropRatio = 1.0) {
             Rectangle outsideCropRect;
 

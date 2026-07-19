@@ -53,6 +53,28 @@ namespace NINA.Image.ImageAnalysis {
             }
         }
 
+        /// <summary>
+        /// Portable, Bitmap/GDI+-free constructor - takes a raw 8bpp grayscale array
+        /// directly instead of extracting one from a Bitmap via LockBits/Marshal.Copy.
+        /// Only ProcessArray() is usable afterwards, since there is no Palette to build
+        /// a result Bitmap from.
+        /// </summary>
+        public FastGaussianBlur(byte[] grayArray, int width, int height) {
+            _width = width;
+            _height = height;
+            gray = grayArray;
+        }
+
+        /// <summary>
+        /// Portable, Bitmap/GDI+-free equivalent of Process() - runs the same gaussBlur_4
+        /// pipeline and returns the raw result array instead of wrapping it in a Bitmap.
+        /// </summary>
+        public byte[] ProcessArray(int radial) {
+            var dest = new byte[_width * _height];
+            gaussBlur_4(gray, dest, radial);
+            return dest;
+        }
+
         public Bitmap Process(int radial) {
             var dest = new byte[_width * _height];
 

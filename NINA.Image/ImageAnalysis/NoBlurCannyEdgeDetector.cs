@@ -263,5 +263,27 @@ namespace NINA.Image.ImageAnalysis {
             // release blurred image
             source.Dispose();
         }
+
+        /// <summary>
+        /// Portable, Bitmap/GDI+-free entry point mirroring ApplyInPlace's semantics: the real
+        /// ApplyInPlace(UnmanagedImage, Rectangle) passes a full copy of the source as the
+        /// "source" parameter and the original buffer (already containing the source data) as
+        /// "destination", so untouched pixels retain their original value. This wrapper
+        /// reproduces that with two clones of the input array.
+        /// </summary>
+        public unsafe byte[] ApplyInPlaceToGray8Array(byte[] source, int width, int height) {
+            var sourceCopy = (byte[])source.Clone();
+            var destination = (byte[])source.Clone();
+            var rect = new System.Drawing.Rectangle(0, 0, width, height);
+
+            fixed (byte* srcPtr = sourceCopy)
+            fixed (byte* dstPtr = destination) {
+                var src = new UnmanagedImage((System.IntPtr)srcPtr, width, height, width, PixelFormat.Format8bppIndexed);
+                var dst = new UnmanagedImage((System.IntPtr)dstPtr, width, height, width, PixelFormat.Format8bppIndexed);
+                ProcessFilter(src, dst, rect);
+            }
+
+            return destination;
+        }
     }
 }

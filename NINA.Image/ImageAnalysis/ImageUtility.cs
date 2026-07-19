@@ -224,6 +224,21 @@ namespace NINA.Image.ImageAnalysis {
             }
         }
 
+        /// <summary>
+        /// Portable, Bitmap/GDI+-free equivalent of Convert16BppTo8Bpp - same per-pixel
+        /// ">> 8" bit-depth reduction as Accord.Imaging.Image.Convert16bppTo8bpp, applied
+        /// directly to a raw Gray16 array instead of a Bitmap.
+        /// </summary>
+        public static byte[] Convert16BppTo8BppArray(ushort[] source) {
+            using (MyStopWatch.Measure()) {
+                var destination = new byte[source.Length];
+                for (int i = 0; i < source.Length; i++) {
+                    destination[i] = (byte)(source[i] >> 8);
+                }
+                return destination;
+            }
+        }
+
         public static BitmapSource Convert16BppTo8BppSource(BitmapSource source) {
             FormatConvertedBitmap s = new FormatConvertedBitmap();
             s.BeginInit();
