@@ -6,6 +6,7 @@ using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
 using System.Collections.Generic;
 using System.Windows.Media;
+using NINA.Core.Utility.ColorSchema;
 using NINA.Profile.Interfaces;
 using NINA.Core.Utility;
 
@@ -50,6 +51,8 @@ namespace NINA.Profile.Interfaces {
     public interface IPluginOptionsAccessor {
         Color GetValueColor(string name, Color defaultValue);
         void SetValueColor(string name, Color value);
+        PortableColor GetValuePortableColor(string name, PortableColor defaultValue);
+        void SetValuePortableColor(string name, PortableColor value);
         T GetValueEnum<T>(string name, T value) where T : struct, Enum;
         void SetValueEnum<T>(string name, T defaultValue) where T : struct, Enum;
         void SetValueBoolean(string name, Boolean value);
@@ -916,6 +919,29 @@ namespace NINA.Profile {
 
         public void SetValueColor(string name, Color value) {
             profileService.ActiveProfile.PluginSettings.SetValue(pluginGuid, name, ColorToInt(value));
+        }
+
+        public PortableColor GetValuePortableColor(string name, PortableColor defaultValue) {
+            if (profileService.ActiveProfile.PluginSettings.TryGetValue(pluginGuid, name, out int result)) {
+                return IntToPortableColor(result);
+            }
+            return defaultValue;
+        }
+
+        private static int PortableColorToInt(PortableColor color) {
+            return color.A << 24 | color.R << 16 | color.G << 8 | color.B;
+        }
+
+        private static PortableColor IntToPortableColor(int colorInt) {
+            byte a = (byte)(colorInt >> 24);
+            byte r = (byte)(colorInt >> 16);
+            byte g = (byte)(colorInt >> 8);
+            byte b = (byte)(colorInt);
+            return new PortableColor(a, r, g, b);
+        }
+
+        public void SetValuePortableColor(string name, PortableColor value) {
+            profileService.ActiveProfile.PluginSettings.SetValue(pluginGuid, name, PortableColorToInt(value));
         }
 
         public void SetValueEnum<T>(string name, T value) where T : struct, Enum {
