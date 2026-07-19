@@ -18,7 +18,9 @@ using NINA.Profile.Interfaces;
 using System;
 using System.IO;
 using System.Runtime.Serialization;
+#if HAS_WPF
 using System.Windows.Media;
+#endif
 using System.Xml.Serialization;
 
 namespace NINA.Profile {
@@ -77,8 +79,8 @@ namespace NINA.Profile {
             var defaultSkyGuardPath = Environment.ExpandEnvironmentVariables(@"%PROGRAMFILES%\SkyGuard\SkyGuard.exe");
             skyGuardPath = File.Exists(defaultSkyGuardPath) ? defaultSkyGuardPath : string.Empty;
 
-            guideChartRightAscensionColor = Colors.Blue;
-            guideChartDeclinationColor = Colors.Red;
+            guideChartRightAscensionColor = new PortableColor(0xFF, 0x00, 0x00, 0xFF);
+            guideChartDeclinationColor = new PortableColor(0xFF, 0xFF, 0x00, 0x00);
             guideChartShowCorrections = true;
         }
 
@@ -583,37 +585,45 @@ namespace NINA.Profile {
         #endregion
 
 
-        private Color guideChartRightAscensionColor;        
+        private PortableColor guideChartRightAscensionColor;
+
+#if HAS_WPF
         [DataMember]
         public Color GuideChartRightAscensionColor {
-            get => guideChartRightAscensionColor;
+            get => Color.FromArgb(guideChartRightAscensionColor.A, guideChartRightAscensionColor.R, guideChartRightAscensionColor.G, guideChartRightAscensionColor.B);
             set {
-                if (guideChartRightAscensionColor != value) {
-                    guideChartRightAscensionColor = value;
+                var portable = new PortableColor(value.A, value.R, value.G, value.B);
+                if (guideChartRightAscensionColor != portable) {
+                    guideChartRightAscensionColor = portable;
                     RaisePropertyChanged();
                 }
             }
         }
+#endif
 
         [XmlIgnore]
         [IgnoreDataMember]
-        public PortableColor GuideChartRightAscensionColorPortable => new PortableColor(GuideChartRightAscensionColor.A, GuideChartRightAscensionColor.R, GuideChartRightAscensionColor.G, GuideChartRightAscensionColor.B);
+        public PortableColor GuideChartRightAscensionColorPortable => guideChartRightAscensionColor;
 
-        private Color guideChartDeclinationColor;        
+        private PortableColor guideChartDeclinationColor;
+
+#if HAS_WPF
         [DataMember]
         public Color GuideChartDeclinationColor {
-            get => guideChartDeclinationColor;
+            get => Color.FromArgb(guideChartDeclinationColor.A, guideChartDeclinationColor.R, guideChartDeclinationColor.G, guideChartDeclinationColor.B);
             set {
-                if (guideChartDeclinationColor != value) {
-                    guideChartDeclinationColor = value;
+                var portable = new PortableColor(value.A, value.R, value.G, value.B);
+                if (guideChartDeclinationColor != portable) {
+                    guideChartDeclinationColor = portable;
                     RaisePropertyChanged();
                 }
             }
         }
+#endif
 
         [XmlIgnore]
         [IgnoreDataMember]
-        public PortableColor GuideChartDeclinationColorPortable => new PortableColor(GuideChartDeclinationColor.A, GuideChartDeclinationColor.R, GuideChartDeclinationColor.G, GuideChartDeclinationColor.B);
+        public PortableColor GuideChartDeclinationColorPortable => guideChartDeclinationColor;
 
         private bool guideChartShowCorrections;
         [DataMember]

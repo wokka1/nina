@@ -25,5 +25,6 @@
 
   <ItemGroup>
     <ProjectReference Include="../NINA.Core/NINA.Core.csproj" />
+    <ProjectReference Include="../NINA.Profile/NINA.Profile.csproj" />
   </ItemGroup>
 </Project>

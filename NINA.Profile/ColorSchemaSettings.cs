@@ -119,44 +119,44 @@ namespace NINA.Profile {
         public void CopyToCustom() {
             var schema = ColorSchemas.Items.Where((x) => x.Name == "Custom").First();
 
-            schema.PrimaryColor = ColorSchema.PrimaryColor;
-            schema.SecondaryColor = ColorSchema.SecondaryColor;
-            schema.BorderColor = ColorSchema.BorderColor;
-            schema.BackgroundColor = ColorSchema.BackgroundColor;
-            schema.SecondaryBackgroundColor = ColorSchema.SecondaryBackgroundColor;
-            schema.TertiaryBackgroundColor = ColorSchema.TertiaryBackgroundColor;
-            schema.ButtonBackgroundColor = ColorSchema.ButtonBackgroundColor;
-            schema.ButtonBackgroundSelectedColor = ColorSchema.ButtonBackgroundSelectedColor;
-            schema.ButtonForegroundColor = ColorSchema.ButtonForegroundColor;
-            schema.ButtonForegroundDisabledColor = ColorSchema.ButtonForegroundDisabledColor;
-            schema.CrosshairColor = ColorSchema.CrosshairColor;
-            schema.NotificationWarningColor = ColorSchema.NotificationWarningColor;
-            schema.NotificationWarningTextColor = ColorSchema.NotificationWarningTextColor;
-            schema.NotificationErrorColor = ColorSchema.NotificationErrorColor;
-            schema.NotificationErrorTextColor = ColorSchema.NotificationErrorTextColor;
-            schema.SequencerExpressionTextColor = ColorSchema.SequencerExpressionTextColor;
+            schema.PrimaryColorPortable = ColorSchema.PrimaryColorPortable;
+            schema.SecondaryColorPortable = ColorSchema.SecondaryColorPortable;
+            schema.BorderColorPortable = ColorSchema.BorderColorPortable;
+            schema.BackgroundColorPortable = ColorSchema.BackgroundColorPortable;
+            schema.SecondaryBackgroundColorPortable = ColorSchema.SecondaryBackgroundColorPortable;
+            schema.TertiaryBackgroundColorPortable = ColorSchema.TertiaryBackgroundColorPortable;
+            schema.ButtonBackgroundColorPortable = ColorSchema.ButtonBackgroundColorPortable;
+            schema.ButtonBackgroundSelectedColorPortable = ColorSchema.ButtonBackgroundSelectedColorPortable;
+            schema.ButtonForegroundColorPortable = ColorSchema.ButtonForegroundColorPortable;
+            schema.ButtonForegroundDisabledColorPortable = ColorSchema.ButtonForegroundDisabledColorPortable;
+            schema.CrosshairColorPortable = ColorSchema.CrosshairColorPortable;
+            schema.NotificationWarningColorPortable = ColorSchema.NotificationWarningColorPortable;
+            schema.NotificationWarningTextColorPortable = ColorSchema.NotificationWarningTextColorPortable;
+            schema.NotificationErrorColorPortable = ColorSchema.NotificationErrorColorPortable;
+            schema.NotificationErrorTextColorPortable = ColorSchema.NotificationErrorTextColorPortable;
+            schema.SequencerExpressionTextColorPortable = ColorSchema.SequencerExpressionTextColorPortable;
             ColorSchema = schema;
         }
 
         public void CopyToAltCustom() {
             var schema = ColorSchemas.Items.Where((x) => x.Name == "Alternative Custom").First();
 
-            schema.PrimaryColor = AltColorSchema.PrimaryColor;
-            schema.SecondaryColor = AltColorSchema.SecondaryColor;
-            schema.BorderColor = AltColorSchema.BorderColor;
-            schema.BackgroundColor = AltColorSchema.BackgroundColor;
-            schema.SecondaryBackgroundColor = AltColorSchema.SecondaryBackgroundColor;
-            schema.TertiaryBackgroundColor = AltColorSchema.TertiaryBackgroundColor;
-            schema.ButtonBackgroundColor = AltColorSchema.ButtonBackgroundColor;
-            schema.ButtonBackgroundSelectedColor = AltColorSchema.ButtonBackgroundSelectedColor;
-            schema.ButtonForegroundColor = AltColorSchema.ButtonForegroundColor;
-            schema.ButtonForegroundDisabledColor = AltColorSchema.ButtonForegroundDisabledColor;
-            schema.CrosshairColor = AltColorSchema.CrosshairColor;
-            schema.NotificationWarningColor = AltColorSchema.NotificationWarningColor;
-            schema.NotificationWarningTextColor = AltColorSchema.NotificationWarningTextColor;
-            schema.NotificationErrorColor = AltColorSchema.NotificationErrorColor;
-            schema.NotificationErrorTextColor = AltColorSchema.NotificationErrorTextColor;
-            schema.SequencerExpressionTextColor = AltColorSchema.SequencerExpressionTextColor;
+            schema.PrimaryColorPortable = AltColorSchema.PrimaryColorPortable;
+            schema.SecondaryColorPortable = AltColorSchema.SecondaryColorPortable;
+            schema.BorderColorPortable = AltColorSchema.BorderColorPortable;
+            schema.BackgroundColorPortable = AltColorSchema.BackgroundColorPortable;
+            schema.SecondaryBackgroundColorPortable = AltColorSchema.SecondaryBackgroundColorPortable;
+            schema.TertiaryBackgroundColorPortable = AltColorSchema.TertiaryBackgroundColorPortable;
+            schema.ButtonBackgroundColorPortable = AltColorSchema.ButtonBackgroundColorPortable;
+            schema.ButtonBackgroundSelectedColorPortable = AltColorSchema.ButtonBackgroundSelectedColorPortable;
+            schema.ButtonForegroundColorPortable = AltColorSchema.ButtonForegroundColorPortable;
+            schema.ButtonForegroundDisabledColorPortable = AltColorSchema.ButtonForegroundDisabledColorPortable;
+            schema.CrosshairColorPortable = AltColorSchema.CrosshairColorPortable;
+            schema.NotificationWarningColorPortable = AltColorSchema.NotificationWarningColorPortable;
+            schema.NotificationWarningTextColorPortable = AltColorSchema.NotificationWarningTextColorPortable;
+            schema.NotificationErrorColorPortable = AltColorSchema.NotificationErrorColorPortable;
+            schema.NotificationErrorTextColorPortable = AltColorSchema.NotificationErrorTextColorPortable;
+            schema.SequencerExpressionTextColorPortable = AltColorSchema.SequencerExpressionTextColorPortable;
             AltColorSchema = schema;
         }
     }

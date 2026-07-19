@@ -20,7 +20,9 @@ using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Threading;
+#if HAS_WPF
 using System.Windows;
+#endif
 using NINA.Core.Utility.Notification;
 using NINA.Core.Model;
 using NINA.Profile.Interfaces;
@@ -252,7 +254,9 @@ namespace NINA.Profile {
                 ActiveProfile.AstrometrySettings.HorizonFilePath = string.Empty;
                 ActiveProfile.AstrometrySettings.Horizon = null;
                 Logger.Error(ex);
+#if HAS_WPF
                 Notification.ShowError(Loc.Instance["LblFailedToLoadCustomHorizon"] + ex.Message);
+#endif
             }
 
             var eventHandler = HorizonChanged;
@@ -317,7 +321,9 @@ namespace NINA.Profile {
             get => activeProfile;
             private set {
                 activeProfile = value;
+#if HAS_WPF
                 Application.Current.Resources["ActiveProfile"] = activeProfile;
+#endif
                 RaisePropertyChanged();
             }
         }
@@ -463,6 +469,7 @@ namespace NINA.Profile {
             }
         }
 
+#if HAS_WPF
         public static System.Threading.Tasks.Task ActivateInstanceWatcher(
             IProfileService profileService,
             Window mainWindow
@@ -502,6 +509,7 @@ namespace NINA.Profile {
                     }
                 }, System.Threading.Tasks.TaskCreationOptions.LongRunning);
         }
+#endif
     }
 
     public class ProfileChangedEventArgs : EventArgs {

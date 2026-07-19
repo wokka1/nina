@@ -14,7 +14,9 @@
 
 using NINA.Core.Enum;
 using NINA.Core.Utility.ColorSchema;
+#if HAS_WPF
 using System.Windows.Media;
+#endif
 
 namespace NINA.Profile.Interfaces {
 
@@ -55,8 +57,10 @@ namespace NINA.Profile.Interfaces {
         double SkyGuardValueMaxDithering { get; set; }
         double SkyGuardTimeLapsDithering { get; set; }
         double SkyGuardTimeOutGuiding { get; set; }
+#if HAS_WPF
         Color GuideChartRightAscensionColor { get; set; }
         Color GuideChartDeclinationColor { get; set; }
+#endif
         PortableColor GuideChartRightAscensionColorPortable { get; }
         PortableColor GuideChartDeclinationColorPortable { get; }
         bool GuideChartShowCorrections { get; set; }

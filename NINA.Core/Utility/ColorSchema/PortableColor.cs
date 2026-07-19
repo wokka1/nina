@@ -39,5 +39,19 @@ namespace NINA.Core.Utility.ColorSchema {
         public override bool Equals(object obj) => obj is PortableColor other && this == other;
 
         public override int GetHashCode() => (A, R, G, B).GetHashCode();
+
+        /// <summary>
+        /// Parses an 8-digit AARRGGBB hex string (e.g. "#FF550C18") - the same format
+        /// used throughout this codebase's theme presets. Portable equivalent of
+        /// (Color)ColorConverter.ConvertFromString(hex) for this specific format.
+        /// </summary>
+        public static PortableColor FromHex(string hex) {
+            var s = hex.StartsWith("#") ? hex.Substring(1) : hex;
+            byte a = byte.Parse(s.Substring(0, 2), System.Globalization.NumberStyles.HexNumber);
+            byte r = byte.Parse(s.Substring(2, 2), System.Globalization.NumberStyles.HexNumber);
+            byte g = byte.Parse(s.Substring(4, 2), System.Globalization.NumberStyles.HexNumber);
+            byte b = byte.Parse(s.Substring(6, 2), System.Globalization.NumberStyles.HexNumber);
+            return new PortableColor(a, r, g, b);
+        }
     }
 }

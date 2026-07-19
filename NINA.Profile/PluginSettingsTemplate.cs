@@ -5,7 +5,9 @@ using System;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
 using System.Collections.Generic;
+#if HAS_WPF
 using System.Windows.Media;
+#endif
 using NINA.Core.Utility.ColorSchema;
 using NINA.Profile.Interfaces;
 using NINA.Core.Utility;
@@ -49,8 +51,10 @@ namespace NINA.Profile.Interfaces {
     }
 
     public interface IPluginOptionsAccessor {
+#if HAS_WPF
         Color GetValueColor(string name, Color defaultValue);
         void SetValueColor(string name, Color value);
+#endif
         PortableColor GetValuePortableColor(string name, PortableColor defaultValue);
         void SetValuePortableColor(string name, PortableColor value);
         T GetValueEnum<T>(string name, T value) where T : struct, Enum;
@@ -889,12 +893,14 @@ namespace NINA.Profile {
             return defaultValue;
         }
         
+#if HAS_WPF
         public Color GetValueColor(string name, Color defaultValue) {
             if (profileService.ActiveProfile.PluginSettings.TryGetValue(pluginGuid, name, out int result)) {
                 return IntToColor(result);
             }
             return defaultValue;
         }
+#endif
 
         public T GetValueEnum<T>(string name, T defaultValue) where T : struct, Enum {
             if (profileService.ActiveProfile.PluginSettings.TryGetValue(pluginGuid, name, out string resultString)) {
@@ -905,6 +911,7 @@ namespace NINA.Profile {
             return defaultValue;
         }
 
+#if HAS_WPF
         private static int ColorToInt(Color color) {
             return color.A << 24 | color.R << 16 | color.G << 8 | color.B;
         }
@@ -920,6 +927,7 @@ namespace NINA.Profile {
         public void SetValueColor(string name, Color value) {
             profileService.ActiveProfile.PluginSettings.SetValue(pluginGuid, name, ColorToInt(value));
         }
+#endif
 
         public PortableColor GetValuePortableColor(string name, PortableColor defaultValue) {
             if (profileService.ActiveProfile.PluginSettings.TryGetValue(pluginGuid, name, out int result)) {

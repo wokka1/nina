@@ -38,361 +38,354 @@ namespace NINA.Core.Utility.ColorSchema {
         [XmlElement("ColorSchema")]
         public List<ColorSchema> Items { get; set; }
 
-#if HAS_WPF
         public static ColorSchemas ReadColorSchemas() {
             ColorSchemas schemas = new ColorSchemas();
 
-            schemas.Items.Add(new ColorSchema() {
+            schemas.Items.Add(new ColorSchema {
                 Name = "Light",
-                PrimaryColor = (Color)ColorConverter.ConvertFromString("#FF000000"),
-                SecondaryColor = (Color)ColorConverter.ConvertFromString("#FF54748c"),
-                BorderColor = (Color)ColorConverter.ConvertFromString("#AABCBCBC"),
-                BackgroundColor = (Color)ColorConverter.ConvertFromString("#FFFFFFFF"),
-                SecondaryBackgroundColor = (Color)ColorConverter.ConvertFromString("#FF0d3956"),
-                TertiaryBackgroundColor = (Color)ColorConverter.ConvertFromString("#FF114f77"),
-                ButtonBackgroundColor = (Color)ColorConverter.ConvertFromString("#FF0B3C5D"),
-                ButtonBackgroundSelectedColor = (Color)ColorConverter.ConvertFromString("#FF2190DB"),
-                ButtonForegroundColor = (Color)ColorConverter.ConvertFromString("#FFFFFFFF"),
-                ButtonForegroundDisabledColor = (Color)ColorConverter.ConvertFromString("#FFc5d2db"),
-                CrosshairColor = (Color)ColorConverter.ConvertFromString("#FFc5d2db"),
-                NotificationWarningColor = (Color)ColorConverter.ConvertFromString("#FF5E330B"),
-                NotificationErrorColor = (Color)ColorConverter.ConvertFromString("#FF700000"),
-                NotificationWarningTextColor = (Color)ColorConverter.ConvertFromString("#FFFFFFFF"),
-                NotificationErrorTextColor = (Color)ColorConverter.ConvertFromString("#FFFFFFFF"),
-                SequencerExpressionTextColor = (Color)ColorConverter.ConvertFromString("#FF000000")
+                PrimaryColorPortable = PortableColor.FromHex("#FF000000"),
+                SecondaryColorPortable = PortableColor.FromHex("#FF54748c"),
+                BorderColorPortable = PortableColor.FromHex("#AABCBCBC"),
+                BackgroundColorPortable = PortableColor.FromHex("#FFFFFFFF"),
+                SecondaryBackgroundColorPortable = PortableColor.FromHex("#FF0d3956"),
+                TertiaryBackgroundColorPortable = PortableColor.FromHex("#FF114f77"),
+                ButtonBackgroundColorPortable = PortableColor.FromHex("#FF0B3C5D"),
+                ButtonBackgroundSelectedColorPortable = PortableColor.FromHex("#FF2190DB"),
+                ButtonForegroundColorPortable = PortableColor.FromHex("#FFFFFFFF"),
+                ButtonForegroundDisabledColorPortable = PortableColor.FromHex("#FFc5d2db"),
+                CrosshairColorPortable = PortableColor.FromHex("#FFc5d2db"),
+                NotificationWarningColorPortable = PortableColor.FromHex("#FF5E330B"),
+                NotificationErrorColorPortable = PortableColor.FromHex("#FF700000"),
+                NotificationWarningTextColorPortable = PortableColor.FromHex("#FFFFFFFF"),
+                NotificationErrorTextColorPortable = PortableColor.FromHex("#FFFFFFFF"),
+                SequencerExpressionTextColorPortable = PortableColor.FromHex("#FF000000")
             });
-            schemas.Items.Add(new ColorSchema() {
+            schemas.Items.Add(new ColorSchema {
                 Name = "Classic",
-                PrimaryColor = (Color)ColorConverter.ConvertFromString("#FF000000"),
-                SecondaryColor = (Color)ColorConverter.ConvertFromString("#FF54748c"),
-                BorderColor = (Color)ColorConverter.ConvertFromString("#FFADB2B5"),
-                BackgroundColor = (Color)ColorConverter.ConvertFromString("#FFFFFFFF"),
-                SecondaryBackgroundColor = (Color)ColorConverter.ConvertFromString("#FF4f4f4f"),
-                TertiaryBackgroundColor = (Color)ColorConverter.ConvertFromString("#FF707070"),
-                ButtonBackgroundColor = (Color)ColorConverter.ConvertFromString("#FFDDDDDD"),
-                ButtonBackgroundSelectedColor = (Color)ColorConverter.ConvertFromString("#FFb8e0f3"),
-                ButtonForegroundColor = (Color)ColorConverter.ConvertFromString("#FF000000"),
-                ButtonForegroundDisabledColor = (Color)ColorConverter.ConvertFromString("#FFF4F4F4"),
-                CrosshairColor = (Color)ColorConverter.ConvertFromString("#FFF4F4F4"),
-                NotificationWarningColor = (Color)ColorConverter.ConvertFromString("#FF5E330B"),
-                NotificationErrorColor = (Color)ColorConverter.ConvertFromString("#FF700000"),
-                NotificationWarningTextColor = (Color)ColorConverter.ConvertFromString("#FF000000"),
-                NotificationErrorTextColor = (Color)ColorConverter.ConvertFromString("#FF000000"),
-                SequencerExpressionTextColor = (Color)ColorConverter.ConvertFromString("#FF000000")
+                PrimaryColorPortable = PortableColor.FromHex("#FF000000"),
+                SecondaryColorPortable = PortableColor.FromHex("#FF54748c"),
+                BorderColorPortable = PortableColor.FromHex("#FFADB2B5"),
+                BackgroundColorPortable = PortableColor.FromHex("#FFFFFFFF"),
+                SecondaryBackgroundColorPortable = PortableColor.FromHex("#FF4f4f4f"),
+                TertiaryBackgroundColorPortable = PortableColor.FromHex("#FF707070"),
+                ButtonBackgroundColorPortable = PortableColor.FromHex("#FFDDDDDD"),
+                ButtonBackgroundSelectedColorPortable = PortableColor.FromHex("#FFb8e0f3"),
+                ButtonForegroundColorPortable = PortableColor.FromHex("#FF000000"),
+                ButtonForegroundDisabledColorPortable = PortableColor.FromHex("#FFF4F4F4"),
+                CrosshairColorPortable = PortableColor.FromHex("#FFF4F4F4"),
+                NotificationWarningColorPortable = PortableColor.FromHex("#FF5E330B"),
+                NotificationErrorColorPortable = PortableColor.FromHex("#FF700000"),
+                NotificationWarningTextColorPortable = PortableColor.FromHex("#FF000000"),
+                NotificationErrorTextColorPortable = PortableColor.FromHex("#FF000000"),
+                SequencerExpressionTextColorPortable = PortableColor.FromHex("#FF000000")
             });
-            schemas.Items.Add(new ColorSchema() {
+            schemas.Items.Add(new ColorSchema {
                 Name = "Dark",
-                PrimaryColor = (Color)ColorConverter.ConvertFromString("#FF550C18"),
-                SecondaryColor = (Color)ColorConverter.ConvertFromString("#FF1B2A41"),
-                BorderColor = (Color)ColorConverter.ConvertFromString("#FF550C18"),
-                BackgroundColor = (Color)ColorConverter.ConvertFromString("#FF02010A"),
-                SecondaryBackgroundColor = (Color)ColorConverter.ConvertFromString("#FF230409"),
-                TertiaryBackgroundColor = (Color)ColorConverter.ConvertFromString("#FF2d060d"),
-                ButtonBackgroundColor = (Color)ColorConverter.ConvertFromString("#FF550C18"),
-                ButtonBackgroundSelectedColor = (Color)ColorConverter.ConvertFromString("#FF96031A"),
-                ButtonForegroundColor = (Color)ColorConverter.ConvertFromString("#FF02010A"),
-                ButtonForegroundDisabledColor = (Color)ColorConverter.ConvertFromString("#FF443730"),
-                CrosshairColor = (Color)ColorConverter.ConvertFromString("#FF443730"),
-                NotificationWarningColor = (Color)ColorConverter.ConvertFromString("#FF5E330B"),
-                NotificationErrorColor = (Color)ColorConverter.ConvertFromString("#FF700000"),
-                NotificationWarningTextColor = (Color)ColorConverter.ConvertFromString("#FF02010A"),
-                NotificationErrorTextColor = (Color)ColorConverter.ConvertFromString("#FF02010A"),
-                SequencerExpressionTextColor = (Color)ColorConverter.ConvertFromString("#FF550C18")
+                PrimaryColorPortable = PortableColor.FromHex("#FF550C18"),
+                SecondaryColorPortable = PortableColor.FromHex("#FF1B2A41"),
+                BorderColorPortable = PortableColor.FromHex("#FF550C18"),
+                BackgroundColorPortable = PortableColor.FromHex("#FF02010A"),
+                SecondaryBackgroundColorPortable = PortableColor.FromHex("#FF230409"),
+                TertiaryBackgroundColorPortable = PortableColor.FromHex("#FF2d060d"),
+                ButtonBackgroundColorPortable = PortableColor.FromHex("#FF550C18"),
+                ButtonBackgroundSelectedColorPortable = PortableColor.FromHex("#FF96031A"),
+                ButtonForegroundColorPortable = PortableColor.FromHex("#FF02010A"),
+                ButtonForegroundDisabledColorPortable = PortableColor.FromHex("#FF443730"),
+                CrosshairColorPortable = PortableColor.FromHex("#FF443730"),
+                NotificationWarningColorPortable = PortableColor.FromHex("#FF5E330B"),
+                NotificationErrorColorPortable = PortableColor.FromHex("#FF700000"),
+                NotificationWarningTextColorPortable = PortableColor.FromHex("#FF02010A"),
+                NotificationErrorTextColorPortable = PortableColor.FromHex("#FF02010A"),
+                SequencerExpressionTextColorPortable = PortableColor.FromHex("#FF550C18")
             });
-            schemas.Items.Add(new ColorSchema() {
+            schemas.Items.Add(new ColorSchema {
                 Name = "Seance",
-                PrimaryColor = (Color)ColorConverter.ConvertFromString("#FF000000"),
-                SecondaryColor = (Color)ColorConverter.ConvertFromString("#FFBE90D4"),
-                BorderColor = (Color)ColorConverter.ConvertFromString("#AAAEA8D3"),
-                BackgroundColor = (Color)ColorConverter.ConvertFromString("#FFFFFFFF"),
-                SecondaryBackgroundColor = (Color)ColorConverter.ConvertFromString("#FF450d4f"),
-                TertiaryBackgroundColor = (Color)ColorConverter.ConvertFromString("#FF5d116b"),
-                ButtonBackgroundColor = (Color)ColorConverter.ConvertFromString("#FF663399"),
-                ButtonBackgroundSelectedColor = (Color)ColorConverter.ConvertFromString("#FF9A12B3"),
-                ButtonForegroundColor = (Color)ColorConverter.ConvertFromString("#FFFFFFFF"),
-                ButtonForegroundDisabledColor = (Color)ColorConverter.ConvertFromString("#FFaa69bc"),
-                CrosshairColor = (Color)ColorConverter.ConvertFromString("#FFaa69bc"),
-                NotificationWarningColor = (Color)ColorConverter.ConvertFromString("#FF5E330B"),
-                NotificationErrorColor = (Color)ColorConverter.ConvertFromString("#FF700000"),
-                NotificationWarningTextColor = (Color)ColorConverter.ConvertFromString("#FFFFFFFF"),
-                NotificationErrorTextColor = (Color)ColorConverter.ConvertFromString("#FFFFFFFF"),
-                SequencerExpressionTextColor = (Color)ColorConverter.ConvertFromString("#FF000000")
+                PrimaryColorPortable = PortableColor.FromHex("#FF000000"),
+                SecondaryColorPortable = PortableColor.FromHex("#FFBE90D4"),
+                BorderColorPortable = PortableColor.FromHex("#AAAEA8D3"),
+                BackgroundColorPortable = PortableColor.FromHex("#FFFFFFFF"),
+                SecondaryBackgroundColorPortable = PortableColor.FromHex("#FF450d4f"),
+                TertiaryBackgroundColorPortable = PortableColor.FromHex("#FF5d116b"),
+                ButtonBackgroundColorPortable = PortableColor.FromHex("#FF663399"),
+                ButtonBackgroundSelectedColorPortable = PortableColor.FromHex("#FF9A12B3"),
+                ButtonForegroundColorPortable = PortableColor.FromHex("#FFFFFFFF"),
+                ButtonForegroundDisabledColorPortable = PortableColor.FromHex("#FFaa69bc"),
+                CrosshairColorPortable = PortableColor.FromHex("#FFaa69bc"),
+                NotificationWarningColorPortable = PortableColor.FromHex("#FF5E330B"),
+                NotificationErrorColorPortable = PortableColor.FromHex("#FF700000"),
+                NotificationWarningTextColorPortable = PortableColor.FromHex("#FFFFFFFF"),
+                NotificationErrorTextColorPortable = PortableColor.FromHex("#FFFFFFFF"),
+                SequencerExpressionTextColorPortable = PortableColor.FromHex("#FF000000")
             });
-            schemas.Items.Add(new ColorSchema() {
+            schemas.Items.Add(new ColorSchema {
                 Name = "Persian",
-                PrimaryColor = (Color)ColorConverter.ConvertFromString("#FFECF0F1"),
-                SecondaryColor = (Color)ColorConverter.ConvertFromString("#FF9E9E9E"),
-                BorderColor = (Color)ColorConverter.ConvertFromString("#AABCBCBC"),
-                BackgroundColor = (Color)ColorConverter.ConvertFromString("#FF263238"),
-                SecondaryBackgroundColor = (Color)ColorConverter.ConvertFromString("#FF2a2c31"),
-                TertiaryBackgroundColor = (Color)ColorConverter.ConvertFromString("#FF2c3438"),
-                ButtonBackgroundColor = (Color)ColorConverter.ConvertFromString("#FF00796B"),
-                ButtonBackgroundSelectedColor = (Color)ColorConverter.ConvertFromString("#FF00A592"),
-                ButtonForegroundColor = (Color)ColorConverter.ConvertFromString("#FFFFFFFF"),
-                ButtonForegroundDisabledColor = (Color)ColorConverter.ConvertFromString("#FF9E9E9E"),
-                CrosshairColor = (Color)ColorConverter.ConvertFromString("#FF9E9E9E"),
-                NotificationWarningColor = (Color)ColorConverter.ConvertFromString("#FF5E330B"),
-                NotificationErrorColor = (Color)ColorConverter.ConvertFromString("#FF700000"),
-                NotificationWarningTextColor = (Color)ColorConverter.ConvertFromString("#FFECF0F1"),
-                NotificationErrorTextColor = (Color)ColorConverter.ConvertFromString("#FFECF0F1"),
-                SequencerExpressionTextColor = (Color)ColorConverter.ConvertFromString("#FFECF0F1")
+                PrimaryColorPortable = PortableColor.FromHex("#FFECF0F1"),
+                SecondaryColorPortable = PortableColor.FromHex("#FF9E9E9E"),
+                BorderColorPortable = PortableColor.FromHex("#AABCBCBC"),
+                BackgroundColorPortable = PortableColor.FromHex("#FF263238"),
+                SecondaryBackgroundColorPortable = PortableColor.FromHex("#FF2a2c31"),
+                TertiaryBackgroundColorPortable = PortableColor.FromHex("#FF2c3438"),
+                ButtonBackgroundColorPortable = PortableColor.FromHex("#FF00796B"),
+                ButtonBackgroundSelectedColorPortable = PortableColor.FromHex("#FF00A592"),
+                ButtonForegroundColorPortable = PortableColor.FromHex("#FFFFFFFF"),
+                ButtonForegroundDisabledColorPortable = PortableColor.FromHex("#FF9E9E9E"),
+                CrosshairColorPortable = PortableColor.FromHex("#FF9E9E9E"),
+                NotificationWarningColorPortable = PortableColor.FromHex("#FF5E330B"),
+                NotificationErrorColorPortable = PortableColor.FromHex("#FF700000"),
+                NotificationWarningTextColorPortable = PortableColor.FromHex("#FFECF0F1"),
+                NotificationErrorTextColorPortable = PortableColor.FromHex("#FFECF0F1"),
+                SequencerExpressionTextColorPortable = PortableColor.FromHex("#FFECF0F1")
             });
-            schemas.Items.Add(new ColorSchema() {
+            schemas.Items.Add(new ColorSchema {
                 Name = "Persian Faint",
-                PrimaryColor = (Color)ColorConverter.ConvertFromString("#FFBDC3C7"),
-                SecondaryColor = (Color)ColorConverter.ConvertFromString("#FF1D2731"),
-                BorderColor = (Color)ColorConverter.ConvertFromString("#AA3F4141"),
-                BackgroundColor = (Color)ColorConverter.ConvertFromString("#FF263238"),
-                SecondaryBackgroundColor = (Color)ColorConverter.ConvertFromString("#FF2a2c31"),
-                TertiaryBackgroundColor = (Color)ColorConverter.ConvertFromString("#FF2c3438"),
-                ButtonBackgroundColor = (Color)ColorConverter.ConvertFromString("#FF007063"),
-                ButtonBackgroundSelectedColor = (Color)ColorConverter.ConvertFromString("#FF00BCA6"),
-                ButtonForegroundColor = (Color)ColorConverter.ConvertFromString("#FFFFFFFF"),
-                ButtonForegroundDisabledColor = (Color)ColorConverter.ConvertFromString("#FF9E9E9E"),
-                CrosshairColor = (Color)ColorConverter.ConvertFromString("#FF9E9E9E"),
-                NotificationWarningColor = (Color)ColorConverter.ConvertFromString("#FF5E330B"),
-                NotificationErrorColor = (Color)ColorConverter.ConvertFromString("#FF700000"),
-                NotificationWarningTextColor = (Color)ColorConverter.ConvertFromString("#FFBDC3C7"),
-                NotificationErrorTextColor = (Color)ColorConverter.ConvertFromString("#FFBDC3C7"),
-                SequencerExpressionTextColor = (Color)ColorConverter.ConvertFromString("#FFBDC3C7")
+                PrimaryColorPortable = PortableColor.FromHex("#FFBDC3C7"),
+                SecondaryColorPortable = PortableColor.FromHex("#FF1D2731"),
+                BorderColorPortable = PortableColor.FromHex("#AA3F4141"),
+                BackgroundColorPortable = PortableColor.FromHex("#FF263238"),
+                SecondaryBackgroundColorPortable = PortableColor.FromHex("#FF2a2c31"),
+                TertiaryBackgroundColorPortable = PortableColor.FromHex("#FF2c3438"),
+                ButtonBackgroundColorPortable = PortableColor.FromHex("#FF007063"),
+                ButtonBackgroundSelectedColorPortable = PortableColor.FromHex("#FF00BCA6"),
+                ButtonForegroundColorPortable = PortableColor.FromHex("#FFFFFFFF"),
+                ButtonForegroundDisabledColorPortable = PortableColor.FromHex("#FF9E9E9E"),
+                CrosshairColorPortable = PortableColor.FromHex("#FF9E9E9E"),
+                NotificationWarningColorPortable = PortableColor.FromHex("#FF5E330B"),
+                NotificationErrorColorPortable = PortableColor.FromHex("#FF700000"),
+                NotificationWarningTextColorPortable = PortableColor.FromHex("#FFBDC3C7"),
+                NotificationErrorTextColorPortable = PortableColor.FromHex("#FFBDC3C7"),
+                SequencerExpressionTextColorPortable = PortableColor.FromHex("#FFBDC3C7")
             });
-            schemas.Items.Add(new ColorSchema() {
+            schemas.Items.Add(new ColorSchema {
                 Name = "High Contrast",
-                PrimaryColor = (Color)ColorConverter.ConvertFromString("#FFFFFFFF"),
-                SecondaryColor = (Color)ColorConverter.ConvertFromString("#FF00b7b1"),
-                BorderColor = (Color)ColorConverter.ConvertFromString("#FFFF9900"),
-                BackgroundColor = (Color)ColorConverter.ConvertFromString("#FF000000"),
-                SecondaryBackgroundColor = (Color)ColorConverter.ConvertFromString("#FF2F090D"),
-                TertiaryBackgroundColor = (Color)ColorConverter.ConvertFromString("#FF191919"),
-                ButtonBackgroundColor = (Color)ColorConverter.ConvertFromString("#FFFF0000"),
-                ButtonBackgroundSelectedColor = (Color)ColorConverter.ConvertFromString("#FF00b7b1"),
-                ButtonForegroundColor = (Color)ColorConverter.ConvertFromString("#FFFFFFFF"),
-                ButtonForegroundDisabledColor = (Color)ColorConverter.ConvertFromString("#FF7f7f7f"),
-                CrosshairColor = (Color)ColorConverter.ConvertFromString("#FF7f7f7f"),
-                NotificationWarningColor = (Color)ColorConverter.ConvertFromString("#FF5E330B"),
-                NotificationErrorColor = (Color)ColorConverter.ConvertFromString("#FF700000"),
-                NotificationWarningTextColor = (Color)ColorConverter.ConvertFromString("#FFFFFFFF"),
-                NotificationErrorTextColor = (Color)ColorConverter.ConvertFromString("#FFFFFFFF"),
-                SequencerExpressionTextColor = (Color)ColorConverter.ConvertFromString("#FFFFFFFF")
+                PrimaryColorPortable = PortableColor.FromHex("#FFFFFFFF"),
+                SecondaryColorPortable = PortableColor.FromHex("#FF00b7b1"),
+                BorderColorPortable = PortableColor.FromHex("#FFFF9900"),
+                BackgroundColorPortable = PortableColor.FromHex("#FF000000"),
+                SecondaryBackgroundColorPortable = PortableColor.FromHex("#FF2F090D"),
+                TertiaryBackgroundColorPortable = PortableColor.FromHex("#FF191919"),
+                ButtonBackgroundColorPortable = PortableColor.FromHex("#FFFF0000"),
+                ButtonBackgroundSelectedColorPortable = PortableColor.FromHex("#FF00b7b1"),
+                ButtonForegroundColorPortable = PortableColor.FromHex("#FFFFFFFF"),
+                ButtonForegroundDisabledColorPortable = PortableColor.FromHex("#FF7f7f7f"),
+                CrosshairColorPortable = PortableColor.FromHex("#FF7f7f7f"),
+                NotificationWarningColorPortable = PortableColor.FromHex("#FF5E330B"),
+                NotificationErrorColorPortable = PortableColor.FromHex("#FF700000"),
+                NotificationWarningTextColorPortable = PortableColor.FromHex("#FFFFFFFF"),
+                NotificationErrorTextColorPortable = PortableColor.FromHex("#FFFFFFFF"),
+                SequencerExpressionTextColorPortable = PortableColor.FromHex("#FFFFFFFF")
             });
-            schemas.Items.Add(new ColorSchema() {
+            schemas.Items.Add(new ColorSchema {
                 Name = "Black Coral",
-                PrimaryColor = (Color)ColorConverter.ConvertFromString("#FFDEDEE8"),
-                SecondaryColor = (Color)ColorConverter.ConvertFromString("#FF592941"),
-                BorderColor = (Color)ColorConverter.ConvertFromString("#FF656F87"),
-                BackgroundColor = (Color)ColorConverter.ConvertFromString("#FF545E75"),
-                SecondaryBackgroundColor = (Color)ColorConverter.ConvertFromString("#FF393f4c"),
-                TertiaryBackgroundColor = (Color)ColorConverter.ConvertFromString("#FF4a5368"),
-                ButtonBackgroundColor = (Color)ColorConverter.ConvertFromString("#FF99261a"),
-                ButtonBackgroundSelectedColor = (Color)ColorConverter.ConvertFromString("#FFe5a859"),
-                ButtonForegroundColor = (Color)ColorConverter.ConvertFromString("#FFF7F7FF"),
-                ButtonForegroundDisabledColor = (Color)ColorConverter.ConvertFromString("#FF9E9E9E"),
-                CrosshairColor = (Color)ColorConverter.ConvertFromString("#FF9E9E9E"),
-                NotificationWarningColor = (Color)ColorConverter.ConvertFromString("#FF5E330B"),
-                NotificationErrorColor = (Color)ColorConverter.ConvertFromString("#FF700000"),
-                NotificationWarningTextColor = (Color)ColorConverter.ConvertFromString("#FFF7F7FF"),
-                NotificationErrorTextColor = (Color)ColorConverter.ConvertFromString("#FFF7F7FF"),
-                SequencerExpressionTextColor = (Color)ColorConverter.ConvertFromString("#FFDEDEE8")
+                PrimaryColorPortable = PortableColor.FromHex("#FFDEDEE8"),
+                SecondaryColorPortable = PortableColor.FromHex("#FF592941"),
+                BorderColorPortable = PortableColor.FromHex("#FF656F87"),
+                BackgroundColorPortable = PortableColor.FromHex("#FF545E75"),
+                SecondaryBackgroundColorPortable = PortableColor.FromHex("#FF393f4c"),
+                TertiaryBackgroundColorPortable = PortableColor.FromHex("#FF4a5368"),
+                ButtonBackgroundColorPortable = PortableColor.FromHex("#FF99261a"),
+                ButtonBackgroundSelectedColorPortable = PortableColor.FromHex("#FFe5a859"),
+                ButtonForegroundColorPortable = PortableColor.FromHex("#FFF7F7FF"),
+                ButtonForegroundDisabledColorPortable = PortableColor.FromHex("#FF9E9E9E"),
+                CrosshairColorPortable = PortableColor.FromHex("#FF9E9E9E"),
+                NotificationWarningColorPortable = PortableColor.FromHex("#FF5E330B"),
+                NotificationErrorColorPortable = PortableColor.FromHex("#FF700000"),
+                NotificationWarningTextColorPortable = PortableColor.FromHex("#FFF7F7FF"),
+                NotificationErrorTextColorPortable = PortableColor.FromHex("#FFF7F7FF"),
+                SequencerExpressionTextColorPortable = PortableColor.FromHex("#FFDEDEE8")
             });
-            schemas.Items.Add(new ColorSchema() {
+            schemas.Items.Add(new ColorSchema {
                 Name = "Arsenic",
-                PrimaryColor = (Color)ColorConverter.ConvertFromString("#FFFFFFFF"),
-                SecondaryColor = (Color)ColorConverter.ConvertFromString("#FF82A3A1"),
-                BorderColor = (Color)ColorConverter.ConvertFromString("#AA495963"),
-                BackgroundColor = (Color)ColorConverter.ConvertFromString("#FF394648"),
-                SecondaryBackgroundColor = (Color)ColorConverter.ConvertFromString("#FF2a2c31"),
-                TertiaryBackgroundColor = (Color)ColorConverter.ConvertFromString("#FF30393a"),
-                ButtonBackgroundColor = (Color)ColorConverter.ConvertFromString("#FF406A79"),
-                ButtonBackgroundSelectedColor = (Color)ColorConverter.ConvertFromString("#FF64A6BD"),
-                ButtonForegroundColor = (Color)ColorConverter.ConvertFromString("#FFF8E9E9"),
-                ButtonForegroundDisabledColor = (Color)ColorConverter.ConvertFromString("#FF696D7D"),
-                CrosshairColor = (Color)ColorConverter.ConvertFromString("#FF696D7D"),
-                NotificationWarningColor = (Color)ColorConverter.ConvertFromString("#FF5E330B"),
-                NotificationErrorColor = (Color)ColorConverter.ConvertFromString("#FF700000"),
-                NotificationWarningTextColor = (Color)ColorConverter.ConvertFromString("#FFF8E9E9"),
-                NotificationErrorTextColor = (Color)ColorConverter.ConvertFromString("#FFF8E9E9"),
-                SequencerExpressionTextColor = (Color)ColorConverter.ConvertFromString("#FFFFFFFF")
+                PrimaryColorPortable = PortableColor.FromHex("#FFFFFFFF"),
+                SecondaryColorPortable = PortableColor.FromHex("#FF82A3A1"),
+                BorderColorPortable = PortableColor.FromHex("#AA495963"),
+                BackgroundColorPortable = PortableColor.FromHex("#FF394648"),
+                SecondaryBackgroundColorPortable = PortableColor.FromHex("#FF2a2c31"),
+                TertiaryBackgroundColorPortable = PortableColor.FromHex("#FF30393a"),
+                ButtonBackgroundColorPortable = PortableColor.FromHex("#FF406A79"),
+                ButtonBackgroundSelectedColorPortable = PortableColor.FromHex("#FF64A6BD"),
+                ButtonForegroundColorPortable = PortableColor.FromHex("#FFF8E9E9"),
+                ButtonForegroundDisabledColorPortable = PortableColor.FromHex("#FF696D7D"),
+                CrosshairColorPortable = PortableColor.FromHex("#FF696D7D"),
+                NotificationWarningColorPortable = PortableColor.FromHex("#FF5E330B"),
+                NotificationErrorColorPortable = PortableColor.FromHex("#FF700000"),
+                NotificationWarningTextColorPortable = PortableColor.FromHex("#FFF8E9E9"),
+                NotificationErrorTextColorPortable = PortableColor.FromHex("#FFF8E9E9"),
+                SequencerExpressionTextColorPortable = PortableColor.FromHex("#FFFFFFFF")
             });
-            schemas.Items.Add(new ColorSchema() {
+            schemas.Items.Add(new ColorSchema {
                 Name = "Vivid Malachite",
-                PrimaryColor = (Color)ColorConverter.ConvertFromString("#FFECF0F1"),
-                SecondaryColor = (Color)ColorConverter.ConvertFromString("#FF1b3325"),
-                BorderColor = (Color)ColorConverter.ConvertFromString("#FF285238"),
-                BackgroundColor = (Color)ColorConverter.ConvertFromString("#FF34403A"),
-                SecondaryBackgroundColor = (Color)ColorConverter.ConvertFromString("#FF2a352f"),
-                TertiaryBackgroundColor = (Color)ColorConverter.ConvertFromString("#FF415148"),
-                ButtonBackgroundColor = (Color)ColorConverter.ConvertFromString("#FF138A36"),
-                ButtonBackgroundSelectedColor = (Color)ColorConverter.ConvertFromString("#FF04E824"),
-                ButtonForegroundColor = (Color)ColorConverter.ConvertFromString("#FFFFFFFF"),
-                ButtonForegroundDisabledColor = (Color)ColorConverter.ConvertFromString("#FF9E9E9E"),
-                CrosshairColor = (Color)ColorConverter.ConvertFromString("#FF9E9E9E"),
-                NotificationWarningColor = (Color)ColorConverter.ConvertFromString("#FF5E330B"),
-                NotificationErrorColor = (Color)ColorConverter.ConvertFromString("#FF700000"),
-                NotificationWarningTextColor = (Color)ColorConverter.ConvertFromString("#FFBDC3C7"),
-                NotificationErrorTextColor = (Color)ColorConverter.ConvertFromString("#FFBDC3C7"),
-                SequencerExpressionTextColor = (Color)ColorConverter.ConvertFromString("#FFECF0F1")
+                PrimaryColorPortable = PortableColor.FromHex("#FFECF0F1"),
+                SecondaryColorPortable = PortableColor.FromHex("#FF1b3325"),
+                BorderColorPortable = PortableColor.FromHex("#FF285238"),
+                BackgroundColorPortable = PortableColor.FromHex("#FF34403A"),
+                SecondaryBackgroundColorPortable = PortableColor.FromHex("#FF2a352f"),
+                TertiaryBackgroundColorPortable = PortableColor.FromHex("#FF415148"),
+                ButtonBackgroundColorPortable = PortableColor.FromHex("#FF138A36"),
+                ButtonBackgroundSelectedColorPortable = PortableColor.FromHex("#FF04E824"),
+                ButtonForegroundColorPortable = PortableColor.FromHex("#FFFFFFFF"),
+                ButtonForegroundDisabledColorPortable = PortableColor.FromHex("#FF9E9E9E"),
+                CrosshairColorPortable = PortableColor.FromHex("#FF9E9E9E"),
+                NotificationWarningColorPortable = PortableColor.FromHex("#FF5E330B"),
+                NotificationErrorColorPortable = PortableColor.FromHex("#FF700000"),
+                NotificationWarningTextColorPortable = PortableColor.FromHex("#FFBDC3C7"),
+                NotificationErrorTextColorPortable = PortableColor.FromHex("#FFBDC3C7"),
+                SequencerExpressionTextColorPortable = PortableColor.FromHex("#FFECF0F1")
             });
-            schemas.Items.Add(new ColorSchema() {
+            schemas.Items.Add(new ColorSchema {
                 Name = "Shark",
-                PrimaryColor = (Color)ColorConverter.ConvertFromString("#FFEDEDED"),
-                SecondaryColor = (Color)ColorConverter.ConvertFromString("#FFA9AAAC"),
-                BorderColor = (Color)ColorConverter.ConvertFromString("#AA3E4146"),
-                BackgroundColor = (Color)ColorConverter.ConvertFromString("#FF36393E"),
-                SecondaryBackgroundColor = (Color)ColorConverter.ConvertFromString("#FF202225"),
-                TertiaryBackgroundColor = (Color)ColorConverter.ConvertFromString("#FF404144"),
-                ButtonBackgroundColor = (Color)ColorConverter.ConvertFromString("#FF2a2c31"),
-                ButtonBackgroundSelectedColor = (Color)ColorConverter.ConvertFromString("#FF24252A"),
-                ButtonForegroundColor = (Color)ColorConverter.ConvertFromString("#FFFFFFFF"),
-                ButtonForegroundDisabledColor = (Color)ColorConverter.ConvertFromString("#FF848484"),
-                CrosshairColor = (Color)ColorConverter.ConvertFromString("#FF848484"),
-                NotificationWarningColor = (Color)ColorConverter.ConvertFromString("#FF5E330B"),
-                NotificationErrorColor = (Color)ColorConverter.ConvertFromString("#FF700000"),
-                NotificationWarningTextColor = (Color)ColorConverter.ConvertFromString("#FFA9AAAC"),
-                NotificationErrorTextColor = (Color)ColorConverter.ConvertFromString("#FFA9AAAC"),
-                SequencerExpressionTextColor = (Color)ColorConverter.ConvertFromString("#FFEDEDED")
+                PrimaryColorPortable = PortableColor.FromHex("#FFEDEDED"),
+                SecondaryColorPortable = PortableColor.FromHex("#FFA9AAAC"),
+                BorderColorPortable = PortableColor.FromHex("#AA3E4146"),
+                BackgroundColorPortable = PortableColor.FromHex("#FF36393E"),
+                SecondaryBackgroundColorPortable = PortableColor.FromHex("#FF202225"),
+                TertiaryBackgroundColorPortable = PortableColor.FromHex("#FF404144"),
+                ButtonBackgroundColorPortable = PortableColor.FromHex("#FF2a2c31"),
+                ButtonBackgroundSelectedColorPortable = PortableColor.FromHex("#FF24252A"),
+                ButtonForegroundColorPortable = PortableColor.FromHex("#FFFFFFFF"),
+                ButtonForegroundDisabledColorPortable = PortableColor.FromHex("#FF848484"),
+                CrosshairColorPortable = PortableColor.FromHex("#FF848484"),
+                NotificationWarningColorPortable = PortableColor.FromHex("#FF5E330B"),
+                NotificationErrorColorPortable = PortableColor.FromHex("#FF700000"),
+                NotificationWarningTextColorPortable = PortableColor.FromHex("#FFA9AAAC"),
+                NotificationErrorTextColorPortable = PortableColor.FromHex("#FFA9AAAC"),
+                SequencerExpressionTextColorPortable = PortableColor.FromHex("#FFEDEDED")
             });
-            schemas.Items.Add(new ColorSchema() {
+            schemas.Items.Add(new ColorSchema {
                 Name = "Slate",
-                PrimaryColor = (Color)ColorConverter.ConvertFromString("#FFB0B3B9"),
-                SecondaryColor = (Color)ColorConverter.ConvertFromString("#FF32555E"),
-                BorderColor = (Color)ColorConverter.ConvertFromString("#FF3F4141"),
-                BackgroundColor = (Color)ColorConverter.ConvertFromString("#FF1E2129"),
-                SecondaryBackgroundColor = (Color)ColorConverter.ConvertFromString("#FF14151A"),
-                TertiaryBackgroundColor = (Color)ColorConverter.ConvertFromString("#FF2C2F38"),
-                ButtonBackgroundColor = (Color)ColorConverter.ConvertFromString("#FF163647"),
-                ButtonBackgroundSelectedColor = (Color)ColorConverter.ConvertFromString("#FF32555E"),
-                ButtonForegroundColor = (Color)ColorConverter.ConvertFromString("#FFFFFFFF"),
-                ButtonForegroundDisabledColor = (Color)ColorConverter.ConvertFromString("#FF9E9E9E"),
-                CrosshairColor = (Color)ColorConverter.ConvertFromString("#FF9E9E9E"),
-                NotificationWarningColor = (Color)ColorConverter.ConvertFromString("#FF5E330B"),
-                NotificationErrorColor = (Color)ColorConverter.ConvertFromString("#FF700000"),
-                NotificationWarningTextColor = (Color)ColorConverter.ConvertFromString("#FFBDC3C7"),
-                NotificationErrorTextColor = (Color)ColorConverter.ConvertFromString("#FFBDC3C7"),
-                SequencerExpressionTextColor = (Color)ColorConverter.ConvertFromString("#FFB0B3B9")
+                PrimaryColorPortable = PortableColor.FromHex("#FFB0B3B9"),
+                SecondaryColorPortable = PortableColor.FromHex("#FF32555E"),
+                BorderColorPortable = PortableColor.FromHex("#FF3F4141"),
+                BackgroundColorPortable = PortableColor.FromHex("#FF1E2129"),
+                SecondaryBackgroundColorPortable = PortableColor.FromHex("#FF14151A"),
+                TertiaryBackgroundColorPortable = PortableColor.FromHex("#FF2C2F38"),
+                ButtonBackgroundColorPortable = PortableColor.FromHex("#FF163647"),
+                ButtonBackgroundSelectedColorPortable = PortableColor.FromHex("#FF32555E"),
+                ButtonForegroundColorPortable = PortableColor.FromHex("#FFFFFFFF"),
+                ButtonForegroundDisabledColorPortable = PortableColor.FromHex("#FF9E9E9E"),
+                CrosshairColorPortable = PortableColor.FromHex("#FF9E9E9E"),
+                NotificationWarningColorPortable = PortableColor.FromHex("#FF5E330B"),
+                NotificationErrorColorPortable = PortableColor.FromHex("#FF700000"),
+                NotificationWarningTextColorPortable = PortableColor.FromHex("#FFBDC3C7"),
+                NotificationErrorTextColorPortable = PortableColor.FromHex("#FFBDC3C7"),
+                SequencerExpressionTextColorPortable = PortableColor.FromHex("#FFB0B3B9")
             });
-            schemas.Items.Add(new ColorSchema() {
+            schemas.Items.Add(new ColorSchema {
                 Name = "Wisteria",
-                PrimaryColor = (Color)ColorConverter.ConvertFromString("#FFECF0F1"),
-                SecondaryColor = (Color)ColorConverter.ConvertFromString("#FF6644AD"),
-                BorderColor = (Color)ColorConverter.ConvertFromString("#AA3F4141"),
-                BackgroundColor = (Color)ColorConverter.ConvertFromString("#FF2D0D25"),
-                SecondaryBackgroundColor = (Color)ColorConverter.ConvertFromString("#FF230d1e"),
-                TertiaryBackgroundColor = (Color)ColorConverter.ConvertFromString("#FF3d1433"),
-                ButtonBackgroundColor = (Color)ColorConverter.ConvertFromString("#FF8E44AD"),
-                ButtonBackgroundSelectedColor = (Color)ColorConverter.ConvertFromString("#FF9B59B6"),
-                ButtonForegroundColor = (Color)ColorConverter.ConvertFromString("#FFECF0F1"),
-                ButtonForegroundDisabledColor = (Color)ColorConverter.ConvertFromString("#FFa866c4"),
-                CrosshairColor = (Color)ColorConverter.ConvertFromString("#FFa866c4"),
-                NotificationWarningColor = (Color)ColorConverter.ConvertFromString("#FF5E330B"),
-                NotificationErrorColor = (Color)ColorConverter.ConvertFromString("#FF700000"),
-                NotificationWarningTextColor = (Color)ColorConverter.ConvertFromString("#FFECF0F1"),
-                NotificationErrorTextColor = (Color)ColorConverter.ConvertFromString("#FFECF0F1"),
-                SequencerExpressionTextColor = (Color)ColorConverter.ConvertFromString("#FFECF0F1")
+                PrimaryColorPortable = PortableColor.FromHex("#FFECF0F1"),
+                SecondaryColorPortable = PortableColor.FromHex("#FF6644AD"),
+                BorderColorPortable = PortableColor.FromHex("#AA3F4141"),
+                BackgroundColorPortable = PortableColor.FromHex("#FF2D0D25"),
+                SecondaryBackgroundColorPortable = PortableColor.FromHex("#FF230d1e"),
+                TertiaryBackgroundColorPortable = PortableColor.FromHex("#FF3d1433"),
+                ButtonBackgroundColorPortable = PortableColor.FromHex("#FF8E44AD"),
+                ButtonBackgroundSelectedColorPortable = PortableColor.FromHex("#FF9B59B6"),
+                ButtonForegroundColorPortable = PortableColor.FromHex("#FFECF0F1"),
+                ButtonForegroundDisabledColorPortable = PortableColor.FromHex("#FFa866c4"),
+                CrosshairColorPortable = PortableColor.FromHex("#FFa866c4"),
+                NotificationWarningColorPortable = PortableColor.FromHex("#FF5E330B"),
+                NotificationErrorColorPortable = PortableColor.FromHex("#FF700000"),
+                NotificationWarningTextColorPortable = PortableColor.FromHex("#FFECF0F1"),
+                NotificationErrorTextColorPortable = PortableColor.FromHex("#FFECF0F1"),
+                SequencerExpressionTextColorPortable = PortableColor.FromHex("#FFECF0F1")
             });
-            schemas.Items.Add(new ColorSchema() {
+            schemas.Items.Add(new ColorSchema {
                 Name = "Navy",
-                PrimaryColor = (Color)ColorConverter.ConvertFromString("#FF6FC3DF"),
-                SecondaryColor = (Color)ColorConverter.ConvertFromString("#FFE93B19"),
-                BorderColor = (Color)ColorConverter.ConvertFromString("#AA1F3B53"),
-                BackgroundColor = (Color)ColorConverter.ConvertFromString("#FF0C141F"),
-                SecondaryBackgroundColor = (Color)ColorConverter.ConvertFromString("#FF10233d"),
-                TertiaryBackgroundColor = (Color)ColorConverter.ConvertFromString("#FF0f2138"),
-                ButtonBackgroundColor = (Color)ColorConverter.ConvertFromString("#FF1C314F"),
-                ButtonBackgroundSelectedColor = (Color)ColorConverter.ConvertFromString("#FF488093"),
-                ButtonForegroundColor = (Color)ColorConverter.ConvertFromString("#FFBFEEFF"),
-                ButtonForegroundDisabledColor = (Color)ColorConverter.ConvertFromString("#FF3a5168"),
-                CrosshairColor = (Color)ColorConverter.ConvertFromString("#FF3a5168"),
-                NotificationWarningColor = (Color)ColorConverter.ConvertFromString("#FFE93B19"),
-                NotificationErrorColor = (Color)ColorConverter.ConvertFromString("#FFDB0606"),
-                NotificationWarningTextColor = (Color)ColorConverter.ConvertFromString("#FF6FC3DF"),
-                NotificationErrorTextColor = (Color)ColorConverter.ConvertFromString("#FF6FC3DF"),
-                SequencerExpressionTextColor = (Color)ColorConverter.ConvertFromString("#FF6FC3DF")
+                PrimaryColorPortable = PortableColor.FromHex("#FF6FC3DF"),
+                SecondaryColorPortable = PortableColor.FromHex("#FFE93B19"),
+                BorderColorPortable = PortableColor.FromHex("#AA1F3B53"),
+                BackgroundColorPortable = PortableColor.FromHex("#FF0C141F"),
+                SecondaryBackgroundColorPortable = PortableColor.FromHex("#FF10233d"),
+                TertiaryBackgroundColorPortable = PortableColor.FromHex("#FF0f2138"),
+                ButtonBackgroundColorPortable = PortableColor.FromHex("#FF1C314F"),
+                ButtonBackgroundSelectedColorPortable = PortableColor.FromHex("#FF488093"),
+                ButtonForegroundColorPortable = PortableColor.FromHex("#FFBFEEFF"),
+                ButtonForegroundDisabledColorPortable = PortableColor.FromHex("#FF3a5168"),
+                CrosshairColorPortable = PortableColor.FromHex("#FF3a5168"),
+                NotificationWarningColorPortable = PortableColor.FromHex("#FFE93B19"),
+                NotificationErrorColorPortable = PortableColor.FromHex("#FFDB0606"),
+                NotificationWarningTextColorPortable = PortableColor.FromHex("#FF6FC3DF"),
+                NotificationErrorTextColorPortable = PortableColor.FromHex("#FF6FC3DF"),
+                SequencerExpressionTextColorPortable = PortableColor.FromHex("#FF6FC3DF")
             });
-            schemas.Items.Add(new ColorSchema() {
+            schemas.Items.Add(new ColorSchema {
                 Name = "Dark Nebula",
-                PrimaryColor = (Color)ColorConverter.ConvertFromString("#FFF5F4FA"),
-                SecondaryColor = (Color)ColorConverter.ConvertFromString("#68808080"),
-                BorderColor = (Color)ColorConverter.ConvertFromString("#AA3E4146"),
-                BackgroundColor = (Color)ColorConverter.ConvertFromString("#E1191A1C"),
-                SecondaryBackgroundColor = (Color)ColorConverter.ConvertFromString("#FF1E2024"),
-                TertiaryBackgroundColor = (Color)ColorConverter.ConvertFromString("#FF404144"),
-                ButtonBackgroundColor = (Color)ColorConverter.ConvertFromString("#FF34373D"),
-                ButtonBackgroundSelectedColor = (Color)ColorConverter.ConvertFromString("#FF696C70"),
-                ButtonForegroundColor = (Color)ColorConverter.ConvertFromString("#FF6495ED"),
-                ButtonForegroundDisabledColor = (Color)ColorConverter.ConvertFromString("#FF848484"),
-                CrosshairColor = (Color)ColorConverter.ConvertFromString("#FF848484"),
-                NotificationWarningColor = (Color)ColorConverter.ConvertFromString("#FFBA5E07"),
-                NotificationErrorColor = (Color)ColorConverter.ConvertFromString("#FF700000"),
-                NotificationWarningTextColor = (Color)ColorConverter.ConvertFromString("#FFF0F8FF"),
-                NotificationErrorTextColor = (Color)ColorConverter.ConvertFromString("#FFF0F8FF"),
-                SequencerExpressionTextColor = (Color)ColorConverter.ConvertFromString("#FFF5F4FA")
+                PrimaryColorPortable = PortableColor.FromHex("#FFF5F4FA"),
+                SecondaryColorPortable = PortableColor.FromHex("#68808080"),
+                BorderColorPortable = PortableColor.FromHex("#AA3E4146"),
+                BackgroundColorPortable = PortableColor.FromHex("#E1191A1C"),
+                SecondaryBackgroundColorPortable = PortableColor.FromHex("#FF1E2024"),
+                TertiaryBackgroundColorPortable = PortableColor.FromHex("#FF404144"),
+                ButtonBackgroundColorPortable = PortableColor.FromHex("#FF34373D"),
+                ButtonBackgroundSelectedColorPortable = PortableColor.FromHex("#FF696C70"),
+                ButtonForegroundColorPortable = PortableColor.FromHex("#FF6495ED"),
+                ButtonForegroundDisabledColorPortable = PortableColor.FromHex("#FF848484"),
+                CrosshairColorPortable = PortableColor.FromHex("#FF848484"),
+                NotificationWarningColorPortable = PortableColor.FromHex("#FFBA5E07"),
+                NotificationErrorColorPortable = PortableColor.FromHex("#FF700000"),
+                NotificationWarningTextColorPortable = PortableColor.FromHex("#FFF0F8FF"),
+                NotificationErrorTextColorPortable = PortableColor.FromHex("#FFF0F8FF"),
+                SequencerExpressionTextColorPortable = PortableColor.FromHex("#FFF5F4FA")
             });
-            schemas.Items.Add(new ColorSchema() {
+            schemas.Items.Add(new ColorSchema {
                 Name = "Dichromacy",
-                PrimaryColor = (Color)ColorConverter.ConvertFromString("#FFEAF430"),
-                SecondaryColor = (Color)ColorConverter.ConvertFromString("#FF808080"),
-                BorderColor = (Color)ColorConverter.ConvertFromString("#FF3E4146"),
-                BackgroundColor = (Color)ColorConverter.ConvertFromString("#FF191A1C"),
-                SecondaryBackgroundColor = (Color)ColorConverter.ConvertFromString("#FF000000"),
-                TertiaryBackgroundColor = (Color)ColorConverter.ConvertFromString("#FF404144"),
-                ButtonBackgroundColor = (Color)ColorConverter.ConvertFromString("#FF34373D"),
-                ButtonBackgroundSelectedColor = (Color)ColorConverter.ConvertFromString("#FF106CE6"),
-                ButtonForegroundColor = (Color)ColorConverter.ConvertFromString("#FFEAF430"),
-                ButtonForegroundDisabledColor = (Color)ColorConverter.ConvertFromString("#FF848484"),
-                CrosshairColor = (Color)ColorConverter.ConvertFromString("#FF848484"),
-                NotificationWarningColor = (Color)ColorConverter.ConvertFromString("#FFBA5E07"),
-                NotificationErrorColor = (Color)ColorConverter.ConvertFromString("#FF700000"),
-                NotificationWarningTextColor = (Color)ColorConverter.ConvertFromString("#FFEAF430"),
-                NotificationErrorTextColor = (Color)ColorConverter.ConvertFromString("#FFEAF430"),
-                SequencerExpressionTextColor = (Color)ColorConverter.ConvertFromString("#FFEAF430")
+                PrimaryColorPortable = PortableColor.FromHex("#FFEAF430"),
+                SecondaryColorPortable = PortableColor.FromHex("#FF808080"),
+                BorderColorPortable = PortableColor.FromHex("#FF3E4146"),
+                BackgroundColorPortable = PortableColor.FromHex("#FF191A1C"),
+                SecondaryBackgroundColorPortable = PortableColor.FromHex("#FF000000"),
+                TertiaryBackgroundColorPortable = PortableColor.FromHex("#FF404144"),
+                ButtonBackgroundColorPortable = PortableColor.FromHex("#FF34373D"),
+                ButtonBackgroundSelectedColorPortable = PortableColor.FromHex("#FF106CE6"),
+                ButtonForegroundColorPortable = PortableColor.FromHex("#FFEAF430"),
+                ButtonForegroundDisabledColorPortable = PortableColor.FromHex("#FF848484"),
+                CrosshairColorPortable = PortableColor.FromHex("#FF848484"),
+                NotificationWarningColorPortable = PortableColor.FromHex("#FFBA5E07"),
+                NotificationErrorColorPortable = PortableColor.FromHex("#FF700000"),
+                NotificationWarningTextColorPortable = PortableColor.FromHex("#FFEAF430"),
+                NotificationErrorTextColorPortable = PortableColor.FromHex("#FFEAF430"),
+                SequencerExpressionTextColorPortable = PortableColor.FromHex("#FFEAF430")
             });
-
-
             schemas.Items.Add(new ColorSchema {
                 Name = "Custom",
-                PrimaryColor = (Color)ColorConverter.ConvertFromString("#FFF5F4FA"),
-                SecondaryColor = (Color)ColorConverter.ConvertFromString("#68808080"),
-                BorderColor = (Color)ColorConverter.ConvertFromString("#AA3E4146"),
-                BackgroundColor = (Color)ColorConverter.ConvertFromString("#E1191A1C"),
-                SecondaryBackgroundColor = (Color)ColorConverter.ConvertFromString("#FF1E2024"),
-                TertiaryBackgroundColor = (Color)ColorConverter.ConvertFromString("#FF404144"),
-                ButtonBackgroundColor = (Color)ColorConverter.ConvertFromString("#FF34373D"),
-                ButtonBackgroundSelectedColor = (Color)ColorConverter.ConvertFromString("#FF696C70"),
-                ButtonForegroundColor = (Color)ColorConverter.ConvertFromString("#FF6495ED"),
-                ButtonForegroundDisabledColor = (Color)ColorConverter.ConvertFromString("#FF848484"),
-                CrosshairColor = (Color)ColorConverter.ConvertFromString("#FF848484"),
-                NotificationWarningColor = (Color)ColorConverter.ConvertFromString("#FFBA5E07"),
-                NotificationErrorColor = (Color)ColorConverter.ConvertFromString("#FF700000"),
-                NotificationWarningTextColor = (Color)ColorConverter.ConvertFromString("#FFF0F8FF"),
-                NotificationErrorTextColor = (Color)ColorConverter.ConvertFromString("#FFF0F8FF"),
-                SequencerExpressionTextColor = (Color)ColorConverter.ConvertFromString("#FFF5F4FA")
+                PrimaryColorPortable = PortableColor.FromHex("#FFF5F4FA"),
+                SecondaryColorPortable = PortableColor.FromHex("#68808080"),
+                BorderColorPortable = PortableColor.FromHex("#AA3E4146"),
+                BackgroundColorPortable = PortableColor.FromHex("#E1191A1C"),
+                SecondaryBackgroundColorPortable = PortableColor.FromHex("#FF1E2024"),
+                TertiaryBackgroundColorPortable = PortableColor.FromHex("#FF404144"),
+                ButtonBackgroundColorPortable = PortableColor.FromHex("#FF34373D"),
+                ButtonBackgroundSelectedColorPortable = PortableColor.FromHex("#FF696C70"),
+                ButtonForegroundColorPortable = PortableColor.FromHex("#FF6495ED"),
+                ButtonForegroundDisabledColorPortable = PortableColor.FromHex("#FF848484"),
+                CrosshairColorPortable = PortableColor.FromHex("#FF848484"),
+                NotificationWarningColorPortable = PortableColor.FromHex("#FFBA5E07"),
+                NotificationErrorColorPortable = PortableColor.FromHex("#FF700000"),
+                NotificationWarningTextColorPortable = PortableColor.FromHex("#FFF0F8FF"),
+                NotificationErrorTextColorPortable = PortableColor.FromHex("#FFF0F8FF"),
+                SequencerExpressionTextColorPortable = PortableColor.FromHex("#FFF5F4FA")
             });
-
-
             schemas.Items.Add(new ColorSchema {
                 Name = "Alternative Custom",
-                PrimaryColor = (Color)ColorConverter.ConvertFromString("#FF550C18"),
-                SecondaryColor = (Color)ColorConverter.ConvertFromString("#FF1B2A41"),
-                BorderColor = (Color)ColorConverter.ConvertFromString("#FF550C18"),
-                BackgroundColor = (Color)ColorConverter.ConvertFromString("#FF02010A"),
-                SecondaryBackgroundColor = (Color)ColorConverter.ConvertFromString("#FF230409"),
-                TertiaryBackgroundColor = (Color)ColorConverter.ConvertFromString("#FF2d060d"),
-                ButtonBackgroundColor = (Color)ColorConverter.ConvertFromString("#FF550C18"),
-                ButtonBackgroundSelectedColor = (Color)ColorConverter.ConvertFromString("#FF96031A"),
-                ButtonForegroundColor = (Color)ColorConverter.ConvertFromString("#FF02010A"),
-                ButtonForegroundDisabledColor = (Color)ColorConverter.ConvertFromString("#FF443730"),
-                CrosshairColor = (Color)ColorConverter.ConvertFromString("#FF443730"),
-                NotificationWarningColor = (Color)ColorConverter.ConvertFromString("#FFF5A300"),
-                NotificationErrorColor = (Color)ColorConverter.ConvertFromString("#FFDB0606"),
-                NotificationWarningTextColor = (Color)ColorConverter.ConvertFromString("#FF02010A"),
-                NotificationErrorTextColor = (Color)ColorConverter.ConvertFromString("#FF02010A"),
-                SequencerExpressionTextColor = (Color)ColorConverter.ConvertFromString("#FF550C18")
+                PrimaryColorPortable = PortableColor.FromHex("#FF550C18"),
+                SecondaryColorPortable = PortableColor.FromHex("#FF1B2A41"),
+                BorderColorPortable = PortableColor.FromHex("#FF550C18"),
+                BackgroundColorPortable = PortableColor.FromHex("#FF02010A"),
+                SecondaryBackgroundColorPortable = PortableColor.FromHex("#FF230409"),
+                TertiaryBackgroundColorPortable = PortableColor.FromHex("#FF2d060d"),
+                ButtonBackgroundColorPortable = PortableColor.FromHex("#FF550C18"),
+                ButtonBackgroundSelectedColorPortable = PortableColor.FromHex("#FF96031A"),
+                ButtonForegroundColorPortable = PortableColor.FromHex("#FF02010A"),
+                ButtonForegroundDisabledColorPortable = PortableColor.FromHex("#FF443730"),
+                CrosshairColorPortable = PortableColor.FromHex("#FF443730"),
+                NotificationWarningColorPortable = PortableColor.FromHex("#FFF5A300"),
+                NotificationErrorColorPortable = PortableColor.FromHex("#FFDB0606"),
+                NotificationWarningTextColorPortable = PortableColor.FromHex("#FF02010A"),
+                NotificationErrorTextColorPortable = PortableColor.FromHex("#FF02010A"),
+                SequencerExpressionTextColorPortable = PortableColor.FromHex("#FF550C18")
             });
-
 
             return schemas;
         }
-#endif
     }
 
     [Serializable()]
@@ -434,7 +427,15 @@ namespace NINA.Core.Utility.ColorSchema {
 
         [XmlIgnore]
         [IgnoreDataMember]
-        public PortableColor PrimaryColorPortable => primaryColor;
+        public PortableColor PrimaryColorPortable {
+            get => primaryColor;
+            set {
+                if (primaryColor != value) {
+                    primaryColor = value;
+                    RaisePropertyChanged();
+                }
+            }
+        }
 
 #if HAS_WPF
         [DataMember]
@@ -452,7 +453,15 @@ namespace NINA.Core.Utility.ColorSchema {
 
         [XmlIgnore]
         [IgnoreDataMember]
-        public PortableColor SecondaryColorPortable => secondaryColor;
+        public PortableColor SecondaryColorPortable {
+            get => secondaryColor;
+            set {
+                if (secondaryColor != value) {
+                    secondaryColor = value;
+                    RaisePropertyChanged();
+                }
+            }
+        }
 
 #if HAS_WPF
         [DataMember]
@@ -470,7 +479,15 @@ namespace NINA.Core.Utility.ColorSchema {
 
         [XmlIgnore]
         [IgnoreDataMember]
-        public PortableColor BorderColorPortable => borderColor;
+        public PortableColor BorderColorPortable {
+            get => borderColor;
+            set {
+                if (borderColor != value) {
+                    borderColor = value;
+                    RaisePropertyChanged();
+                }
+            }
+        }
 
 #if HAS_WPF
         [DataMember]
@@ -488,7 +505,15 @@ namespace NINA.Core.Utility.ColorSchema {
 
         [XmlIgnore]
         [IgnoreDataMember]
-        public PortableColor BackgroundColorPortable => backgroundColor;
+        public PortableColor BackgroundColorPortable {
+            get => backgroundColor;
+            set {
+                if (backgroundColor != value) {
+                    backgroundColor = value;
+                    RaisePropertyChanged();
+                }
+            }
+        }
 
 #if HAS_WPF
         [DataMember]
@@ -506,7 +531,15 @@ namespace NINA.Core.Utility.ColorSchema {
 
         [XmlIgnore]
         [IgnoreDataMember]
-        public PortableColor SecondaryBackgroundColorPortable => secondaryBackgroundColor;
+        public PortableColor SecondaryBackgroundColorPortable {
+            get => secondaryBackgroundColor;
+            set {
+                if (secondaryBackgroundColor != value) {
+                    secondaryBackgroundColor = value;
+                    RaisePropertyChanged();
+                }
+            }
+        }
 
 #if HAS_WPF
         [DataMember]
@@ -524,7 +557,15 @@ namespace NINA.Core.Utility.ColorSchema {
 
         [XmlIgnore]
         [IgnoreDataMember]
-        public PortableColor TertiaryBackgroundColorPortable => tertiaryBackgroundColor;
+        public PortableColor TertiaryBackgroundColorPortable {
+            get => tertiaryBackgroundColor;
+            set {
+                if (tertiaryBackgroundColor != value) {
+                    tertiaryBackgroundColor = value;
+                    RaisePropertyChanged();
+                }
+            }
+        }
 
 #if HAS_WPF
         [DataMember]
@@ -542,7 +583,15 @@ namespace NINA.Core.Utility.ColorSchema {
 
         [XmlIgnore]
         [IgnoreDataMember]
-        public PortableColor ButtonBackgroundColorPortable => buttonBackgroundColor;
+        public PortableColor ButtonBackgroundColorPortable {
+            get => buttonBackgroundColor;
+            set {
+                if (buttonBackgroundColor != value) {
+                    buttonBackgroundColor = value;
+                    RaisePropertyChanged();
+                }
+            }
+        }
 
 #if HAS_WPF
         [DataMember]
@@ -560,7 +609,15 @@ namespace NINA.Core.Utility.ColorSchema {
 
         [XmlIgnore]
         [IgnoreDataMember]
-        public PortableColor ButtonBackgroundSelectedColorPortable => buttonBackgroundSelectedColor;
+        public PortableColor ButtonBackgroundSelectedColorPortable {
+            get => buttonBackgroundSelectedColor;
+            set {
+                if (buttonBackgroundSelectedColor != value) {
+                    buttonBackgroundSelectedColor = value;
+                    RaisePropertyChanged();
+                }
+            }
+        }
 
 #if HAS_WPF
         [DataMember]
@@ -578,7 +635,15 @@ namespace NINA.Core.Utility.ColorSchema {
 
         [XmlIgnore]
         [IgnoreDataMember]
-        public PortableColor ButtonForegroundColorPortable => buttonForegroundColor;
+        public PortableColor ButtonForegroundColorPortable {
+            get => buttonForegroundColor;
+            set {
+                if (buttonForegroundColor != value) {
+                    buttonForegroundColor = value;
+                    RaisePropertyChanged();
+                }
+            }
+        }
 
 #if HAS_WPF
         [DataMember]
@@ -596,7 +661,15 @@ namespace NINA.Core.Utility.ColorSchema {
 
         [XmlIgnore]
         [IgnoreDataMember]
-        public PortableColor ButtonForegroundDisabledColorPortable => buttonForegroundDisabledColor;
+        public PortableColor ButtonForegroundDisabledColorPortable {
+            get => buttonForegroundDisabledColor;
+            set {
+                if (buttonForegroundDisabledColor != value) {
+                    buttonForegroundDisabledColor = value;
+                    RaisePropertyChanged();
+                }
+            }
+        }
 
 #if HAS_WPF
         [DataMember]
@@ -629,6 +702,16 @@ namespace NINA.Core.Utility.ColorSchema {
                 }
                 return crosshairColor;
             }
+            set {
+                var portable = value;
+                if (portable == default) {
+                    portable = new PortableColor(0xFF, 0x84, 0x84, 0x84);
+                }
+                if (crosshairColor != portable) {
+                    crosshairColor = portable;
+                    RaisePropertyChanged();
+                }
+            }
         }
 
 #if HAS_WPF
@@ -647,7 +730,15 @@ namespace NINA.Core.Utility.ColorSchema {
 
         [XmlIgnore]
         [IgnoreDataMember]
-        public PortableColor NotificationWarningColorPortable => notificationWarningColor;
+        public PortableColor NotificationWarningColorPortable {
+            get => notificationWarningColor;
+            set {
+                if (notificationWarningColor != value) {
+                    notificationWarningColor = value;
+                    RaisePropertyChanged();
+                }
+            }
+        }
 
 #if HAS_WPF
         [DataMember]
@@ -665,7 +756,15 @@ namespace NINA.Core.Utility.ColorSchema {
 
         [XmlIgnore]
         [IgnoreDataMember]
-        public PortableColor NotificationErrorColorPortable => notificationErrorColor;
+        public PortableColor NotificationErrorColorPortable {
+            get => notificationErrorColor;
+            set {
+                if (notificationErrorColor != value) {
+                    notificationErrorColor = value;
+                    RaisePropertyChanged();
+                }
+            }
+        }
 
 #if HAS_WPF
         [DataMember]
@@ -683,7 +782,15 @@ namespace NINA.Core.Utility.ColorSchema {
 
         [XmlIgnore]
         [IgnoreDataMember]
-        public PortableColor NotificationWarningTextColorPortable => notificationWarningTextColor;
+        public PortableColor NotificationWarningTextColorPortable {
+            get => notificationWarningTextColor;
+            set {
+                if (notificationWarningTextColor != value) {
+                    notificationWarningTextColor = value;
+                    RaisePropertyChanged();
+                }
+            }
+        }
 
 #if HAS_WPF
         [DataMember]
@@ -701,7 +808,15 @@ namespace NINA.Core.Utility.ColorSchema {
 
         [XmlIgnore]
         [IgnoreDataMember]
-        public PortableColor NotificationErrorTextColorPortable => notificationErrorTextColor;
+        public PortableColor NotificationErrorTextColorPortable {
+            get => notificationErrorTextColor;
+            set {
+                if (notificationErrorTextColor != value) {
+                    notificationErrorTextColor = value;
+                    RaisePropertyChanged();
+                }
+            }
+        }
 
 #if HAS_WPF
         [DataMember]
@@ -733,6 +848,16 @@ namespace NINA.Core.Utility.ColorSchema {
                     sequencerExpressionTextColor = new PortableColor(0xFF, 0xF5, 0xF4, 0xFA);
                 }
                 return sequencerExpressionTextColor;
+            }
+            set {
+                var portable = value;
+                if (portable == default) {
+                    portable = new PortableColor(0xFF, 0xF5, 0xF4, 0xFA);
+                }
+                if (sequencerExpressionTextColor != portable) {
+                    sequencerExpressionTextColor = portable;
+                    RaisePropertyChanged();
+                }
             }
         }
 
