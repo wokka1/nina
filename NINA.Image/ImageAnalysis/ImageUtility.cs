@@ -387,6 +387,51 @@ namespace NINA.Image.ImageAnalysis {
             }
         }
 
+        /// <summary>
+        /// Portable, Bitmap/GDI+-free stretch for a single-channel (grayscale)
+        /// raw pixel array - same GetStretchMap() lookup-table math as the
+        /// Bitmap-based Stretch() overloads above, applied directly via
+        /// ColorRemappingGeneral.ApplyToArray() instead of going through a
+        /// System.Drawing.Bitmap. Returns a new array; the input is untouched.
+        /// </summary>
+        public static ushort[] StretchArray(IImageStatistics statistics, ushort[] data, double factor, double blackClipping) {
+            using (MyStopWatch.Measure()) {
+                var map = GetStretchMap(statistics, factor, blackClipping);
+                var result = (ushort[])data.Clone();
+                var filter = new ColorRemappingGeneral(map);
+                filter.ApplyToArray(result, isGrayscale: true);
+                return result;
+            }
+        }
+
+        /// <summary>
+        /// Portable, Bitmap/GDI+-free unlinked (per-channel) stretch for an
+        /// RGB triplet array. Mirrors StretchUnlinked(Bitmap...)'s red/blue
+        /// statistics swap - not a fresh design choice, but kept for
+        /// consistency with the existing R=2/G=1/B=0 (RGB.R/G/B) in-memory
+        /// channel convention that BayerFilter16bpp.DemosaicArray()'s output
+        /// already uses (a legacy 48bpp-Bitmap-derived layout, not something
+        /// introduced here - see the original StretchUnlinked(Bitmap) comment).
+        /// Returns a new array; the input is untouched.
+        /// </summary>
+        public static ushort[] StretchUnlinkedArray(
+            IImageStatistics redStatistics,
+            IImageStatistics greenStatistics,
+            IImageStatistics blueStatistics,
+            ushort[] rgbData,
+            double factor,
+            double blackClipping) {
+            using (MyStopWatch.Measure()) {
+                var mapRed = GetStretchMap(redStatistics, factor, blackClipping);
+                var mapGreen = GetStretchMap(greenStatistics, factor, blackClipping);
+                var mapBlue = GetStretchMap(blueStatistics, factor, blackClipping);
+                var result = (ushort[])rgbData.Clone();
+                var filter = new ColorRemappingGeneral(mapBlue, mapGreen, mapRed);
+                filter.ApplyToArray(result, isGrayscale: false);
+                return result;
+            }
+        }
+
         public static void BitShiftLeftInPlace(ushort[] data, int shift) {
             if (data is null)
                 throw new ArgumentNullException(nameof(data));
