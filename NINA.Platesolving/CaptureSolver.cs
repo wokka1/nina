@@ -19,7 +19,6 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows.Media;
 using NINA.Equipment.Interfaces.Mediator;
 using NINA.Core.Model;
 using NINA.Core.Utility;

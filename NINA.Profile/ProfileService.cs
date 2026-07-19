@@ -210,7 +210,7 @@ namespace NINA.Profile {
             Loc.Instance.ReloadLocale(ActiveProfile.ApplicationSettings.Culture);
             var eventHandler = LocaleChanged;
             if (eventHandler != null) { 
-                Application.Current.Dispatcher?.Invoke(eventHandler, this, null);
+                DispatcherProvider.Current?.Invoke(() => eventHandler(this, null));
             }
         }
 
@@ -218,7 +218,7 @@ namespace NINA.Profile {
             ActiveProfile.AstrometrySettings.Latitude = latitude;
             var eventHandler = LocationChanged;
             if (eventHandler != null) {
-                Application.Current.Dispatcher?.Invoke(eventHandler, this, null);
+                DispatcherProvider.Current?.Invoke(() => eventHandler(this, null));
             }
         }
 
@@ -226,7 +226,7 @@ namespace NINA.Profile {
             ActiveProfile.AstrometrySettings.Longitude = longitude;
             var eventHandler = LocationChanged;
             if (eventHandler != null) {
-                Application.Current.Dispatcher?.Invoke(LocationChanged, this, null);
+                DispatcherProvider.Current?.Invoke(() => LocationChanged(this, null));
             }
         }
 
@@ -234,7 +234,7 @@ namespace NINA.Profile {
             ActiveProfile.AstrometrySettings.Elevation = elevation;
             var eventHandler = LocationChanged;
             if (eventHandler != null) {
-                Application.Current.Dispatcher?.Invoke(eventHandler, this, null);
+                DispatcherProvider.Current?.Invoke(() => eventHandler(this, null));
             }
         }
 
@@ -257,7 +257,7 @@ namespace NINA.Profile {
 
             var eventHandler = HorizonChanged;
             if (eventHandler != null) {
-                Application.Current.Dispatcher?.Invoke(eventHandler, this, null);
+                DispatcherProvider.Current?.Invoke(() => eventHandler(this, null));
             }
         }
 
@@ -328,7 +328,7 @@ namespace NINA.Profile {
                     try {
                         var eventHandlerBeforeProfileChanging = BeforeProfileChanging;
                         if (eventHandlerBeforeProfileChanging != null) {
-                            Application.Current.Dispatcher?.Invoke(eventHandlerBeforeProfileChanging, this, new EventArgs());
+                            DispatcherProvider.Current?.Invoke(() => eventHandlerBeforeProfileChanging(this, new EventArgs()));
 
                         }
                         var old = activeProfile;
@@ -348,20 +348,20 @@ namespace NINA.Profile {
 
                         var eventHandlerProfile = ProfileChanged;
                         if (eventHandlerProfile != null) {
-                            Application.Current.Dispatcher?.Invoke(eventHandlerProfile, this, new ProfileChangedEventArgs(old, ActiveProfile));
+                            DispatcherProvider.Current?.Invoke(() => eventHandlerProfile(this, new ProfileChangedEventArgs(old, ActiveProfile)));
 
                         }
                         var eventHandlerLocale = LocaleChanged;
                         if (eventHandlerLocale != null) {
-                            Application.Current.Dispatcher?.Invoke(eventHandlerLocale, this, null);
+                            DispatcherProvider.Current?.Invoke(() => eventHandlerLocale(this, null));
                         }
                         var eventHandlerLocation = LocationChanged;
                         if (eventHandlerLocation != null) {
-                            Application.Current.Dispatcher?.Invoke(eventHandlerLocation, this, null);
+                            DispatcherProvider.Current?.Invoke(() => eventHandlerLocation(this, null));
                         }
                         var eventHorizonChanged = HorizonChanged;
                         if (eventHorizonChanged != null) {
-                            Application.Current.Dispatcher?.Invoke(eventHorizonChanged, this, null);
+                            DispatcherProvider.Current?.Invoke(() => eventHorizonChanged(this, null));
                         }
                         RegisterChangedEventHandlers();
                     } catch (Exception ex) {
