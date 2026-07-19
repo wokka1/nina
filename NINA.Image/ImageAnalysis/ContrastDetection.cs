@@ -23,9 +23,14 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows.Media.Imaging;
 
 namespace NINA.Image.ImageAnalysis {
+
+#if HAS_WPF
+    // Bitmap-based throughout (mirrors StarDetection's original pre-portable-port
+    // structure) - no portable equivalent built yet, same category as the DSO
+    // thumbnail/StarAnnotator rendering work (project_multiagent_bigproject memory).
+    using System.Windows.Media.Imaging;
 
     public class ContrastDetection : IContrastDetection {
         private static int _maxWidth = 1552;
@@ -185,4 +190,5 @@ namespace NINA.Image.ImageAnalysis {
             return state;
         }
     }
+#endif
 }

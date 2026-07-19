@@ -18,7 +18,9 @@ using NINA.Profile.Interfaces;
 using System;
 using System.IO;
 using System.Threading.Tasks;
+#if HAS_WPF
 using System.Windows.Media.Imaging;
+#endif
 using NINA.Image.ImageData;
 using NINA.Core.Enum;
 using NINA.Image.Interfaces;
@@ -42,11 +44,15 @@ namespace NINA.Image {
                     return await imageDataFactory.CreateFromFile(filePath, (int)profileService.ActiveProfile.CameraSettings.BitDepth, IsBayered);
                 } else {
                     Logger.Info($"Unable to reload image as the file does not exist at {filePath}");
+                    #if HAS_WPF
                     Notification.ShowError(String.Format(Loc.Instance["LblFileNotExist"], filePath));
+                    #endif
                 }
             } catch (Exception ex) {
                 Logger.Error(ex);
+                #if HAS_WPF
                 Notification.ShowError(ex.Message);
+                #endif
             }
 
             return null;
@@ -70,12 +76,16 @@ namespace NINA.Image {
                             await Task.Delay(TimeSpan.FromSeconds(2));
                         } else {
                             Logger.Error("Failed to change grade. Aborting...", ex);
+                            #if HAS_WPF
                             Notification.ShowError(ex.Message);
+                            #endif
                             return false;
                         }
                     } catch (Exception ex) {
                         Logger.Error("Failed to change grade. Aborting...", ex);
+                        #if HAS_WPF
                         Notification.ShowError(ex.Message);
+                        #endif
                         return false;
                     }
                 }
@@ -103,7 +113,9 @@ namespace NINA.Image {
             }
         }
 
+#if HAS_WPF
         public BitmapSource ThumbnailImage { get; set; }
+#endif
 
         public IImageStatistics ImageStatistics { get; set; }
 

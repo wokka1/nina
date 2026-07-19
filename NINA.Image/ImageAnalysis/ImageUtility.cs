@@ -22,14 +22,17 @@ using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Threading.Tasks;
+#if HAS_WPF
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+#endif
 
 namespace NINA.Image.ImageAnalysis {
 
     public class ImageUtility {
 
+#if HAS_WPF
         public static ColorRemappingGeneral GetColorRemappingFilter(
             IImageStatistics statistics,
             double targetHistogramMeanPct,
@@ -47,7 +50,9 @@ namespace NINA.Image.ImageAnalysis {
                 throw new NotSupportedException();
             }
         }
+#endif
 
+#if HAS_WPF
         public static ColorRemappingGeneral GetColorRemappingFilterUnlinked(
             IImageStatistics redStatistics,
             IImageStatistics greenStatistics,
@@ -65,6 +70,7 @@ namespace NINA.Image.ImageAnalysis {
                 throw new NotSupportedException();
             }
         }
+#endif
 
         /// <summary>
         /// Adjusts x for a given midToneBalance
@@ -132,6 +138,7 @@ namespace NINA.Image.ImageAnalysis {
             return map;
         }
 
+#if HAS_WPF
         public static BitmapSource ConvertBitmap(System.Drawing.Bitmap bitmap) {
             System.Windows.Media.PixelFormat pf;
 
@@ -154,7 +161,9 @@ namespace NINA.Image.ImageAnalysis {
             }
             return ConvertBitmap(bitmap, pf);
         }
+#endif
 
+#if HAS_WPF
         public static BitmapSource ConvertBitmap(System.Drawing.Bitmap bitmap, System.Windows.Media.PixelFormat pf) {
             BitmapData bitmapData = null;
             try {
@@ -171,12 +180,14 @@ namespace NINA.Image.ImageAnalysis {
                 }
             }
         }
+#endif
 
         /// <summary>
         /// Decodes an in-memory encoded image (e.g. a downloaded JPEG/PNG/GIF) into a frozen,
         /// UI-thread-independent BitmapSource. Used to keep image-format decoding out of
         /// NINA.Core, which does not reference WPF.
         /// </summary>
+#if HAS_WPF
         public static BitmapSource FromEncodedBytes(byte[] data) {
             using var ms = new System.IO.MemoryStream(data);
             var bitmap = new BitmapImage();
@@ -187,11 +198,15 @@ namespace NINA.Image.ImageAnalysis {
             bitmap.Freeze();
             return bitmap;
         }
+#endif
 
+#if HAS_WPF
         public static Bitmap BitmapFromSource(BitmapSource source) {
             return BitmapFromSource(source, System.Drawing.Imaging.PixelFormat.Format16bppGrayScale);
         }
+#endif
 
+#if HAS_WPF
         public static Bitmap BitmapFromSource(BitmapSource source, System.Drawing.Imaging.PixelFormat pf) {
             Bitmap bmp = new Bitmap(
                     source.PixelWidth,
@@ -215,7 +230,9 @@ namespace NINA.Image.ImageAnalysis {
             }
             return bmp;
         }
+#endif
 
+#if HAS_WPF
         public static Bitmap Convert16BppTo8Bpp(BitmapSource source) {
             using(MyStopWatch.Measure()) { 
                 using (var bmp = BitmapFromSource(source)) {
@@ -223,6 +240,7 @@ namespace NINA.Image.ImageAnalysis {
                 }
             }
         }
+#endif
 
         /// <summary>
         /// Portable, Bitmap/GDI+-free equivalent of Convert16BppTo8Bpp - same per-pixel
@@ -239,6 +257,7 @@ namespace NINA.Image.ImageAnalysis {
             }
         }
 
+#if HAS_WPF
         public static BitmapSource Convert16BppTo8BppSource(BitmapSource source) {
             FormatConvertedBitmap s = new FormatConvertedBitmap();
             s.BeginInit();
@@ -248,7 +267,9 @@ namespace NINA.Image.ImageAnalysis {
             s.Freeze();
             return s;
         }
+#endif
 
+#if HAS_WPF
         public static BitmapSource CreateSourceFromArray(IImageArray arr, ImageProperties props, System.Windows.Media.PixelFormat pf) {
             //int stride = C.CameraYSize * ((Convert.ToString(C.MaxADU, 2)).Length + 7) / 8;
             int stride = (props.Width * pf.BitsPerPixel + 7) / 8;
@@ -258,7 +279,9 @@ namespace NINA.Image.ImageAnalysis {
             source.Freeze();
             return source;
         }
+#endif
 
+#if HAS_WPF
         public static DebayeredImageData Debayer(BitmapSource source, System.Drawing.Imaging.PixelFormat pf, bool saveColorChannels = false, bool saveLumChannel = false, SensorType bayerPattern = SensorType.RGGB) {
             using (MyStopWatch.Measure()) {
                 if (pf != System.Drawing.Imaging.PixelFormat.Format16bppGrayScale) {
@@ -269,6 +292,7 @@ namespace NINA.Image.ImageAnalysis {
                 }
             }
         }
+#endif
 
         /// <summary>
         /// Shared by both Debayer(Bitmap...) below and the portable DebayerArray() -
@@ -332,6 +356,7 @@ namespace NINA.Image.ImageAnalysis {
             }
         }
 
+#if HAS_WPF
         public static DebayeredImageData Debayer(Bitmap bmp, bool saveColorChannels = false, bool saveLumChannel = false, SensorType bayerPattern = SensorType.RGGB) {
             using (MyStopWatch.Measure()) {
                 var filter = new BayerFilter16bpp();
@@ -351,6 +376,7 @@ namespace NINA.Image.ImageAnalysis {
                 return debayered;
             }
         }
+#endif
 
         public static ColorPalette GetGrayScalePalette() {
             using (var bmp = new Bitmap(1, 1, System.Drawing.Imaging.PixelFormat.Format8bppIndexed)) {
@@ -366,6 +392,7 @@ namespace NINA.Image.ImageAnalysis {
             }
         }
 
+#if HAS_WPF
         public static Task<BitmapSource> Stretch(IRenderedImage image, double factor, double blackClipping) {
             return Task.Run(async () => {
                 var imageStatistics = await image.RawImageData.Statistics.Task;
@@ -382,7 +409,9 @@ namespace NINA.Image.ImageAnalysis {
                 }
             });
         }
+#endif
 
+#if HAS_WPF
         public static Task<BitmapSource> StretchUnlinked(IDebayeredImage data, double factor, double blackClipping) {
             return Task.Run(async () => {
                 if (data.OriginalImage.Format != PixelFormats.Rgb48) {
@@ -398,7 +427,9 @@ namespace NINA.Image.ImageAnalysis {
                 }
             });
         }
+#endif
 
+#if HAS_WPF
         public static BitmapSource StretchUnlinked(
             IImageStatistics redStatistics,
             IImageStatistics greenStatistics,
@@ -417,7 +448,9 @@ namespace NINA.Image.ImageAnalysis {
                 return source;
             }
         }
+#endif
 
+#if HAS_WPF
         public static BitmapSource Stretch(IImageStatistics statistics, Bitmap img, System.Windows.Media.PixelFormat pf, double factor, double blackClipping) {
             using (MyStopWatch.Measure()) {
                 var filter = ImageUtility.GetColorRemappingFilter(statistics, factor, blackClipping, pf);
@@ -428,6 +461,7 @@ namespace NINA.Image.ImageAnalysis {
                 return source;
             }
         }
+#endif
 
         /// <summary>
         /// Portable, Bitmap/GDI+-free stretch for a single-channel (grayscale)

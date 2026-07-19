@@ -26,7 +26,11 @@ namespace NINA.Image.ImageAnalysis {
 
     public interface IStarDetection : IPluggableBehavior<IStarDetection> {
 
+#if HAS_WPF
         Task<StarDetectionResult> Detect(IRenderedImage image, System.Windows.Media.PixelFormat pf, StarDetectionParams p, IProgress<ApplicationStatus> progress, CancellationToken token);
+#endif
+
+        Task<StarDetectionResult> DetectPortable(IRenderedImage image, StarDetectionParams p, IProgress<ApplicationStatus> progress, CancellationToken token);
 
         IStarDetectionAnalysis CreateAnalysis();
 

@@ -17,7 +17,9 @@ using NINA.Image.ImageAnalysis;
 using NINA.Image.Interfaces;
 using NINA.Profile.Interfaces;
 using System.Threading.Tasks;
+#if HAS_WPF
 using System.Windows.Media.Imaging;
+#endif
 
 namespace NINA.Image.ImageData {
 
@@ -29,6 +31,7 @@ namespace NINA.Image.ImageData {
 
         public SensorType BayerPattern { get; private set; }
 
+#if HAS_WPF
         protected DebayeredImage(
             BitmapSource image,
             IImageData rawImageData,
@@ -46,6 +49,24 @@ namespace NINA.Image.ImageData {
             this.SaveLumChannel = saveLumChannels;
             this.BayerPattern = bayerPattern;
         }
+#else
+        protected DebayeredImage(
+            IImageData rawImageData,
+            LRGBArrays debayeredData,
+            bool saveColorChannels,
+            bool saveLumChannels,
+            SensorType bayerPattern,
+            IProfileService profileService,
+            IStarDetection starDetection,
+            IStarAnnotator starAnnotator,
+            PortableImageBuffer rawPixels = null) :
+            base(rawImageData, profileService, starDetection, starAnnotator, rawPixels) {
+            this.DebayeredData = debayeredData;
+            this.SaveColorChannels = saveColorChannels;
+            this.SaveLumChannel = saveLumChannels;
+            this.BayerPattern = bayerPattern;
+        }
+#endif
 
         public static IDebayeredImage Debayer(
             IRenderedImage imageData,
@@ -55,14 +76,11 @@ namespace NINA.Image.ImageData {
             bool saveColorChannels = false,
             bool saveLumChannel = false,
             SensorType bayerPattern = SensorType.RGGB) {
-            var debayeredImage = ImageUtility.Debayer(imageData.Image, System.Drawing.Imaging.PixelFormat.Format16bppGrayScale, saveColorChannels, saveLumChannel, bayerPattern);
-
-            // Also compute the portable (WPF-free) equivalent directly from the raw
-            // sensor array, via the same BayerFilter16bpp logic as the Bitmap path
-            // above (commit d59d86516/DebayerArray) - independent computation, not
-            // derived from debayeredImage, so it doesn't depend on saveColorChannels
-            // having been set (LRGBArrays is often null/unpopulated otherwise).
-            var (rawPixelsBuffer, _) = ImageUtility.DebayerArray(
+            // Portable computation, done unconditionally - direct from the raw sensor
+            // array via BayerFilter16bpp (commit d59d86516/DebayerArray), independent
+            // of the WPF path below so it doesn't depend on saveColorChannels having
+            // been set for that path (LRGBArrays is often null/unpopulated otherwise).
+            var (rawPixelsBuffer, portableLrgb) = ImageUtility.DebayerArray(
                 imageData.RawImageData.Data.FlatArray,
                 imageData.RawImageData.Properties.Width,
                 imageData.RawImageData.Properties.Height,
@@ -70,6 +88,8 @@ namespace NINA.Image.ImageData {
                 saveLumChannel,
                 bayerPattern);
 
+#if HAS_WPF
+            var debayeredImage = ImageUtility.Debayer(imageData.Image, System.Drawing.Imaging.PixelFormat.Format16bppGrayScale, saveColorChannels, saveLumChannel, bayerPattern);
             return new DebayeredImage(
                 image: debayeredImage.ImageSource,
                 rawImageData: imageData.RawImageData,
@@ -81,6 +101,18 @@ namespace NINA.Image.ImageData {
                 starDetection: starDetection,
                 starAnnotator: starAnnotator,
                 rawPixels: rawPixelsBuffer);
+#else
+            return new DebayeredImage(
+                rawImageData: imageData.RawImageData,
+                debayeredData: portableLrgb,
+                saveColorChannels: saveColorChannels,
+                saveLumChannels: saveLumChannel,
+                bayerPattern: bayerPattern,
+                profileService: profileService,
+                starDetection: starDetection,
+                starAnnotator: starAnnotator,
+                rawPixels: rawPixelsBuffer);
+#endif
         }
 
         public override async Task<IRenderedImage> Stretch(double factor, double blackClipping, bool unlinked) {
@@ -89,11 +121,9 @@ namespace NINA.Image.ImageData {
                 // This scenario will happen when the options are changed after the debayer has happened and the image is re-stretched again
                 unlinked = false;
             }
-            var stretchedImage = unlinked ? await ImageUtility.StretchUnlinked(this, factor, blackClipping) : await ImageUtility.Stretch(this, factor, blackClipping);
 
-            // Also compute the portable equivalent, mirroring the same
-            // linked/unlinked branch above via the array-based stretch methods
-            // (commit 841e79bb9) instead of a Bitmap round-trip.
+            // Portable array-based stretch, computed unconditionally - mirrors the same
+            // linked/unlinked branch the WPF path below uses (commit 841e79bb9).
             ushort[] stretchedPixels;
             if (unlinked) {
                 var redStats = ImageStatistics.Create(this.RawImageData.Properties, this.DebayeredData.Red);
@@ -106,6 +136,8 @@ namespace NINA.Image.ImageData {
             }
             var stretchedRawPixels = new PortableImageBuffer(stretchedPixels, this.RawImageData.Properties.Width, this.RawImageData.Properties.Height, PortablePixelFormat.Rgb48);
 
+#if HAS_WPF
+            var stretchedImage = unlinked ? await ImageUtility.StretchUnlinked(this, factor, blackClipping) : await ImageUtility.Stretch(this, factor, blackClipping);
             return new DebayeredImage(
                 image: stretchedImage,
                 rawImageData: this.RawImageData,
@@ -117,6 +149,18 @@ namespace NINA.Image.ImageData {
                 starDetection: this.starDetection,
                 starAnnotator: this.starAnnotator,
                 rawPixels: stretchedRawPixels);
+#else
+            return new DebayeredImage(
+                rawImageData: this.RawImageData,
+                debayeredData: this.DebayeredData,
+                saveColorChannels: this.SaveColorChannels,
+                saveLumChannels: this.SaveLumChannel,
+                bayerPattern: this.BayerPattern,
+                profileService: this.profileService,
+                starDetection: this.starDetection,
+                starAnnotator: this.starAnnotator,
+                rawPixels: stretchedRawPixels);
+#endif
         }
 
         public override IRenderedImage ReRender() {

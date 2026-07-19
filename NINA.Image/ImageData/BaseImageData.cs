@@ -32,8 +32,10 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+#if HAS_WPF
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+#endif
 
 namespace NINA.Image.ImageData {
 
@@ -76,13 +78,21 @@ namespace NINA.Image.ImageData {
 
         public IStarDetectionAnalysis StarDetectionAnalysis { get; set; }
 
+#if HAS_WPF
         public IRenderedImage RenderImage() {
             return RenderedImage.Create(RenderBitmapSource(), this, profileService, starDetection, starAnnotator);
         }
+#else
+        public IRenderedImage RenderImage() {
+            return new RenderedImage(this, profileService, starDetection, starAnnotator);
+        }
+#endif
 
+#if HAS_WPF
         public BitmapSource RenderBitmapSource() {
             return ImageUtility.CreateSourceFromArray(Data, Properties, PixelFormats.Gray16);
         }
+#endif
 
         public void SetImageStatistics(IImageStatistics imageStatistics) {
             Statistics = new Nito.AsyncEx.AsyncLazy<IImageStatistics>(() => Task.FromResult(imageStatistics));
@@ -398,10 +408,16 @@ namespace NINA.Image.ImageData {
                             path = SaveXisf(fileSaveInfo);
                             break;
 
+#if HAS_WPF
                         case FileTypeEnum.TIFF:
                         default:
                             path = SaveTiff(fileSaveInfo);
                             break;
+#else
+                        case FileTypeEnum.TIFF:
+                        default:
+                            throw new NotSupportedException("TIFF saving is not available without WPF - no portable TIFF encoder is wired up yet.");
+#endif
                     }
                 }
 
@@ -424,6 +440,7 @@ namespace NINA.Image.ImageData {
             return uniquePath;
         }
 
+#if HAS_WPF
         private string SaveTiff(FileSaveInfo fileSaveInfo) {
             Directory.CreateDirectory(Path.GetDirectoryName(fileSaveInfo.FilePath));
             string uniquePath = CoreUtil.GetUniqueFilePath(fileSaveInfo.FilePath + fileSaveInfo.GetExtension(".tif"));
@@ -469,6 +486,7 @@ namespace NINA.Image.ImageData {
 
             return uniquePath;
         }
+#endif
 
         private static CfitsioNative.COMPRESSION GetFITSCompression(FITSCompressionTypeEnum fITSCompressionTypeEnum) {
             return fITSCompressionTypeEnum switch {
@@ -568,8 +586,11 @@ namespace NINA.Image.ImageData {
                 if (!File.Exists(path)) {
                     throw new FileNotFoundException();
                 }
+#if HAS_WPF
                 BitmapDecoder decoder;
+#endif
                 switch (Path.GetExtension(path).ToLower()) {
+#if HAS_WPF
                     case ".gif":
                         decoder = new GifBitmapDecoder(new Uri(path), BitmapCreateOptions.PreservePixelFormat, BitmapCacheOption.OnLoad);
                         return BitmapToImageArray(decoder, isBayered, imageDataFactory);
@@ -587,6 +608,7 @@ namespace NINA.Image.ImageData {
                     case ".png":
                         decoder = new PngBitmapDecoder(new Uri(path), BitmapCreateOptions.PreservePixelFormat, BitmapCacheOption.OnLoad);
                         return BitmapToImageArray(decoder, isBayered, imageDataFactory);
+#endif
 
                     case ".xisf":
                         return await XISF.Load(new Uri(path), isBayered, imageDataFactory, ct);
@@ -635,6 +657,7 @@ namespace NINA.Image.ImageData {
             }
         }
 
+#if HAS_WPF
         private static IImageData BitmapToImageArray(BitmapDecoder decoder, bool isBayered, IImageDataFactory imageDataFactory) {
             var bmp = new FormatConvertedBitmap();
             bmp.BeginInit();
@@ -709,6 +732,7 @@ namespace NINA.Image.ImageData {
             bmp.CopyPixels(pixels, stride, 0);
             return imageDataFactory.CreateBaseImageData(pixels, bmp.PixelWidth, bmp.PixelHeight, 16, isBayered, metaData);
         }
+#endif
 
         #endregion "Load"
     }

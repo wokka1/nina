@@ -15,12 +15,16 @@
 using NINA.Core.Interfaces;
 using System.Threading;
 using System.Threading.Tasks;
+#if HAS_WPF
 using System.Windows.Media.Imaging;
+#endif
 
 namespace NINA.Image.ImageAnalysis {
 
     public interface IStarAnnotator : IPluggableBehavior<IStarAnnotator> {
 
+#if HAS_WPF
         Task<BitmapSource> GetAnnotatedImage(StarDetectionParams p, StarDetectionResult result, BitmapSource imageToAnnotate, int maxStars = 200, CancellationToken token = default);
+#endif
     }
 }

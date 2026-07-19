@@ -20,9 +20,14 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
-using System.Windows.Media.Imaging;
 
 namespace NINA.Image.ImageAnalysis {
+
+#if HAS_WPF
+    // Analyzes a Bahtinov-mask diffraction pattern from an already-rendered
+    // BitmapSource for focus assistance - only ever constructed from real WPF UI
+    // code (NINA/ViewModel/ImageControlVM.cs), no portable equivalent built.
+    using System.Windows.Media.Imaging;
 
     public class BahtinovAnalysis {
 
@@ -200,4 +205,5 @@ namespace NINA.Image.ImageAnalysis {
                 );
         }
     }
+#endif
 }

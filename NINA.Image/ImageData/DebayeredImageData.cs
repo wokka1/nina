@@ -12,12 +12,16 @@
 
 #endregion "copyright"
 
+#if HAS_WPF
 using System.Windows.Media.Imaging;
+#endif
 
 namespace NINA.Image.ImageData {
 
     public class DebayeredImageData {
         public LRGBArrays Data { get; set; }
+#if HAS_WPF
         public BitmapSource ImageSource { get; set; }
+#endif
     }
 }

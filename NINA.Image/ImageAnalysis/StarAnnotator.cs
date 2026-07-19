@@ -21,9 +21,15 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows.Media.Imaging;
 
 namespace NINA.Image.ImageAnalysis {
+
+#if HAS_WPF
+    // Real drawing work (Accord.Imaging + System.Drawing.Graphics) to render star
+    // markers/annotations onto an image - same category as the DSO thumbnail
+    // rendering flagged elsewhere (project_multiagent_bigproject memory), no
+    // portable equivalent exists yet.
+    using System.Windows.Media.Imaging;
 
     public class StarAnnotator : IStarAnnotator {
         private static Pen ELLIPSEPEN = new Pen(Brushes.LightYellow, 1);
@@ -105,4 +111,5 @@ namespace NINA.Image.ImageAnalysis {
             });
         }
     }
+#endif
 }

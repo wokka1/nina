@@ -12,12 +12,16 @@
 
 #endregion "copyright"
 
+#if HAS_WPF
 using System.Windows.Media.Imaging;
+#endif
 
 namespace NINA.Image.ImageAnalysis {
 
     public class BahtinovImage {
+#if HAS_WPF
         public BitmapSource Image { get; set; }
+#endif
         public double Distance { get; set; }
     }
 }

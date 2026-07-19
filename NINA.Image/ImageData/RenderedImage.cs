@@ -16,10 +16,12 @@ using NINA.Core.Enum;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+#if HAS_WPF
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
+#endif
 using NINA.Core.Model;
 using NINA.Image.ImageAnalysis;
 using NINA.Image.Interfaces;
@@ -35,6 +37,7 @@ namespace NINA.Image.ImageData {
 
         public IImageData RawImageData { get; private set; }
 
+#if HAS_WPF
         private BitmapSource image;
 
         public BitmapSource Image {
@@ -55,6 +58,17 @@ namespace NINA.Image.ImageData {
             this.starAnnotator = starAnnotator;
             this.rawPixels = rawPixels;
         }
+#else
+        // Portable equivalent - no BitmapSource-typed image parameter exists in this
+        // TFM, RawPixels/rawPixels is the only pixel representation available.
+        public RenderedImage(IImageData rawImageData, IProfileService profileService, IStarDetection starDetection, IStarAnnotator starAnnotator, PortableImageBuffer rawPixels = null) {
+            this.RawImageData = rawImageData;
+            this.profileService = profileService;
+            this.starDetection = starDetection;
+            this.starAnnotator = starAnnotator;
+            this.rawPixels = rawPixels;
+        }
+#endif
 
         private readonly PortableImageBuffer rawPixels;
 
@@ -71,6 +85,7 @@ namespace NINA.Image.ImageData {
         public virtual PortableImageBuffer RawPixels =>
             rawPixels ?? new PortableImageBuffer(RawImageData.Data.FlatArray, RawImageData.Properties.Width, RawImageData.Properties.Height, PortablePixelFormat.Gray16);
 
+#if HAS_WPF
         public static async Task<IRenderedImage> FromBitmapSource(BitmapSource source, IExposureDataFactory exposureDataFactory, IProfileService profileService, IStarDetection starDetection, IStarAnnotator starAnnotator, bool calculateStatistics = false) {
             var exposureData = await exposureDataFactory.CreateImageArrayExposureDataFromBitmapSource(source);
             var rawImageData = await exposureData.ToImageData();
@@ -80,28 +95,36 @@ namespace NINA.Image.ImageData {
         public static RenderedImage Create(BitmapSource source, IImageData rawImageData, IProfileService profileService, IStarDetection starDetection, IStarAnnotator starAnnotator, bool calculateStatistics = false) {
             return new RenderedImage(source, rawImageData, profileService, starDetection, starAnnotator);
         }
+#endif
 
+#if HAS_WPF
         public virtual IRenderedImage ReRender() {
             return new RenderedImage(this.RawImageData.RenderBitmapSource(), this.RawImageData, profileService, starDetection, starAnnotator);
         }
+#else
+        public virtual IRenderedImage ReRender() {
+            return new RenderedImage(this.RawImageData, profileService, starDetection, starAnnotator);
+        }
+#endif
 
         public IDebayeredImage Debayer(bool saveColorChannels = false, bool saveLumChannel = false, SensorType bayerPattern = SensorType.RGGB) {
             return DebayeredImage.Debayer(this, profileService, starDetection, starAnnotator, saveColorChannels: saveColorChannels, saveLumChannel: saveLumChannel, bayerPattern: bayerPattern);
         }
 
         public virtual async Task<IRenderedImage> Stretch(double factor, double blackClipping, bool unlinked) {
-            var stretchedImage = await ImageUtility.Stretch(this, factor, blackClipping);
-
-            // Also compute the portable (WPF-free) equivalent via the array-based
-            // stretch path, so RawPixels reflects this stretch too, not just
-            // OriginalImage/Image. Same underlying GetStretchMap() math as the
-            // BitmapSource path above, computed independently rather than derived
-            // from it - a real, if duplicated, computation, not a stub.
+            // Portable array-based stretch, computed unconditionally - same underlying
+            // GetStretchMap() math the WPF BitmapSource path below uses, computed
+            // independently rather than derived from it.
             var statistics = await this.RawImageData.Statistics.Task;
             var stretchedPixels = ImageUtility.StretchArray(statistics, this.RawImageData.Data.FlatArray, factor, blackClipping);
             var stretchedRawPixels = new PortableImageBuffer(stretchedPixels, this.RawImageData.Properties.Width, this.RawImageData.Properties.Height, PortablePixelFormat.Gray16);
 
+#if HAS_WPF
+            var stretchedImage = await ImageUtility.Stretch(this, factor, blackClipping);
             return new RenderedImage(stretchedImage, this.RawImageData, profileService, starDetection, starAnnotator, stretchedRawPixels);
+#else
+            return new RenderedImage(this.RawImageData, profileService, starDetection, starAnnotator, stretchedRawPixels);
+#endif
         }
 
         public async Task<IRenderedImage> DetectStars(
@@ -127,17 +150,25 @@ namespace NINA.Image.ImageData {
                 starDetectionParams.NumberOfAFStars = profileService.ActiveProfile.FocuserSettings.AutoFocusUseBrightestStars;
             }
 
+#if HAS_WPF
             var starDetectionResult = await starDetection.Detect(this, this.Image.Format, starDetectionParams, progress, cancelToken);
             if (annotateImage && starDetectionResult != null) {
                 cancelToken.ThrowIfCancellationRequested();
                 var maxStars = profileService.ActiveProfile.ImageSettings.AnnotateUnlimitedStars ? -1 : 200;
                 this.Image = await starAnnotator.GetAnnotatedImage(starDetectionParams, starDetectionResult, this.OriginalImage, maxStars: maxStars, token: cancelToken);
             }
+#else
+            // Portable path - no annotator exists yet (drawing star markers onto an
+            // image is real rendering work, same category as the DSO thumbnail system
+            // - see project_multiagent_bigproject memory), so annotateImage is a no-op.
+            var starDetectionResult = await starDetection.DetectPortable(this, starDetectionParams, progress, cancelToken);
+#endif
 
             UpdateAnalysis(starDetectionParams, starDetectionResult);
             return this;
         }
 
+#if HAS_WPF
         public async Task<BitmapSource> GetThumbnail() {
             BitmapSource image = null;
             await _dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(() => {
@@ -151,11 +182,14 @@ namespace NINA.Image.ImageData {
             }));
             return image;
         }
+#endif
 
         public void UpdateAnalysis(StarDetectionParams p, StarDetectionResult result) {
             starDetection.UpdateAnalysis(this.RawImageData.StarDetectionAnalysis, p, result);
         }
 
+#if HAS_WPF
         private static Dispatcher _dispatcher = Application.Current?.Dispatcher ?? Dispatcher.CurrentDispatcher;
+#endif
     }
 }

@@ -205,7 +205,9 @@ namespace NINA.Image.FileFormat.XISF {
                         if (cksumType != XISFChecksumTypeEnum.NONE) {
                             if (!VerifyChecksum(raw, cksumType, cksumHash)) {
                                 // Only emit a warning to the user about a bad checksum for now
+                                #if HAS_WPF
                                 Notification.ShowWarning(Loc.Instance["LblXisfBadChecksum"]);
+                                #endif
                             }
                         }
 

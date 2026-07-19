@@ -18,16 +18,20 @@ using NINA.Image.ImageAnalysis;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+#if HAS_WPF
 using System.Windows.Media.Imaging;
+#endif
 
 namespace NINA.Image.Interfaces {
 
     public interface IRenderedImage {
         IImageData RawImageData { get; }
 
+#if HAS_WPF
         BitmapSource OriginalImage { get; }
 
         BitmapSource Image { get; }
+#endif
 
         /// <summary>
         /// Portable (no WPF/System.Drawing dependency) counterpart to Image -
@@ -50,7 +54,9 @@ namespace NINA.Image.Interfaces {
             CancellationToken cancelToken = default,
             IProgress<ApplicationStatus> progress = default(Progress<ApplicationStatus>));
 
+#if HAS_WPF
         Task<BitmapSource> GetThumbnail();
+#endif
         void UpdateAnalysis(StarDetectionParams p, StarDetectionResult result);
     }
 }

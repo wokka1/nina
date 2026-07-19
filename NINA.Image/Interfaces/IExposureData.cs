@@ -18,7 +18,9 @@ using NINA.Image.ImageData;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+#if HAS_WPF
 using System.Windows.Media.Imaging;
+#endif
 
 namespace NINA.Image.Interfaces {
 
@@ -44,8 +46,10 @@ namespace NINA.Image.Interfaces {
 
         ImageArrayExposureData CreateImageArrayExposureData(ushort[] input, int width, int height, int bitDepth, bool isBayered, ImageMetaData metaData);
 
+#if HAS_WPF
         Task<ImageArrayExposureData> CreateImageArrayExposureDataFromBitmapSource(BitmapSource source);
 
         Task<IRenderedImage> CreateRenderedImageFromBitmapSource(BitmapSource source, bool calculateStatistics = false);
+#endif
     }
 }

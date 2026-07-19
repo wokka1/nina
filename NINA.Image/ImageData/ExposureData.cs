@@ -19,7 +19,9 @@ using System.Threading.Tasks;
 using NINA.Core.Model;
 using NINA.Core.Locale;
 using NINA.Image.Interfaces;
+#if HAS_WPF
 using System.Windows.Media.Imaging;
+#endif
 using NINA.Core.Enum;
 using NINA.Image.RawConverter;
 using NINA.Image.ImageAnalysis;
@@ -340,6 +342,7 @@ namespace NINA.Image.ImageData {
             return new ImageArrayExposureData(input, width, height, bitDepth, isBayered, metaData, imageDataFactory);
         }
 
+#if HAS_WPF
         public Task<ImageArrayExposureData> CreateImageArrayExposureDataFromBitmapSource(BitmapSource source) {
             return ImageArrayExposureData.FromBitmapSource(source, imageDataFactory);
         }
@@ -347,5 +350,6 @@ namespace NINA.Image.ImageData {
         public Task<IRenderedImage> CreateRenderedImageFromBitmapSource(BitmapSource source, bool calculateStatistics = false) {
             return RenderedImage.FromBitmapSource(source, this, profileService, starDetectionSelector.GetBehavior(), starAnnotatorSelector.GetBehavior(), calculateStatistics);
         }
+#endif
     }
 }

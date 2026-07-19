@@ -26,8 +26,10 @@ using System.Drawing;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+#if HAS_WPF
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+#endif
 using Point = Accord.Point;
 
 namespace NINA.Image.ImageAnalysis {
@@ -42,7 +44,9 @@ namespace NINA.Image.ImageAnalysis {
         private class State {
             public IImageArray _iarr;
             public ImageProperties imageProperties;
+#if HAS_WPF
             public BitmapSource _originalBitmapSource;
+#endif
             // Portable (Bitmap/WPF-free) equivalent of _originalBitmapSource, populated only
             // by GetInitialPortableState - always Gray16, RGB48 sources are pre-reduced via
             // GrayscalePortable the same way GetInitialState reduces them via Grayscale+Bitmap.
@@ -102,6 +106,7 @@ namespace NINA.Image.ImageAnalysis {
             state._maxStarSize = (int)Math.Ceiling(150 * state._resizefactor);
         }
 
+#if HAS_WPF
         private static State GetInitialState(IRenderedImage renderedImage, System.Windows.Media.PixelFormat pf, StarDetectionParams p) {
             var state = new State();
             var imageData = renderedImage.RawImageData;
@@ -133,6 +138,7 @@ namespace NINA.Image.ImageAnalysis {
 
             return state;
         }
+#endif
 
         /// <summary>
         /// Portable, Bitmap/WPF-free equivalent of GetInitialState - reads pixel data straight
@@ -478,6 +484,7 @@ namespace NINA.Image.ImageAnalysis {
         public record PixelData (int PosX, int PosY, double Value);
         private record RadialSample(double Distance, double RawFlux, double PositiveFlux, int PosX, int PosY);
 
+#if HAS_WPF
         public async Task<StarDetectionResult> Detect(IRenderedImage image, PixelFormat pf, StarDetectionParams p, IProgress<ApplicationStatus> progress, CancellationToken token) {
             var result = new StarDetectionResult();
             Bitmap bitmapToAnalyze = null;
@@ -544,6 +551,7 @@ namespace NINA.Image.ImageAnalysis {
             }
             return result;
         }
+#endif
 
         /// <summary>
         /// Portable, Bitmap/WPF-free equivalent of Detect() - runs the exact same detection
@@ -856,6 +864,7 @@ namespace NINA.Image.ImageAnalysis {
             return Math.Sqrt(sumSquares / values.Count);
         }
 
+#if HAS_WPF
         private BlobCounter DetectStructures(Bitmap bmp, CancellationToken token) {
             using (MyStopWatch.Measure()) {
                 /* detect structures */
@@ -867,7 +876,9 @@ namespace NINA.Image.ImageAnalysis {
                 return blobCounter;
             }
         }
+#endif
 
+#if HAS_WPF
         private void PrepareForStructureDetection(Bitmap bmp, StarDetectionParams p, CancellationToken token) {
             using (MyStopWatch.Measure()) {
                 using (MyStopWatch.Measure("PrepareForStructureDetection - CannyEdge")) {
@@ -892,7 +903,9 @@ namespace NINA.Image.ImageAnalysis {
                 token.ThrowIfCancellationRequested();
             }
         }
+#endif
 
+#if HAS_WPF
         private Bitmap ReduceNoise(Bitmap bitmapToAnalyze, StarDetectionParams p) {
             using (MyStopWatch.Measure()) {
                 if (bitmapToAnalyze.Width > _maxWidth) {
@@ -920,6 +933,7 @@ namespace NINA.Image.ImageAnalysis {
                 return bitmapToAnalyze;
             }
         }
+#endif
 
         /// <summary>
         /// Portable, Bitmap/GDI+-free equivalent of DetectStructures - BlobCounter already

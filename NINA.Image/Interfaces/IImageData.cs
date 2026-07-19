@@ -20,7 +20,9 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+#if HAS_WPF
 using System.Windows.Media.Imaging;
+#endif
 
 namespace NINA.Image.Interfaces {
 
@@ -39,7 +41,9 @@ namespace NINA.Image.Interfaces {
 
         IRenderedImage RenderImage();
 
+#if HAS_WPF
         BitmapSource RenderBitmapSource();
+#endif
 
         ImagePatterns GetImagePatterns();
 

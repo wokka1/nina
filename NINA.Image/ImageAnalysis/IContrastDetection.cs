@@ -26,7 +26,9 @@ namespace NINA.Image.ImageAnalysis {
 
     public interface IContrastDetection {
 
+#if HAS_WPF
         Task<ContrastDetectionResult> Measure(IRenderedImage image, ContrastDetectionParams p, IProgress<ApplicationStatus> progress, CancellationToken token);
+#endif
     }
 
     public class ContrastDetectionParams {

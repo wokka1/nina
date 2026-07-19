@@ -18,8 +18,10 @@ using NINA.Image.Interfaces;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+#if HAS_WPF
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+#endif
 
 namespace NINA.Image.ImageData {
 
@@ -69,6 +71,7 @@ namespace NINA.Image.ImageData {
                     metaData: this.MetaData));
         }
 
+#if HAS_WPF
         public static async Task<ImageArrayExposureData> FromBitmapSource(BitmapSource source, IImageDataFactory imageDataFactory) {            
             var pixels = await Task.Run(() => ArrayFromSource(source));
             return new ImageArrayExposureData(
@@ -118,5 +121,6 @@ namespace NINA.Image.ImageData {
 
             return pixels;
         }
+#endif
     }
 }
