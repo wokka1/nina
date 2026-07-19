@@ -12,12 +12,16 @@
 
 #endregion "copyright"
 
+#if HAS_WPF
 using System.Windows.Media.Imaging;
+#endif
 
 namespace NINA.PlateSolving {
 
     public class PlateSolveProgress {
+#if HAS_WPF
         public BitmapSource Thumbnail { get; set; }
+#endif
 
         public PlateSolveResult PlateSolveResult { get; set; }
     }

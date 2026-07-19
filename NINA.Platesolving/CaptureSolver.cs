@@ -55,11 +55,13 @@ namespace NINA.PlateSolving {
                     progress?.Report(new ApplicationStatus() { Status = string.Empty });
 
                     if (renderedImage != null) {
+#if HAS_WPF
                         solveProgress?.Report(
                             new PlateSolveProgress {
                                 Thumbnail = await renderedImage.GetThumbnail()
                             }
                         );
+#endif
 
                         ct.ThrowIfCancellationRequested();
 

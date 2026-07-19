@@ -81,7 +81,9 @@ namespace NINA.PlateSolving.Solvers {
                         Logger.Error($"Failed to initialize PinPoint. It or its 64bit component does not appear to be installed.");
 
                         if (!parameter.DisableNotifications) {
+#if HAS_WPF
                             Notification.ShowError(Loc.Instance["LblPinPointNotInstalled"]);
+#endif
                         }
 
                         throw new InvalidComObjectException();
@@ -89,7 +91,9 @@ namespace NINA.PlateSolving.Solvers {
                         Logger.Error($"Failed to initialize PinPoint: {ex.GetType().Name}: {ex.Message}");
 
                         if (!parameter.DisableNotifications) {
+#if HAS_WPF
                             Notification.ShowError(Loc.Instance["LblPinPointFailedInitialize"]);
+#endif
                         }
 
                         throw new InvalidComObjectException();
@@ -144,7 +148,9 @@ namespace NINA.PlateSolving.Solvers {
             } catch (InvalidComObjectException) {
                 return plateSolveResult;
             } catch (Exception ex) {
+#if HAS_WPF
                 Notification.ShowExternalError(ex.Message, Loc.Instance["LblPinPointErrorMessage"]);
+#endif
                 Logger.Error($"PinPoint failed to solve: {ex.GetType().Name}: {ex.Message}");
                 return plateSolveResult;
             } finally {

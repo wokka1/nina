@@ -114,7 +114,9 @@ namespace NINA.PlateSolving.Solvers {
                 progress?.Report(new ApplicationStatus() { Status = ex.Message });
                 if (!parameter.DisableNotifications) {
                     Logger.Error(ex.Message);
+#if HAS_WPF
                     Notification.ShowError(ex.Message);
+#endif
                 }
             }
 

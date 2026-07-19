@@ -233,7 +233,9 @@ namespace NINA.PlateSolving.Solvers {
             } catch (Exception ex) {
                 result.Success = false;
                 if (!parameter.DisableNotifications) {
+#if HAS_WPF
                     Notification.ShowError(String.Format(Loc.Instance["LblAstrometryNetSolveFailed"], ex.Message));
+#endif
                 }
             }
 

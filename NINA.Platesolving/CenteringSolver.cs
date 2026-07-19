@@ -153,7 +153,9 @@ namespace NINA.PlateSolving {
                             progress?.Report(new ApplicationStatus() { Status = Loc.Instance["LblSynchronizingDome"] });
                             Logger.Info($"Centering Solver - Synchronize dome to scope since dome following is not enabled");
                             if (!await domeFollower.TriggerTelescopeSync()) {
+#if HAS_WPF
                                 Notification.ShowWarning(Loc.Instance["LblDomeSyncFailureDuringCentering"]);
+#endif
                                 Logger.Warning("Centering Solver - Synchronize dome operation didn't complete successfully. Moving on");
                             }
                             centeringAttempt.AddSubMeasurement(domeSyncMeasurement.Stop());
