@@ -17,7 +17,9 @@ using System.ComponentModel;
 
 namespace NINA.Core.Enum {
 
+#if HAS_WPF
     [TypeConverter(typeof(EnumDescriptionTypeConverter))]
+#endif
     public enum XISFCompressionTypeEnum {
 
         [Description("LblNone")]
@@ -36,7 +38,9 @@ namespace NINA.Core.Enum {
         ZSTD
     }
 
+#if HAS_WPF
     [TypeConverter(typeof(EnumDescriptionTypeConverter))]
+#endif
     public enum XISFChecksumTypeEnum {
 
         [Description("LblNone")]

@@ -23,7 +23,9 @@ using System.Threading.Tasks;
 
 namespace NINA.Core.Enum {
 
+#if HAS_WPF
     [TypeConverter(typeof(EnumDescriptionTypeConverter))]
+#endif
     public enum RotatorRangeTypeEnum {
 
         [TooltipDescription("LblRotatorRangeFull", "LblRotatorRangeFullTooltip")]

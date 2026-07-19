@@ -15,7 +15,9 @@
 using System.ComponentModel;
 
 namespace NINA.Core.Utility.Notification {
+#if HAS_WPF
     [TypeConverter(typeof(EnumDescriptionTypeConverter))]
+#endif
     public enum NotificationCorner {
         [Description("LblNotificationTopLeft")]
         TopLeft,

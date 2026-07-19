@@ -16,7 +16,9 @@ using NINA.Core.Utility;
 using System;
 using System.Globalization;
 using System.Resources;
+#if HAS_WPF
 using System.Windows.Data;
+#endif
 
 namespace NINA.Core.Locale {
 
@@ -54,6 +56,7 @@ namespace NINA.Core.Locale {
         }
     }
 
+#if HAS_WPF
     public class LocExtension : Binding {
 
         public LocExtension(string name) : base($"[{name}]") {
@@ -61,4 +64,5 @@ namespace NINA.Core.Locale {
             this.Source = Loc.Instance;
         }
     }
+#endif
 }

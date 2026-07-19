@@ -19,7 +19,9 @@ using System.ComponentModel;
 namespace NINA.Core.Enum {
 
     [Obsolete("RAW converter selection is obsolete. LibRaw is always used.")]
+#if HAS_WPF
     [TypeConverter(typeof(EnumDescriptionTypeConverter))]
+#endif
     public enum RawConverterEnum {
 
         [Description("LblLibRaw")]

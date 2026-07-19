@@ -20,7 +20,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Runtime.Serialization;
+#if HAS_WPF
 using System.Windows.Media;
+#endif
 using System.Xml.Linq;
 using System.Xml.Serialization;
 
@@ -36,6 +38,7 @@ namespace NINA.Core.Utility.ColorSchema {
         [XmlElement("ColorSchema")]
         public List<ColorSchema> Items { get; set; }
 
+#if HAS_WPF
         public static ColorSchemas ReadColorSchemas() {
             ColorSchemas schemas = new ColorSchemas();
 
@@ -389,286 +392,349 @@ namespace NINA.Core.Utility.ColorSchema {
 
             return schemas;
         }
+#endif
     }
 
     [Serializable()]
     [DataContract]
     public class ColorSchema : SerializableINPC {
-        private Color primaryColor;
-        private Color secondaryColor;
-        private Color notificationErrorTextColor;
-        private Color notificationWarningTextColor;
-        private Color notificationErrorColor;
-        private Color notificationWarningColor;
-        private Color buttonForegroundDisabledColor;
-        private Color crosshairColor;
-        private Color buttonForegroundColor;
-        private Color buttonBackgroundSelectedColor;
-        private Color buttonBackgroundColor;
-        private Color tertiaryBackgroundColor;
-        private Color secondaryBackgroundColor;
-        private Color backgroundColor;
-        private Color borderColor;
-        private Color sequencerExpressionTextColor;
+        private PortableColor primaryColor;
+        private PortableColor secondaryColor;
+        private PortableColor borderColor;
+        private PortableColor backgroundColor;
+        private PortableColor secondaryBackgroundColor;
+        private PortableColor tertiaryBackgroundColor;
+        private PortableColor buttonBackgroundColor;
+        private PortableColor buttonBackgroundSelectedColor;
+        private PortableColor buttonForegroundColor;
+        private PortableColor buttonForegroundDisabledColor;
+        private PortableColor crosshairColor;
+        private PortableColor notificationWarningColor;
+        private PortableColor notificationErrorColor;
+        private PortableColor notificationWarningTextColor;
+        private PortableColor notificationErrorTextColor;
+        private PortableColor sequencerExpressionTextColor;
 
         [DataMember]
         public String Name { get; set; }
 
+#if HAS_WPF
         [DataMember]
         public Color PrimaryColor {
-            get => primaryColor;
+            get => Color.FromArgb(primaryColor.A, primaryColor.R, primaryColor.G, primaryColor.B);
             set {
-                if (primaryColor != value) {
-                    primaryColor = value;
+                var portable = new PortableColor(value.A, value.R, value.G, value.B);
+                if (primaryColor != portable) {
+                    primaryColor = portable;
                     RaisePropertyChanged();
                 }
             }
         }
+#endif
 
         [XmlIgnore]
         [IgnoreDataMember]
-        public PortableColor PrimaryColorPortable => new PortableColor(PrimaryColor.A, PrimaryColor.R, PrimaryColor.G, PrimaryColor.B);
+        public PortableColor PrimaryColorPortable => primaryColor;
 
+#if HAS_WPF
         [DataMember]
         public Color SecondaryColor {
-            get => secondaryColor;
+            get => Color.FromArgb(secondaryColor.A, secondaryColor.R, secondaryColor.G, secondaryColor.B);
             set {
-                if (secondaryColor != value) {
-                    secondaryColor = value;
+                var portable = new PortableColor(value.A, value.R, value.G, value.B);
+                if (secondaryColor != portable) {
+                    secondaryColor = portable;
                     RaisePropertyChanged();
                 }
             }
         }
+#endif
 
         [XmlIgnore]
         [IgnoreDataMember]
-        public PortableColor SecondaryColorPortable => new PortableColor(SecondaryColor.A, SecondaryColor.R, SecondaryColor.G, SecondaryColor.B);
+        public PortableColor SecondaryColorPortable => secondaryColor;
 
+#if HAS_WPF
         [DataMember]
         public Color BorderColor {
-            get => borderColor;
+            get => Color.FromArgb(borderColor.A, borderColor.R, borderColor.G, borderColor.B);
             set {
-                if (borderColor != value) {
-                    borderColor = value;
+                var portable = new PortableColor(value.A, value.R, value.G, value.B);
+                if (borderColor != portable) {
+                    borderColor = portable;
                     RaisePropertyChanged();
                 }
             }
         }
+#endif
 
         [XmlIgnore]
         [IgnoreDataMember]
-        public PortableColor BorderColorPortable => new PortableColor(BorderColor.A, BorderColor.R, BorderColor.G, BorderColor.B);
+        public PortableColor BorderColorPortable => borderColor;
 
+#if HAS_WPF
         [DataMember]
         public Color BackgroundColor {
-            get => backgroundColor;
+            get => Color.FromArgb(backgroundColor.A, backgroundColor.R, backgroundColor.G, backgroundColor.B);
             set {
-                if (backgroundColor != value) {
-                    backgroundColor = value;
+                var portable = new PortableColor(value.A, value.R, value.G, value.B);
+                if (backgroundColor != portable) {
+                    backgroundColor = portable;
                     RaisePropertyChanged();
                 }
             }
         }
+#endif
 
         [XmlIgnore]
         [IgnoreDataMember]
-        public PortableColor BackgroundColorPortable => new PortableColor(BackgroundColor.A, BackgroundColor.R, BackgroundColor.G, BackgroundColor.B);
+        public PortableColor BackgroundColorPortable => backgroundColor;
 
+#if HAS_WPF
         [DataMember]
         public Color SecondaryBackgroundColor {
-            get => secondaryBackgroundColor;
+            get => Color.FromArgb(secondaryBackgroundColor.A, secondaryBackgroundColor.R, secondaryBackgroundColor.G, secondaryBackgroundColor.B);
             set {
-                if (secondaryBackgroundColor != value) {
-                    secondaryBackgroundColor = value;
+                var portable = new PortableColor(value.A, value.R, value.G, value.B);
+                if (secondaryBackgroundColor != portable) {
+                    secondaryBackgroundColor = portable;
                     RaisePropertyChanged();
                 }
             }
         }
+#endif
 
         [XmlIgnore]
         [IgnoreDataMember]
-        public PortableColor SecondaryBackgroundColorPortable => new PortableColor(SecondaryBackgroundColor.A, SecondaryBackgroundColor.R, SecondaryBackgroundColor.G, SecondaryBackgroundColor.B);
+        public PortableColor SecondaryBackgroundColorPortable => secondaryBackgroundColor;
 
+#if HAS_WPF
         [DataMember]
         public Color TertiaryBackgroundColor {
-            get => tertiaryBackgroundColor;
+            get => Color.FromArgb(tertiaryBackgroundColor.A, tertiaryBackgroundColor.R, tertiaryBackgroundColor.G, tertiaryBackgroundColor.B);
             set {
-                if (tertiaryBackgroundColor != value) {
-                    tertiaryBackgroundColor = value;
+                var portable = new PortableColor(value.A, value.R, value.G, value.B);
+                if (tertiaryBackgroundColor != portable) {
+                    tertiaryBackgroundColor = portable;
                     RaisePropertyChanged();
                 }
             }
         }
+#endif
 
         [XmlIgnore]
         [IgnoreDataMember]
-        public PortableColor TertiaryBackgroundColorPortable => new PortableColor(TertiaryBackgroundColor.A, TertiaryBackgroundColor.R, TertiaryBackgroundColor.G, TertiaryBackgroundColor.B);
+        public PortableColor TertiaryBackgroundColorPortable => tertiaryBackgroundColor;
 
+#if HAS_WPF
         [DataMember]
         public Color ButtonBackgroundColor {
-            get => buttonBackgroundColor;
+            get => Color.FromArgb(buttonBackgroundColor.A, buttonBackgroundColor.R, buttonBackgroundColor.G, buttonBackgroundColor.B);
             set {
-                if (buttonBackgroundColor != value) {
-                    buttonBackgroundColor = value;
+                var portable = new PortableColor(value.A, value.R, value.G, value.B);
+                if (buttonBackgroundColor != portable) {
+                    buttonBackgroundColor = portable;
                     RaisePropertyChanged();
                 }
             }
         }
+#endif
 
         [XmlIgnore]
         [IgnoreDataMember]
-        public PortableColor ButtonBackgroundColorPortable => new PortableColor(ButtonBackgroundColor.A, ButtonBackgroundColor.R, ButtonBackgroundColor.G, ButtonBackgroundColor.B);
+        public PortableColor ButtonBackgroundColorPortable => buttonBackgroundColor;
 
+#if HAS_WPF
         [DataMember]
         public Color ButtonBackgroundSelectedColor {
-            get => buttonBackgroundSelectedColor;
+            get => Color.FromArgb(buttonBackgroundSelectedColor.A, buttonBackgroundSelectedColor.R, buttonBackgroundSelectedColor.G, buttonBackgroundSelectedColor.B);
             set {
-                if (buttonBackgroundSelectedColor != value) {
-                    buttonBackgroundSelectedColor = value;
+                var portable = new PortableColor(value.A, value.R, value.G, value.B);
+                if (buttonBackgroundSelectedColor != portable) {
+                    buttonBackgroundSelectedColor = portable;
                     RaisePropertyChanged();
                 }
             }
         }
+#endif
 
         [XmlIgnore]
         [IgnoreDataMember]
-        public PortableColor ButtonBackgroundSelectedColorPortable => new PortableColor(ButtonBackgroundSelectedColor.A, ButtonBackgroundSelectedColor.R, ButtonBackgroundSelectedColor.G, ButtonBackgroundSelectedColor.B);
+        public PortableColor ButtonBackgroundSelectedColorPortable => buttonBackgroundSelectedColor;
 
+#if HAS_WPF
         [DataMember]
         public Color ButtonForegroundColor {
-            get => buttonForegroundColor;
+            get => Color.FromArgb(buttonForegroundColor.A, buttonForegroundColor.R, buttonForegroundColor.G, buttonForegroundColor.B);
             set {
-                if (buttonForegroundColor != value) {
-                    buttonForegroundColor = value;
+                var portable = new PortableColor(value.A, value.R, value.G, value.B);
+                if (buttonForegroundColor != portable) {
+                    buttonForegroundColor = portable;
                     RaisePropertyChanged();
                 }
             }
         }
+#endif
 
         [XmlIgnore]
         [IgnoreDataMember]
-        public PortableColor ButtonForegroundColorPortable => new PortableColor(ButtonForegroundColor.A, ButtonForegroundColor.R, ButtonForegroundColor.G, ButtonForegroundColor.B);
+        public PortableColor ButtonForegroundColorPortable => buttonForegroundColor;
 
+#if HAS_WPF
         [DataMember]
         public Color ButtonForegroundDisabledColor {
-            get => buttonForegroundDisabledColor;
+            get => Color.FromArgb(buttonForegroundDisabledColor.A, buttonForegroundDisabledColor.R, buttonForegroundDisabledColor.G, buttonForegroundDisabledColor.B);
             set {
-                if (buttonForegroundDisabledColor != value) {
-                    buttonForegroundDisabledColor = value;
+                var portable = new PortableColor(value.A, value.R, value.G, value.B);
+                if (buttonForegroundDisabledColor != portable) {
+                    buttonForegroundDisabledColor = portable;
                     RaisePropertyChanged();
                 }
             }
         }
+#endif
 
         [XmlIgnore]
         [IgnoreDataMember]
-        public PortableColor ButtonForegroundDisabledColorPortable => new PortableColor(ButtonForegroundDisabledColor.A, ButtonForegroundDisabledColor.R, ButtonForegroundDisabledColor.G, ButtonForegroundDisabledColor.B);
+        public PortableColor ButtonForegroundDisabledColorPortable => buttonForegroundDisabledColor;
 
+#if HAS_WPF
         [DataMember]
         public Color CrosshairColor {
             get {
-                if (crosshairColor == new Color()) {
-                    crosshairColor = (Color)ColorConverter.ConvertFromString("#FF848484");
+                if (crosshairColor == default) {
+                    crosshairColor = new PortableColor(0xFF, 0x84, 0x84, 0x84);
+                }
+                return Color.FromArgb(crosshairColor.A, crosshairColor.R, crosshairColor.G, crosshairColor.B);
+            }
+            set {
+                var portable = new PortableColor(value.A, value.R, value.G, value.B);
+                if (portable == default) {
+                    portable = new PortableColor(0xFF, 0x84, 0x84, 0x84);
+                }
+                if (crosshairColor != portable) {
+                    crosshairColor = portable;
+                    RaisePropertyChanged();
+                }
+            }
+        }
+#endif
+
+        [XmlIgnore]
+        [IgnoreDataMember]
+        public PortableColor CrosshairColorPortable {
+            get {
+                if (crosshairColor == default) {
+                    crosshairColor = new PortableColor(0xFF, 0x84, 0x84, 0x84);
                 }
                 return crosshairColor;
             }
-            set {
-                if(value == new Color()) {
-                    value = (Color)ColorConverter.ConvertFromString("#FF848484");
-                }
-                if (crosshairColor != value) {
-                    crosshairColor = value;
-                    RaisePropertyChanged();
-                }
-            }
         }
 
-        [XmlIgnore]
-        [IgnoreDataMember]
-        public PortableColor CrosshairColorPortable => new PortableColor(CrosshairColor.A, CrosshairColor.R, CrosshairColor.G, CrosshairColor.B);
-
+#if HAS_WPF
         [DataMember]
         public Color NotificationWarningColor {
-            get => notificationWarningColor;
+            get => Color.FromArgb(notificationWarningColor.A, notificationWarningColor.R, notificationWarningColor.G, notificationWarningColor.B);
             set {
-                if (notificationWarningColor != value) {
-                    notificationWarningColor = value;
+                var portable = new PortableColor(value.A, value.R, value.G, value.B);
+                if (notificationWarningColor != portable) {
+                    notificationWarningColor = portable;
                     RaisePropertyChanged();
                 }
             }
         }
+#endif
 
         [XmlIgnore]
         [IgnoreDataMember]
-        public PortableColor NotificationWarningColorPortable => new PortableColor(NotificationWarningColor.A, NotificationWarningColor.R, NotificationWarningColor.G, NotificationWarningColor.B);
+        public PortableColor NotificationWarningColorPortable => notificationWarningColor;
 
+#if HAS_WPF
         [DataMember]
         public Color NotificationErrorColor {
-            get => notificationErrorColor;
+            get => Color.FromArgb(notificationErrorColor.A, notificationErrorColor.R, notificationErrorColor.G, notificationErrorColor.B);
             set {
-                if (notificationErrorColor != value) {
-                    notificationErrorColor = value;
+                var portable = new PortableColor(value.A, value.R, value.G, value.B);
+                if (notificationErrorColor != portable) {
+                    notificationErrorColor = portable;
                     RaisePropertyChanged();
                 }
             }
         }
+#endif
 
         [XmlIgnore]
         [IgnoreDataMember]
-        public PortableColor NotificationErrorColorPortable => new PortableColor(NotificationErrorColor.A, NotificationErrorColor.R, NotificationErrorColor.G, NotificationErrorColor.B);
+        public PortableColor NotificationErrorColorPortable => notificationErrorColor;
 
+#if HAS_WPF
         [DataMember]
         public Color NotificationWarningTextColor {
-            get => notificationWarningTextColor;
+            get => Color.FromArgb(notificationWarningTextColor.A, notificationWarningTextColor.R, notificationWarningTextColor.G, notificationWarningTextColor.B);
             set {
-                if (notificationWarningTextColor != value) {
-                    notificationWarningTextColor = value;
+                var portable = new PortableColor(value.A, value.R, value.G, value.B);
+                if (notificationWarningTextColor != portable) {
+                    notificationWarningTextColor = portable;
                     RaisePropertyChanged();
                 }
             }
         }
+#endif
 
         [XmlIgnore]
         [IgnoreDataMember]
-        public PortableColor NotificationWarningTextColorPortable => new PortableColor(NotificationWarningTextColor.A, NotificationWarningTextColor.R, NotificationWarningTextColor.G, NotificationWarningTextColor.B);
+        public PortableColor NotificationWarningTextColorPortable => notificationWarningTextColor;
 
+#if HAS_WPF
         [DataMember]
         public Color NotificationErrorTextColor {
-            get => notificationErrorTextColor;
+            get => Color.FromArgb(notificationErrorTextColor.A, notificationErrorTextColor.R, notificationErrorTextColor.G, notificationErrorTextColor.B);
             set {
-                if (notificationErrorTextColor != value) {
-                    notificationErrorTextColor = value;
+                var portable = new PortableColor(value.A, value.R, value.G, value.B);
+                if (notificationErrorTextColor != portable) {
+                    notificationErrorTextColor = portable;
                     RaisePropertyChanged();
                 }
             }
         }
+#endif
 
         [XmlIgnore]
         [IgnoreDataMember]
-        public PortableColor NotificationErrorTextColorPortable => new PortableColor(NotificationErrorTextColor.A, NotificationErrorTextColor.R, NotificationErrorTextColor.G, NotificationErrorTextColor.B);
+        public PortableColor NotificationErrorTextColorPortable => notificationErrorTextColor;
 
+#if HAS_WPF
         [DataMember]
         public Color SequencerExpressionTextColor {
             get {
-                if (sequencerExpressionTextColor == new Color()) {
-                    sequencerExpressionTextColor = (Color)ColorConverter.ConvertFromString("#FFF5F4FA");
+                if (sequencerExpressionTextColor == default) {
+                    sequencerExpressionTextColor = new PortableColor(0xFF, 0xF5, 0xF4, 0xFA);
                 }
-                return sequencerExpressionTextColor;
+                return Color.FromArgb(sequencerExpressionTextColor.A, sequencerExpressionTextColor.R, sequencerExpressionTextColor.G, sequencerExpressionTextColor.B);
             }
             set {
-                if (value == new Color()) {
-                    value = (Color)ColorConverter.ConvertFromString("#FFF5F4FA");
+                var portable = new PortableColor(value.A, value.R, value.G, value.B);
+                if (portable == default) {
+                    portable = new PortableColor(0xFF, 0xF5, 0xF4, 0xFA);
                 }
-                if (sequencerExpressionTextColor != value) {
-                    sequencerExpressionTextColor = value;
+                if (sequencerExpressionTextColor != portable) {
+                    sequencerExpressionTextColor = portable;
                     RaisePropertyChanged();
                 }
             }
         }
+#endif
 
         [XmlIgnore]
         [IgnoreDataMember]
-        public PortableColor SequencerExpressionTextColorPortable => new PortableColor(SequencerExpressionTextColor.A, SequencerExpressionTextColor.R, SequencerExpressionTextColor.G, SequencerExpressionTextColor.B);
+        public PortableColor SequencerExpressionTextColorPortable {
+            get {
+                if (sequencerExpressionTextColor == default) {
+                    sequencerExpressionTextColor = new PortableColor(0xFF, 0xF5, 0xF4, 0xFA);
+                }
+                return sequencerExpressionTextColor;
+            }
+        }
 
         [XmlIgnore]
         [IgnoreDataMember]

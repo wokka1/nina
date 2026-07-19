@@ -18,7 +18,9 @@ using System.ComponentModel;
 
 namespace NINA.Core.Enum {
 
+#if HAS_WPF
     [TypeConverter(typeof(EnumDescriptionTypeConverter))]
+#endif
     public enum FileTypeEnum {
 
         [Description("LblTiff")]

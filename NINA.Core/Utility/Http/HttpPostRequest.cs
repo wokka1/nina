@@ -50,7 +50,9 @@ namespace NINA.Core.Utility.Http {
                 ct.ThrowIfCancellationRequested();
             } catch (Exception ex) {
                 Logger.Error(ex);
+#if HAS_WPF
                 Notification.Notification.ShowError(String.Format(Locale.Loc.Instance["LblUnableToConnectTo"], Url));
+#endif
             }
 
             return result;

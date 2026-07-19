@@ -51,7 +51,9 @@ namespace NINA.Core.Utility.SerialCommunication {
                 SerialPort?.Open();
             } catch (Exception ex) {
                 Logger.Error(ex);
+#if HAS_WPF
                 Notification.Notification.ShowError(string.Format(Locale.Loc.Instance["LblSerialPortCannotOpen"], SerialPort?.PortName, ex.GetType().Name));
+#endif
 
                 if (clients.Contains(client)) { clients.Remove(client); }
                 SerialPort = null;

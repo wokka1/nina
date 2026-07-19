@@ -20,7 +20,9 @@ namespace NINA.Core.Enum {
     /// <summary>
     /// This mirrors the ASCOM CameraStates enum with the addition of a -1 "Unknown" state
     /// </summary>
+#if HAS_WPF
     [TypeConverter(typeof(EnumDescriptionTypeConverter))]
+#endif
     public enum CameraStates {
 
         /// <summary>

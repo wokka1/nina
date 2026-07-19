@@ -78,12 +78,16 @@ namespace NINA.Core.Utility {
         /// </remarks>
         public event EventHandler CanExecuteChanged {
             add {
+#if HAS_WPF
                 CommandManager.RequerySuggested += value;
+#endif
                 this.CanExecuteChangedInternal += value;
             }
 
             remove {
+#if HAS_WPF
                 CommandManager.RequerySuggested -= value;
+#endif
                 this.CanExecuteChangedInternal -= value;
             }
         }

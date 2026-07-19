@@ -297,6 +297,7 @@ namespace NINA.Core.Utility {
             return result * Math.Sign(value);
         }
 
+#if HAS_WPF
         public static Microsoft.Win32.OpenFileDialog GetFilteredFileDialog(string path, string filename, string filter) {
             Microsoft.Win32.OpenFileDialog dialog = new Microsoft.Win32.OpenFileDialog();
 
@@ -307,6 +308,7 @@ namespace NINA.Core.Utility {
             dialog.Filter = filter;
             return dialog;
         }
+#endif
 
         public static void SaveSettings(ApplicationSettingsBase settings, [CallerMemberName] string memberName = "") {
             try {

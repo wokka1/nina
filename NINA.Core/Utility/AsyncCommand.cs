@@ -32,6 +32,7 @@ namespace NINA.Core.Utility {
             await ExecuteAsync(parameter);
         }
 
+#if HAS_WPF
         public event EventHandler CanExecuteChanged {
             add => CommandManager.RequerySuggested += value;
             remove => CommandManager.RequerySuggested -= value;
@@ -40,6 +41,16 @@ namespace NINA.Core.Utility {
         protected void RaiseCanExecuteChanged() {
             CommandManager.InvalidateRequerySuggested();
         }
+#else
+        // Portable fallback - WPF's CommandManager.RequerySuggested polls on every
+        // UI focus/keyboard event to decide when bound commands should re-evaluate
+        // CanExecute. Without WPF, callers just need a plain event to raise explicitly.
+        public event EventHandler CanExecuteChanged;
+
+        protected void RaiseCanExecuteChanged() {
+            CanExecuteChanged?.Invoke(this, EventArgs.Empty);
+        }
+#endif
     }
 
     [Obsolete($"Use {nameof(IAsyncRelayCommand)} instead, that utilizes MVVM Toolkit via CommunityToolkit.Mvvm.Input")]

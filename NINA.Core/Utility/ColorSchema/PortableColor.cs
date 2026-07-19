@@ -30,5 +30,14 @@ namespace NINA.Core.Utility.ColorSchema {
             G = g;
             B = b;
         }
+
+        public static bool operator ==(PortableColor left, PortableColor right) =>
+            left.A == right.A && left.R == right.R && left.G == right.G && left.B == right.B;
+
+        public static bool operator !=(PortableColor left, PortableColor right) => !(left == right);
+
+        public override bool Equals(object obj) => obj is PortableColor other && this == other;
+
+        public override int GetHashCode() => (A, R, G, B).GetHashCode();
     }
 }

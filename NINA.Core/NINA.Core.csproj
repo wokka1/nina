@@ -1,10 +1,11 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net10.0-windows</TargetFramework>
+    <TargetFrameworks>net10.0-windows;net10.0</TargetFrameworks>
     <OutputType>Library</OutputType>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <UseWPF>true</UseWPF>
-    <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
+    <UseWPF Condition="'$(TargetFramework)'=='net10.0-windows'">true</UseWPF>
+    <DefineConstants Condition="'$(TargetFramework)'=='net10.0-windows'">$(DefineConstants);HAS_WPF</DefineConstants>
+    <ImportWindowsDesktopTargets Condition="'$(TargetFramework)'=='net10.0-windows'">true</ImportWindowsDesktopTargets>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Configurations>Debug;Release;SignedRelease</Configurations>
     <EnableWindowsTargeting>true</EnableWindowsTargeting>
@@ -21,6 +22,128 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Optimize>true</Optimize>
   </PropertyGroup>
+  <ItemGroup Condition="'$(TargetFramework)'=='net10.0'">
+    <Compile Remove="Interfaces\IMyMessageBoxVM.cs" />
+    <Compile Remove="MyMessageBox\MyMessageBox.cs" />
+    <Compile Remove="MyMessageBox\MyMessageBoxVM.cs" />
+    <Compile Remove="MyMessageBox\MyMessageBoxView.xaml.cs" />
+    <Compile Remove="Model\IImageGeometryProvider.cs" />
+    <Compile Remove="Utility\ApplicationResourceDictionary.cs" />
+    <Compile Remove="Utility\BindingProxy.cs" />
+    <Compile Remove="Utility\ButtonHelper.cs" />
+    <Compile Remove="Utility\Converters\AFFittingToColorConverter.cs" />
+    <Compile Remove="Utility\Converters\AFFittingToVisibilityConverter.cs" />
+    <Compile Remove="Utility\Converters\AddToNumberConverter.cs" />
+    <Compile Remove="Utility\Converters\AllNullOrEmptyStringToVisibilityCollapsedMultiConverter.cs" />
+    <Compile Remove="Utility\Converters\AutoFocusContrastDetectionToCollapsedVisibilityConverter.cs" />
+    <Compile Remove="Utility\Converters\AutoFocusHFRToCollapsedVisibilityConverter.cs" />
+    <Compile Remove="Utility\Converters\BoolToLabelConverter.cs" />
+    <Compile Remove="Utility\Converters\BoolToVisibilityConverter.cs" />
+    <Compile Remove="Utility\Converters\BooleanAndConverter.cs" />
+    <Compile Remove="Utility\Converters\BooleanOrConverter.cs" />
+    <Compile Remove="Utility\Converters\BooleanOrToVisibilityCollapsedMultiConverter.cs" />
+    <Compile Remove="Utility\Converters\BooleanToVisibilityCollapsedConverter.cs" />
+    <Compile Remove="Utility\Converters\BooleanToVisibilityCollapsedMultiConverter.cs" />
+    <Compile Remove="Utility\Converters\BooleanToVisibilityHiddenConverter.cs" />
+    <Compile Remove="Utility\Converters\BooleanToVisibilityHiddenMultiConverter.cs" />
+    <Compile Remove="Utility\Converters\CameraDefaultValueConverter.cs" />
+    <Compile Remove="Utility\Converters\CameraStateToVisibilityConverter.cs" />
+    <Compile Remove="Utility\Converters\ClampDoubleConverter.cs" />
+    <Compile Remove="Utility\Converters\CollectionContainsItemsToBooleanConverter.cs" />
+    <Compile Remove="Utility\Converters\CollectionContainsItemsToVisibilityConverter.cs" />
+    <Compile Remove="Utility\Converters\CollectionContainsMoreThanOneItemToVisibilityConverter.cs" />
+    <Compile Remove="Utility\Converters\ConditionalNullToObjectMultiConverter.cs" />
+    <Compile Remove="Utility\Converters\DataTypeToStringConverter.cs" />
+    <Compile Remove="Utility\Converters\DatabindingDebugConverter.cs" />
+    <Compile Remove="Utility\Converters\DateTimeZeroToVisibilityCollapsedConverter.cs" />
+    <Compile Remove="Utility\Converters\DecDegreeConverter.cs" />
+    <Compile Remove="Utility\Converters\DefaultBinningModesConverter.cs" />
+    <Compile Remove="Utility\Converters\DoubleToBooleanConverter.cs" />
+    <Compile Remove="Utility\Converters\DoubleToHalfValueConverter.cs" />
+    <Compile Remove="Utility\Converters\DrawingToMediaBrushConverter.cs" />
+    <Compile Remove="Utility\Converters\EnumTooltipConverter.cs" />
+    <Compile Remove="Utility\Converters\FilenameConverter.cs" />
+    <Compile Remove="Utility\Converters\FilterWheelFilterConverter.cs" />
+    <Compile Remove="Utility\Converters\IntListToTextBlockListConverter.cs" />
+    <Compile Remove="Utility\Converters\IntNegativeOneToDoubleDashConverter.cs" />
+    <Compile Remove="Utility\Converters\InverseBoolToVisibilityConverter.cs" />
+    <Compile Remove="Utility\Converters\InverseBooleanConverter.cs" />
+    <Compile Remove="Utility\Converters\InverseBooleanOrToVisibilityCollapsedMultiConverter.cs" />
+    <Compile Remove="Utility\Converters\InverseBooleanToVisibilityCollapsedConverter.cs" />
+    <Compile Remove="Utility\Converters\InverseCollectionContainsItemsToVisibilityConverter.cs" />
+    <Compile Remove="Utility\Converters\InverseMultiBooleanANDConverter.cs" />
+    <Compile Remove="Utility\Converters\InverseMultiBooleanORConverter.cs" />
+    <Compile Remove="Utility\Converters\InverseNullToBooleanConverter.cs" />
+    <Compile Remove="Utility\Converters\InverseNullToVisibilityCollapsedConverter.cs" />
+    <Compile Remove="Utility\Converters\InverseNullToVisibilityConverter.cs" />
+    <Compile Remove="Utility\Converters\MeridianCrossingAnnotationConverter.cs" />
+    <Compile Remove="Utility\Converters\MeridianTextAlignmentConverter.cs" />
+    <Compile Remove="Utility\Converters\MeridianXPositionConverter.cs" />
+    <Compile Remove="Utility\Converters\MinusOneToBaseValueConverter.cs" />
+    <Compile Remove="Utility\Converters\MinusOneToEmptyStringConverter.cs" />
+    <Compile Remove="Utility\Converters\MultiMarginConverter.cs" />
+    <Compile Remove="Utility\Converters\MultiToListConverter.cs" />
+    <Compile Remove="Utility\Converters\NaNToDoubleDashConverter.cs" />
+    <Compile Remove="Utility\Converters\NaNToEmptyTextConverter.cs" />
+    <Compile Remove="Utility\Converters\NaNToVisibilityCollapsedConverter.cs" />
+    <Compile Remove="Utility\Converters\NaNToVisibilityConverter.cs" />
+    <Compile Remove="Utility\Converters\NullImageConverter.cs" />
+    <Compile Remove="Utility\Converters\NullOrEmptyStringToVisibilityCollapsedConverter.cs" />
+    <Compile Remove="Utility\Converters\NullToVisibilityCollapsedConverter.cs" />
+    <Compile Remove="Utility\Converters\NullToVisibilityConverter.cs" />
+    <Compile Remove="Utility\Converters\OneValueGreaterThanAnotherToVisiblityConverter.cs" />
+    <Compile Remove="Utility\Converters\OptimalExposureCalculatorAnswerConverter.cs" />
+    <Compile Remove="Utility\Converters\OxyPlotDateTimeConverter.cs" />
+    <Compile Remove="Utility\Converters\PercentageConverter.cs" />
+    <Compile Remove="Utility\Converters\SetAlphaToColorConverter.cs" />
+    <Compile Remove="Utility\Converters\SideOfPierConverter.cs" />
+    <Compile Remove="Utility\Converters\StringCollectionToStringConverter.cs" />
+    <Compile Remove="Utility\Converters\SubstractConverter.cs" />
+    <Compile Remove="Utility\Converters\SubtractHalfConverter.cs" />
+    <Compile Remove="Utility\Converters\TimeSpanToStringConverter.cs" />
+    <Compile Remove="Utility\Converters\TimeSpanZeroToVisibilityConverter.cs" />
+    <Compile Remove="Utility\Converters\UnitConverter.cs" />
+    <Compile Remove="Utility\Converters\ValueToLocaleConverter.cs" />
+    <Compile Remove="Utility\Converters\WidthAndValueToWidthConverter.cs" />
+    <Compile Remove="Utility\Converters\ZeroToVisibilityConverter.cs" />
+    <Compile Remove="Utility\DataPipes.cs" />
+    <Compile Remove="Utility\DeferredContent.cs" />
+    <Compile Remove="Utility\DialogCloser.cs" />
+    <Compile Remove="Utility\EnumBindingSourceExtension.cs" />
+    <Compile Remove="Utility\Extensions\WPFExtensions.cs" />
+    <Compile Remove="Utility\InvokeProcess.cs" />
+    <Compile Remove="Utility\Notification\CustomNotification.cs" />
+    <Compile Remove="Utility\Notification\INotificationWorkAreaProvider.cs" />
+    <Compile Remove="Utility\Notification\MainWindowWorkAreaProvider.cs" />
+    <Compile Remove="Utility\Notification\Notification.cs" />
+    <Compile Remove="Utility\Notification\NotificationHostWindow.xaml.cs" />
+    <Compile Remove="Utility\Notification\NotificationManager.cs" />
+    <Compile Remove="Utility\Notification\PrimaryScreenWorkAreaProvider.cs" />
+    <Compile Remove="Utility\Notification\SameScreenAsApplicationWorkAreaProvider.cs" />
+    <Compile Remove="Utility\TabControlEx.cs" />
+    <Compile Remove="Utility\ValidationRules.cs" />
+    <Compile Remove="Utility\ValidationRules\DegreesRule.cs" />
+    <Compile Remove="Utility\ValidationRules\DirectoryExistsRule.cs" />
+    <Compile Remove="Utility\ValidationRules\DoubleRangeRule.cs" />
+    <Compile Remove="Utility\ValidationRules\FileExistsRule.cs" />
+    <Compile Remove="Utility\ValidationRules\FloatRangeRule.cs" />
+    <Compile Remove="Utility\ValidationRules\FullCircleDegreesRule.cs" />
+    <Compile Remove="Utility\ValidationRules\GreaterThanZeroRule.cs" />
+    <Compile Remove="Utility\ValidationRules\GreaterZeroRule.cs" />
+    <Compile Remove="Utility\ValidationRules\HoursRule.cs" />
+    <Compile Remove="Utility\ValidationRules\IntRangeRule.cs" />
+    <Compile Remove="Utility\ValidationRules\IsValidIPAddressRule.cs" />
+    <Compile Remove="Utility\ValidationRules\IsValidIpPortRule.cs" />
+    <Compile Remove="Utility\ValidationRules\LatitudeRule.cs" />
+    <Compile Remove="Utility\ValidationRules\LongitudeRule.cs" />
+    <Compile Remove="Utility\ValidationRules\MinutesRule.cs" />
+    <Compile Remove="Utility\ValidationRules\SecondsRule.cs" />
+    <Compile Remove="Utility\ValidationRules\ShortRangeRule.cs" />
+    <Compile Remove="Utility\ValidationRules\StrictGreaterZeroRule.cs" />
+    <Compile Remove="Utility\WindowService\CustomWindow.cs" />
+    <Compile Remove="Utility\WindowService\WindowServiceFactory.cs" />
+    <Compile Remove="Utility\WindowService\WindowService.cs" />
+  </ItemGroup>
   <ItemGroup>
     <Compile Remove="publish\**" />
     <EmbeddedResource Remove="publish\**" />
