@@ -1015,7 +1015,9 @@ namespace NINA.Astrometry {
         }
     }
 
+#if HAS_WPF
     [TypeConverter(typeof(EnumDescriptionTypeConverter))]
+#endif
     public enum Epoch {
 
         [Description("LblJNOW")]
@@ -1031,7 +1033,9 @@ namespace NINA.Astrometry {
         J2050
     }
 
+#if HAS_WPF
     [TypeConverter(typeof(EnumDescriptionTypeConverter))]
+#endif
     public enum Direction {
 
         [Description("LblAltitude")]

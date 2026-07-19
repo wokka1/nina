@@ -3,7 +3,9 @@ using OxyPlot;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+#if HAS_WPF
 using System.Windows.Media.Imaging;
+#endif
 
 namespace NINA.Astrometry.Interfaces {
     public interface IDeepSkyObject : INotifyPropertyChanged {
@@ -30,7 +32,9 @@ namespace NINA.Astrometry.Interfaces {
         List<DataPoint> Horizon { get; }
         List<string> AlsoKnownAs { get; set; }
         bool DoesTransitSouth { get; }
+#if HAS_WPF
         BitmapSource Image { get; }
+#endif
 
         void SetDateAndPosition(DateTime start, double latitude, double longitude);
         void SetCustomHorizon(CustomHorizon customHorizon);

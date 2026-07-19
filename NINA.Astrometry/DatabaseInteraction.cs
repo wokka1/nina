@@ -26,7 +26,9 @@ using NINA.Core.Utility.Extensions;
 using System.Text.RegularExpressions;
 using NINA.Core.Model;
 using NINA.Core.Database;
+#if HAS_WPF
 using System.Windows.Media.Imaging;
+#endif
 
 namespace NINA.Astrometry {
 
@@ -64,7 +66,9 @@ namespace NINA.Astrometry {
             } catch (Exception ex) {
                 if (!ex.Message.Contains("Execution was aborted by the user")) {
                     Logger.Error(ex);
+                    #if HAS_WPF
                     Notification.ShowError(ex.Message);
+                    #endif
                 }
             }
             return new List<string>();
@@ -79,7 +83,9 @@ namespace NINA.Astrometry {
             } catch (Exception ex) {
                 if (!ex.Message.Contains("Execution was aborted by the user")) {
                     Logger.Error(ex);
+                    #if HAS_WPF
                     Notification.ShowError(ex.Message);
+                    #endif
                 }
             }
             return new List<string>();
@@ -120,7 +126,9 @@ namespace NINA.Astrometry {
             } catch (Exception ex) {
                 if (!ex.Message.Contains("Execution was aborted by the user")) {
                     Logger.Error(ex);
+                    #if HAS_WPF
                     Notification.ShowError(ex.Message);
+                    #endif
                 }
             }
             return brightStars;
@@ -206,7 +214,9 @@ namespace NINA.Astrometry {
             } catch (Exception ex) {
                 if (!ex.Message.Contains("Execution was aborted by the user")) {
                     Logger.Error(ex);
+                    #if HAS_WPF
                     Notification.ShowError(ex.Message);
+                    #endif
                 }
             }
 
@@ -237,7 +247,9 @@ namespace NINA.Astrometry {
             } catch (Exception ex) {
                 if (!ex.Message.Contains("Execution was aborted by the user")) {
                     Logger.Error(ex);
+                    #if HAS_WPF
                     Notification.ShowError(ex.Message);
+                    #endif
                 }
             }
             return constellationBoundaries;
@@ -260,7 +272,9 @@ namespace NINA.Astrometry {
             } catch (Exception ex) {
                 if (!ex.Message.Contains("Execution was aborted by the user")) {
                     Logger.Error(ex);
+                    #if HAS_WPF
                     Notification.ShowError(ex.Message);
+                    #endif
                 }
             }
             return null;
@@ -271,14 +285,25 @@ namespace NINA.Astrometry {
             CustomHorizon horizon,
             DeepSkyObjectSearchParams searchParams,
             CancellationToken token) {
+#if HAS_WPF
             return GetDeepSkyObjects(null as Func<SkyObjectBase, Task<BitmapSource>>, horizon, searchParams, token);
+#else
+            return GetDeepSkyObjects(horizon, searchParams, token);
+#endif
         }
 
+#if HAS_WPF
         public async Task<List<DeepSkyObject>> GetDeepSkyObjects(
             Func<SkyObjectBase, Task<BitmapSource>> imageFactory,
             CustomHorizon horizon,
             DeepSkyObjectSearchParams searchParams,
             CancellationToken token) {
+#else
+        public async Task<List<DeepSkyObject>> GetDeepSkyObjects(
+            CustomHorizon horizon,
+            DeepSkyObjectSearchParams searchParams,
+            CancellationToken token) {
+#endif
             using (MyStopWatch.Measure()) {
                 if (searchParams == null) { throw new ArgumentNullException(nameof(searchParams)); }
 
@@ -431,7 +456,11 @@ namespace NINA.Astrometry {
                             var row = group.First();
                             var id = row.id;
                             var coords = new Coordinates(row.ra, row.dec, Epoch.J2000, Coordinates.RAType.Degrees);
+#if HAS_WPF
                             var dso = new DeepSkyObject(row.id, coords, imageFactory, horizon);
+#else
+                            var dso = new DeepSkyObject(row.id, coords, horizon);
+#endif
 
                             dso.DSOType = row.dsotype;
 
@@ -477,7 +506,9 @@ namespace NINA.Astrometry {
                 } catch (Exception ex) {
                     if (!ex.Message.Contains("Execution was aborted by the user")) {
                         Logger.Error(ex);
+                        #if HAS_WPF
                         Notification.ShowError(ex.Message);
+                        #endif
                     }
                 }
 
@@ -557,7 +588,9 @@ namespace NINA.Astrometry {
             } catch (Exception ex) {
                 if (!ex.Message.Contains("Execution was aborted by the user")) {
                     Logger.Error(ex);
+                    #if HAS_WPF
                     Notification.ShowError(ex.Message);
+                    #endif
                 }
             }
             return hipsSkyMaps;

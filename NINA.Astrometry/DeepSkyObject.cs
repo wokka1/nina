@@ -21,8 +21,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Timers;
+#if HAS_WPF
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+#endif
 
 namespace NINA.Astrometry {
 
@@ -95,6 +97,7 @@ namespace NINA.Astrometry {
     }
 
     public class DeepSkyObject : SkyObjectBase {
+#if HAS_WPF
         public DeepSkyObject(string id, Coordinates coords,CustomHorizon customHorizon)
             : this(id, coords, null as Func<SkyObjectBase, Task<BitmapSource>>, customHorizon) {
         }
@@ -108,6 +111,23 @@ namespace NINA.Astrometry {
             Moon = new MoonInfo(_coordinates);
             DeepSkyObjectDailyRefresher.Instance.Register(this);
         }
+#else
+        // Portable path - no imageFactory-taking overload exists yet (see SkyObjectBase's
+        // portable constructor), so both convenience overloads just go straight to the
+        // portable base constructor instead of routing through a null image factory.
+        public DeepSkyObject(string id, Coordinates coords, CustomHorizon customHorizon)
+            : base(id, customHorizon) {
+            _coordinates = coords;
+            Moon = new MoonInfo(_coordinates);
+            DeepSkyObjectDailyRefresher.Instance.Register(this);
+        }
+        public DeepSkyObject(string id, Coordinates coords, string imageRepository, CustomHorizon customHorizon)
+            : base(id, customHorizon) {
+            _coordinates = coords;
+            Moon = new MoonInfo(_coordinates);
+            DeepSkyObjectDailyRefresher.Instance.Register(this);
+        }
+#endif
 
         public DateTime ReferenceDate { get => _referenceDate; set => _referenceDate = value; }
 

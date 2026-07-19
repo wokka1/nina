@@ -6,7 +6,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+#if HAS_WPF
 using System.Windows.Media;
+#endif
+using NINA.Core.Utility.ColorSchema;
 
 namespace NINA.Astrometry {
     public class MoonInfo : BaseINPC {
@@ -89,12 +92,23 @@ namespace NINA.Astrometry {
 
         public AstroUtil.MoonPhase Phase => AstroUtil.GetMoonPhase(DateTime.Now);
 
+#if HAS_WPF
         public Color Color {
             get {
                 double angle = Math.Abs(AstroUtil.GetMoonPositionAngle(DateTime.Now));
                 byte gray = (byte)(angle * 255 / 180);
                 byte alpha = (byte)(255 - gray);
                 return Color.FromArgb(alpha, gray, gray, gray);
+            }
+        }
+#endif
+
+        public PortableColor ColorPortable {
+            get {
+                double angle = Math.Abs(AstroUtil.GetMoonPositionAngle(DateTime.Now));
+                byte gray = (byte)(angle * 255 / 180);
+                byte alpha = (byte)(255 - gray);
+                return new PortableColor(alpha, gray, gray, gray);
             }
         }
 

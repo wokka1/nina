@@ -10,10 +10,13 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+#if HAS_WPF
 using System.Windows.Media.Imaging;
+#endif
 
 namespace NINA.Astrometry {
     public abstract class SkyObjectBase : BaseINPC, IDeepSkyObject {
+#if HAS_WPF
         [Obsolete]
         protected SkyObjectBase(string id, string imageRepository, CustomHorizon customHorizon) : this(id, null as Func<SkyObjectBase, Task<BitmapSource>>, customHorizon) {
         }
@@ -24,6 +27,17 @@ namespace NINA.Astrometry {
             this.customHorizon = customHorizon;
             this.imageFactory = imageFactory;
         }
+#else
+        // Portable equivalent - there's no portable image-fetch mechanism yet (the real
+        // imageFactory implementation, CacheSkySurveyImageFactory.Render(), does real WPF
+        // rendering - see project_multiagent_bigproject memory), so this path just skips
+        // thumbnail support entirely rather than pretending to have one.
+        protected SkyObjectBase(string id, CustomHorizon customHorizon) {
+            Id = id;
+            Name = id;
+            this.customHorizon = customHorizon;
+        }
+#endif
 
         private string id;
 
@@ -228,6 +242,7 @@ namespace NINA.Astrometry {
             }
         }
 
+#if HAS_WPF
         private BitmapSource _image;
         protected CustomHorizon customHorizon;
 
@@ -247,5 +262,8 @@ namespace NINA.Astrometry {
                 return _image;
             }
         }
+#else
+        protected CustomHorizon customHorizon;
+#endif
     }
 }

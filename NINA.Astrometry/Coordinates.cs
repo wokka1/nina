@@ -14,7 +14,9 @@
 
 using NINA.Core.Utility;
 using System;
+#if HAS_WPF
 using System.Windows;
+#endif
 using System.Xml.Serialization;
 
 namespace NINA.Astrometry {
@@ -386,6 +388,7 @@ namespace NINA.Astrometry {
             }
         }
 
+#if HAS_WPF
         public Point XYProjection(ViewportFoV viewPort, ProjectionType type = ProjectionType.Stereographic) {
             return XYProjection(
                 viewPort.CenterCoordinates,
@@ -395,6 +398,7 @@ namespace NINA.Astrometry {
                 viewPort.Rotation,
                 type);
         }
+#endif
 
         /// <summary>
         /// Portable (WPF-free) equivalent of the XYProjection(ViewportFoV, ...) overload above -
@@ -422,10 +426,12 @@ namespace NINA.Astrometry {
         /// <param name="rotation">Rotation in degrees - CLOCKWISE</param>
         /// <param name="type"></param>
         /// <returns></returns>
+#if HAS_WPF
         public Point XYProjection(Coordinates center, Point centerPointPixels, double horizResArcSecPx, double vertResArcSecPix, double rotation, ProjectionType type = ProjectionType.Stereographic) {
             var result = XYProjection(center, new Point2d(centerPointPixels.X, centerPointPixels.Y), horizResArcSecPx, vertResArcSecPix, rotation, type);
             return new Point(result.X, result.Y);
         }
+#endif
 
         /// <summary>
         /// Portable (WPF-free) equivalent of the XYProjection(Coordinates, Point, ...) overload

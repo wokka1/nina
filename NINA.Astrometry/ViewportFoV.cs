@@ -12,9 +12,11 @@
 
 #endregion "copyright"
 
+#if HAS_WPF
 using System.Windows;
-using Math = System.Math;
 using Point = System.Windows.Point;
+#endif
+using Math = System.Math;
 
 namespace NINA.Astrometry {
 
@@ -24,7 +26,9 @@ namespace NINA.Astrometry {
         public double Height { get; }
         public double ArcSecWidth { get; }
         public double ArcSecHeight { get; }
+#if HAS_WPF
         public Point ViewPortCenterPoint { get; }
+#endif
 
         /// <summary>
         /// Portable (WPF-free) equivalent of ViewPortCenterPoint, computed alongside it -
@@ -49,7 +53,9 @@ namespace NINA.Astrometry {
 
             CenterCoordinates = centerCoordinates;
 
+#if HAS_WPF
             ViewPortCenterPoint = new Point(width / 2, height / 2);
+#endif
             ViewPortCenterPointPortable = new Point2d(width / 2, height / 2);
         }
 
@@ -62,6 +68,7 @@ namespace NINA.Astrometry {
             return ContainsCoordinates(new Coordinates(ra, dec, Epoch.J2000, Coordinates.RAType.Degrees));
         }
 
+#if HAS_WPF
         public void Shift(Vector delta) {
             if (delta.X == 0 && delta.Y == 0) {
                 return;
@@ -69,5 +76,6 @@ namespace NINA.Astrometry {
 
             CenterCoordinates = CenterCoordinates.Shift(delta.X, delta.Y, Rotation, ArcSecWidth, ArcSecHeight);
         }
+#endif
     }
 }
