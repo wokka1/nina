@@ -397,6 +397,21 @@ namespace NINA.Astrometry {
         }
 
         /// <summary>
+        /// Portable (WPF-free) equivalent of the XYProjection(ViewportFoV, ...) overload above -
+        /// named distinctly rather than overloaded, since C# can't disambiguate two methods that
+        /// differ only by return type.
+        /// </summary>
+        public Point2d XYProjectionPortable(ViewportFoV viewPort, ProjectionType type = ProjectionType.Stereographic) {
+            return XYProjection(
+                viewPort.CenterCoordinates,
+                viewPort.ViewPortCenterPointPortable,
+                viewPort.ArcSecWidth,
+                viewPort.ArcSecHeight,
+                viewPort.Rotation,
+                type);
+        }
+
+        /// <summary>
         /// Generates a Point with relative X/Y values for centering the current coordinates relative to a given point using projection.
         /// Important Note: Rotation needs to be clockwise rotation
         /// </summary>
@@ -408,6 +423,16 @@ namespace NINA.Astrometry {
         /// <param name="type"></param>
         /// <returns></returns>
         public Point XYProjection(Coordinates center, Point centerPointPixels, double horizResArcSecPx, double vertResArcSecPix, double rotation, ProjectionType type = ProjectionType.Stereographic) {
+            var result = XYProjection(center, new Point2d(centerPointPixels.X, centerPointPixels.Y), horizResArcSecPx, vertResArcSecPix, rotation, type);
+            return new Point(result.X, result.Y);
+        }
+
+        /// <summary>
+        /// Portable (WPF-free) equivalent of the XYProjection(Coordinates, Point, ...) overload
+        /// above - both call the same GnomonicTanProjection/StenographicProjection math, this
+        /// one just stays in Point2d instead of converting to/from System.Windows.Point.
+        /// </summary>
+        public Point2d XYProjection(Coordinates center, Point2d centerPointPixels, double horizResArcSecPx, double vertResArcSecPix, double rotation, ProjectionType type = ProjectionType.Stereographic) {
             switch (type) {
                 case ProjectionType.Gnomonic:
                     return GnomonicTanProjection(center, centerPointPixels, horizResArcSecPx, vertResArcSecPix, rotation);
@@ -433,7 +458,7 @@ namespace NINA.Astrometry {
         /// <remarks>
         ///     based on http://faculty.wcas.northwestern.edu/nchapman/coding/worldpos.py
         /// </remarks>
-        private Point GnomonicTanProjection(Coordinates center, Point centerPointPixels, double horizResArcSecPx, double vertResArcSecPix, double rotation) {
+        private Point2d GnomonicTanProjection(Coordinates center, Point2d centerPointPixels, double horizResArcSecPx, double vertResArcSecPix, double rotation) {
             var raDegreesSanitized = RADegrees;
             var deltaRa = (raDegreesSanitized - center.RADegrees);
             if (deltaRa > 180) {
@@ -476,7 +501,7 @@ namespace NINA.Astrometry {
                 deltaY = decMod * imageRotationCos - raMod * imageRotationSin;
             }
 
-            return new Point(centerPointPixels.X - deltaX.ArcSeconds / horizResArcSecPx,
+            return new Point2d(centerPointPixels.X - deltaX.ArcSeconds / horizResArcSecPx,
                 centerPointPixels.Y - deltaY.ArcSeconds / vertResArcSecPix);
         }
 
@@ -487,7 +512,7 @@ namespace NINA.Astrometry {
         /// <remarks>
         ///     based on http://faculty.wcas.northwestern.edu/nchapman/coding/worldpos.py
         /// </remarks>
-        private Point StenographicProjection(Coordinates center, Point centerPointPixels, double horizResArcSecPx, double vertResArcSecPix, double rotation) {
+        private Point2d StenographicProjection(Coordinates center, Point2d centerPointPixels, double horizResArcSecPx, double vertResArcSecPix, double rotation) {
             var raDegreesSanitized = RADegrees;
             var deltaRa = (raDegreesSanitized - center.RADegrees);
             if (deltaRa > 180) {
@@ -528,7 +553,7 @@ namespace NINA.Astrometry {
                 deltaY = decMod * imageRotationCos - raMod * imageRotationSin;
             }
 
-            return new Point(centerPointPixels.X - deltaX.ArcSeconds / horizResArcSecPx,
+            return new Point2d(centerPointPixels.X - deltaX.ArcSeconds / horizResArcSecPx,
                 centerPointPixels.Y - deltaY.ArcSeconds / vertResArcSecPix);
         }
 

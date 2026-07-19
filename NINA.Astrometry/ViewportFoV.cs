@@ -25,6 +25,12 @@ namespace NINA.Astrometry {
         public double ArcSecWidth { get; }
         public double ArcSecHeight { get; }
         public Point ViewPortCenterPoint { get; }
+
+        /// <summary>
+        /// Portable (WPF-free) equivalent of ViewPortCenterPoint, computed alongside it -
+        /// see NINA.Astrometry.Point2d.
+        /// </summary>
+        public Point2d ViewPortCenterPointPortable { get; }
         public double Rotation { get; }
         public double VFoV { get; }
         public double HFoV { get; }
@@ -44,6 +50,7 @@ namespace NINA.Astrometry {
             CenterCoordinates = centerCoordinates;
 
             ViewPortCenterPoint = new Point(width / 2, height / 2);
+            ViewPortCenterPointPortable = new Point2d(width / 2, height / 2);
         }
 
         public bool ContainsCoordinates(Coordinates coordinates) {

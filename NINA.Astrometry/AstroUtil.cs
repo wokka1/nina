@@ -24,7 +24,6 @@ using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
-using System.Windows.Media.Media3D;
 
 namespace NINA.Astrometry {
 
@@ -944,12 +943,12 @@ namespace NINA.Astrometry {
             return ToDegree(δerr / (900 * t * Math.Cos(δ)));
         }
 
-        public static Vector3D Polar3DToCartesian(double radius, double phi, double theta) {
+        public static Vector3d Polar3DToCartesian(double radius, double phi, double theta) {
             double x = radius * Math.Cos(phi);
             double radiusProjection = radius * Math.Sin(phi);
             double z = radiusProjection * Math.Cos(theta);
             double y = -radiusProjection * Math.Sin(theta);
-            return new Vector3D(x, y, z);
+            return new Vector3d(x, y, z);
         }
 
         /// <summary>

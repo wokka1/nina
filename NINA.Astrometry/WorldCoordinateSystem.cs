@@ -13,7 +13,6 @@
 #endregion "copyright"
 
 using System;
-using System.Windows;
 
 namespace NINA.Astrometry {
 
@@ -52,7 +51,7 @@ namespace NINA.Astrometry {
             double cd2_1,
             double cd2_2
         ) {
-            Point = new Point(crpix1, crpix2);
+            Point = new Point2d(crpix1, crpix2);
             Coordinates = new Coordinates(Angle.ByDegree(crval1), Angle.ByDegree(crval2), Epoch.J2000);
 
             var determinant = cd1_1 * cd2_2 - cd1_2 * cd2_1;
@@ -101,7 +100,7 @@ namespace NINA.Astrometry {
             double cdelta2,
             double crota2
         ) {
-            Point = new Point(crpix1, crpix2);
+            Point = new Point2d(crpix1, crpix2);
             Coordinates = new Coordinates(Angle.ByDegree(crval1), Angle.ByDegree(crval2), Epoch.J2000);
 
             if (cdelta1 >= 0 || cdelta2 < 0) {
@@ -119,7 +118,7 @@ namespace NINA.Astrometry {
         }
 
         public Coordinates Coordinates { get; }
-        public Point Point { get; }
+        public Point2d Point { get; }
         public double Rotation { get; }
         public double PositionAngle => AstroUtil.EuclidianModulus(360 - Rotation, 360);
 
