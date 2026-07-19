@@ -425,6 +425,10 @@ namespace NINA.Core.Utility.ColorSchema {
             }
         }
 
+        [XmlIgnore]
+        [IgnoreDataMember]
+        public PortableColor PrimaryColorPortable => new PortableColor(PrimaryColor.A, PrimaryColor.R, PrimaryColor.G, PrimaryColor.B);
+
         [DataMember]
         public Color SecondaryColor {
             get => secondaryColor;
@@ -435,6 +439,10 @@ namespace NINA.Core.Utility.ColorSchema {
                 }
             }
         }
+
+        [XmlIgnore]
+        [IgnoreDataMember]
+        public PortableColor SecondaryColorPortable => new PortableColor(SecondaryColor.A, SecondaryColor.R, SecondaryColor.G, SecondaryColor.B);
 
         [DataMember]
         public Color BorderColor {
@@ -447,6 +455,10 @@ namespace NINA.Core.Utility.ColorSchema {
             }
         }
 
+        [XmlIgnore]
+        [IgnoreDataMember]
+        public PortableColor BorderColorPortable => new PortableColor(BorderColor.A, BorderColor.R, BorderColor.G, BorderColor.B);
+
         [DataMember]
         public Color BackgroundColor {
             get => backgroundColor;
@@ -457,6 +469,10 @@ namespace NINA.Core.Utility.ColorSchema {
                 }
             }
         }
+
+        [XmlIgnore]
+        [IgnoreDataMember]
+        public PortableColor BackgroundColorPortable => new PortableColor(BackgroundColor.A, BackgroundColor.R, BackgroundColor.G, BackgroundColor.B);
 
         [DataMember]
         public Color SecondaryBackgroundColor {
@@ -469,6 +485,10 @@ namespace NINA.Core.Utility.ColorSchema {
             }
         }
 
+        [XmlIgnore]
+        [IgnoreDataMember]
+        public PortableColor SecondaryBackgroundColorPortable => new PortableColor(SecondaryBackgroundColor.A, SecondaryBackgroundColor.R, SecondaryBackgroundColor.G, SecondaryBackgroundColor.B);
+
         [DataMember]
         public Color TertiaryBackgroundColor {
             get => tertiaryBackgroundColor;
@@ -479,6 +499,10 @@ namespace NINA.Core.Utility.ColorSchema {
                 }
             }
         }
+
+        [XmlIgnore]
+        [IgnoreDataMember]
+        public PortableColor TertiaryBackgroundColorPortable => new PortableColor(TertiaryBackgroundColor.A, TertiaryBackgroundColor.R, TertiaryBackgroundColor.G, TertiaryBackgroundColor.B);
 
         [DataMember]
         public Color ButtonBackgroundColor {
@@ -491,6 +515,10 @@ namespace NINA.Core.Utility.ColorSchema {
             }
         }
 
+        [XmlIgnore]
+        [IgnoreDataMember]
+        public PortableColor ButtonBackgroundColorPortable => new PortableColor(ButtonBackgroundColor.A, ButtonBackgroundColor.R, ButtonBackgroundColor.G, ButtonBackgroundColor.B);
+
         [DataMember]
         public Color ButtonBackgroundSelectedColor {
             get => buttonBackgroundSelectedColor;
@@ -501,6 +529,10 @@ namespace NINA.Core.Utility.ColorSchema {
                 }
             }
         }
+
+        [XmlIgnore]
+        [IgnoreDataMember]
+        public PortableColor ButtonBackgroundSelectedColorPortable => new PortableColor(ButtonBackgroundSelectedColor.A, ButtonBackgroundSelectedColor.R, ButtonBackgroundSelectedColor.G, ButtonBackgroundSelectedColor.B);
 
         [DataMember]
         public Color ButtonForegroundColor {
@@ -513,6 +545,10 @@ namespace NINA.Core.Utility.ColorSchema {
             }
         }
 
+        [XmlIgnore]
+        [IgnoreDataMember]
+        public PortableColor ButtonForegroundColorPortable => new PortableColor(ButtonForegroundColor.A, ButtonForegroundColor.R, ButtonForegroundColor.G, ButtonForegroundColor.B);
+
         [DataMember]
         public Color ButtonForegroundDisabledColor {
             get => buttonForegroundDisabledColor;
@@ -523,6 +559,10 @@ namespace NINA.Core.Utility.ColorSchema {
                 }
             }
         }
+
+        [XmlIgnore]
+        [IgnoreDataMember]
+        public PortableColor ButtonForegroundDisabledColorPortable => new PortableColor(ButtonForegroundDisabledColor.A, ButtonForegroundDisabledColor.R, ButtonForegroundDisabledColor.G, ButtonForegroundDisabledColor.B);
 
         [DataMember]
         public Color CrosshairColor {
@@ -543,6 +583,10 @@ namespace NINA.Core.Utility.ColorSchema {
             }
         }
 
+        [XmlIgnore]
+        [IgnoreDataMember]
+        public PortableColor CrosshairColorPortable => new PortableColor(CrosshairColor.A, CrosshairColor.R, CrosshairColor.G, CrosshairColor.B);
+
         [DataMember]
         public Color NotificationWarningColor {
             get => notificationWarningColor;
@@ -553,6 +597,10 @@ namespace NINA.Core.Utility.ColorSchema {
                 }
             }
         }
+
+        [XmlIgnore]
+        [IgnoreDataMember]
+        public PortableColor NotificationWarningColorPortable => new PortableColor(NotificationWarningColor.A, NotificationWarningColor.R, NotificationWarningColor.G, NotificationWarningColor.B);
 
         [DataMember]
         public Color NotificationErrorColor {
@@ -565,6 +613,10 @@ namespace NINA.Core.Utility.ColorSchema {
             }
         }
 
+        [XmlIgnore]
+        [IgnoreDataMember]
+        public PortableColor NotificationErrorColorPortable => new PortableColor(NotificationErrorColor.A, NotificationErrorColor.R, NotificationErrorColor.G, NotificationErrorColor.B);
+
         [DataMember]
         public Color NotificationWarningTextColor {
             get => notificationWarningTextColor;
@@ -576,6 +628,10 @@ namespace NINA.Core.Utility.ColorSchema {
             }
         }
 
+        [XmlIgnore]
+        [IgnoreDataMember]
+        public PortableColor NotificationWarningTextColorPortable => new PortableColor(NotificationWarningTextColor.A, NotificationWarningTextColor.R, NotificationWarningTextColor.G, NotificationWarningTextColor.B);
+
         [DataMember]
         public Color NotificationErrorTextColor {
             get => notificationErrorTextColor;
@@ -586,6 +642,10 @@ namespace NINA.Core.Utility.ColorSchema {
                 }
             }
         }
+
+        [XmlIgnore]
+        [IgnoreDataMember]
+        public PortableColor NotificationErrorTextColorPortable => new PortableColor(NotificationErrorTextColor.A, NotificationErrorTextColor.R, NotificationErrorTextColor.G, NotificationErrorTextColor.B);
 
         [DataMember]
         public Color SequencerExpressionTextColor {
@@ -605,6 +665,10 @@ namespace NINA.Core.Utility.ColorSchema {
                 }
             }
         }
+
+        [XmlIgnore]
+        [IgnoreDataMember]
+        public PortableColor SequencerExpressionTextColorPortable => new PortableColor(SequencerExpressionTextColor.A, SequencerExpressionTextColor.R, SequencerExpressionTextColor.G, SequencerExpressionTextColor.B);
 
         [XmlIgnore]
         [IgnoreDataMember]
