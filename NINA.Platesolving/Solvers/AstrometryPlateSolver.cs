@@ -24,7 +24,6 @@ using System.IO;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows.Media.Imaging;
 using NINA.Core.Model;
 using NINA.Image.FileFormat;
 using NINA.Core.Locale;
@@ -38,7 +37,6 @@ namespace NINA.PlateSolving.Solvers {
         private const string JOBSTATUSURL = "/api/jobs/{0}";
         private const string JOBINFOURL = "/api/jobs/{0}/info/";
         private const string JOBCALIBRATIONURL = "/api/jobs/{0}/calibration/";
-        private const string ANNOTATEDIMAGEURL = "/annotated_display/{0}";
 
         private string _apiurl;
         private string _apikey;
@@ -113,12 +111,6 @@ namespace NINA.PlateSolving.Solvers {
             var request = new HttpGetRequest(_apiurl + JOBCALIBRATIONURL, jobid);
             string response = await request.Request(canceltoken);
             return JObject.Parse(response);
-        }
-
-        private async Task<BitmapSource> GetJobImage(string jobid, CancellationToken canceltoken) {
-            var request = new HttpDownloadImageRequest(_apiurl + ANNOTATEDIMAGEURL, jobid);
-            var bytes = await request.Request(canceltoken);
-            return NINA.Image.ImageAnalysis.ImageUtility.FromEncodedBytes(bytes);
         }
 
         private async Task<string> GetAuthenticationToken(CancellationToken cancelToken) {
