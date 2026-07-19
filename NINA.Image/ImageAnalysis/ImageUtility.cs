@@ -255,6 +255,68 @@ namespace NINA.Image.ImageAnalysis {
             }
         }
 
+        /// <summary>
+        /// Shared by both Debayer(Bitmap...) below and the portable DebayerArray() -
+        /// extracted so the pattern-selection logic isn't duplicated between the
+        /// two entry points (this used to be inline in Debayer(Bitmap...) only).
+        /// </summary>
+        private static int[,] GetBayerPatternArray(SensorType bayerPattern) {
+            switch (bayerPattern) {
+                case SensorType.RGGB:
+                    return new int[,] { { RGB.B, RGB.G }, { RGB.G, RGB.R } };
+
+                case SensorType.RGBG:
+                    return new int[,] { { RGB.G, RGB.B }, { RGB.G, RGB.R } };
+
+                case SensorType.GRGB:
+                    return new int[,] { { RGB.B, RGB.G }, { RGB.R, RGB.G } };
+
+                case SensorType.GRBG:
+                    return new int[,] { { RGB.G, RGB.B }, { RGB.R, RGB.G } };
+
+                case SensorType.GBGR:
+                    return new int[,] { { RGB.R, RGB.G }, { RGB.B, RGB.G } };
+
+                case SensorType.GBRG:
+                    return new int[,] { { RGB.G, RGB.R }, { RGB.B, RGB.G } };
+
+                case SensorType.BGRG:
+                    return new int[,] { { RGB.G, RGB.R }, { RGB.G, RGB.B } };
+
+                case SensorType.BGGR:
+                    return new int[,] { { RGB.R, RGB.G }, { RGB.G, RGB.B } };
+
+                default:
+                    throw new InvalidImagePropertiesException(string.Format(Loc.Instance["LblUnsupportedCfaPattern"], bayerPattern));
+            }
+        }
+
+        /// <summary>
+        /// Portable, Bitmap/GDI+-free debayer for a raw single-channel pixel array -
+        /// same BayerFilter16bpp.DemosaicArray() logic (commit d59d86516) as the
+        /// Bitmap-based Debayer() overloads below, sharing the same pattern
+        /// selection via GetBayerPatternArray(). Returns the interleaved Rgb48
+        /// buffer plus the same optional LRGBArrays side-output as the Bitmap path.
+        /// </summary>
+        public static (PortableImageBuffer buffer, LRGBArrays lrgb) DebayerArray(
+            ushort[] source,
+            int width,
+            int height,
+            bool saveColorChannels = false,
+            bool saveLumChannel = false,
+            SensorType bayerPattern = SensorType.RGGB) {
+            using (MyStopWatch.Measure()) {
+                var filter = new BayerFilter16bpp();
+                filter.SaveColorChannels = saveColorChannels;
+                filter.SaveLumChannel = saveLumChannel;
+                filter.BayerPattern = GetBayerPatternArray(bayerPattern);
+
+                var demosaiced = filter.DemosaicArray(source, width, height);
+                var buffer = new PortableImageBuffer(demosaiced, width, height, PortablePixelFormat.Rgb48);
+                return (buffer, filter.LRGBArrays);
+            }
+        }
+
         public static DebayeredImageData Debayer(Bitmap bmp, bool saveColorChannels = false, bool saveLumChannel = false, SensorType bayerPattern = SensorType.RGGB) {
             using (MyStopWatch.Measure()) {
                 var filter = new BayerFilter16bpp();
@@ -263,42 +325,7 @@ namespace NINA.Image.ImageAnalysis {
 
                 Logger.Debug($"Debayering pattern {bayerPattern}");
 
-                switch (bayerPattern) {
-                    case SensorType.RGGB:
-                        filter.BayerPattern = new int[,] { { RGB.B, RGB.G }, { RGB.G, RGB.R } };
-                        break;
-
-                    case SensorType.RGBG:
-                        filter.BayerPattern = new int[,] { { RGB.G, RGB.B }, { RGB.G, RGB.R } };
-                        break;
-
-                    case SensorType.GRGB:
-                        filter.BayerPattern = new int[,] { { RGB.B, RGB.G }, { RGB.R, RGB.G } };
-                        break;
-
-                    case SensorType.GRBG:
-                        filter.BayerPattern = new int[,] { { RGB.G, RGB.B }, { RGB.R, RGB.G } };
-                        break;
-
-                    case SensorType.GBGR:
-                        filter.BayerPattern = new int[,] { { RGB.R, RGB.G }, { RGB.B, RGB.G } };
-                        break;
-
-                    case SensorType.GBRG:
-                        filter.BayerPattern = new int[,] { { RGB.G, RGB.R }, { RGB.B, RGB.G } };
-                        break;
-
-                    case SensorType.BGRG:
-                        filter.BayerPattern = new int[,] { { RGB.G, RGB.R }, { RGB.G, RGB.B } };
-                        break;
-
-                    case SensorType.BGGR:
-                        filter.BayerPattern = new int[,] { { RGB.R, RGB.G }, { RGB.G, RGB.B } };
-                        break;
-
-                    default:
-                        throw new InvalidImagePropertiesException(string.Format(Loc.Instance["LblUnsupportedCfaPattern"], bayerPattern));
-                }
+                filter.BayerPattern = GetBayerPatternArray(bayerPattern);
 
                 DebayeredImageData debayered = new DebayeredImageData();
                 using (var debayeredBitmap = filter.Apply(bmp)) {
@@ -427,6 +454,24 @@ namespace NINA.Image.ImageAnalysis {
                 var mapBlue = GetStretchMap(blueStatistics, factor, blackClipping);
                 var result = (ushort[])rgbData.Clone();
                 var filter = new ColorRemappingGeneral(mapBlue, mapGreen, mapRed);
+                filter.ApplyToArray(result, isGrayscale: false);
+                return result;
+            }
+        }
+
+        /// <summary>
+        /// Portable, Bitmap/GDI+-free "linked" stretch for an interleaved Rgb48
+        /// array - the same map applied to all 3 channels, matching what
+        /// GetColorRemappingFilter(..., PixelFormats.Rgb48) does in the
+        /// Bitmap-based Stretch(IImageStatistics, Bitmap, ...) path when a
+        /// single shared statistic (not per-channel) drives the stretch.
+        /// Returns a new array; the input is untouched.
+        /// </summary>
+        public static ushort[] StretchLinkedRgbArray(IImageStatistics statistics, ushort[] rgbData, double factor, double blackClipping) {
+            using (MyStopWatch.Measure()) {
+                var map = GetStretchMap(statistics, factor, blackClipping);
+                var result = (ushort[])rgbData.Clone();
+                var filter = new ColorRemappingGeneral(map, map, map);
                 filter.ApplyToArray(result, isGrayscale: false);
                 return result;
             }

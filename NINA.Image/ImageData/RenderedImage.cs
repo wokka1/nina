@@ -47,13 +47,29 @@ namespace NINA.Image.ImageData {
 
         public BitmapSource OriginalImage { get; private set; }
 
-        public RenderedImage(BitmapSource image, IImageData rawImageData, IProfileService profileService, IStarDetection starDetection, IStarAnnotator starAnnotator) {
+        public RenderedImage(BitmapSource image, IImageData rawImageData, IProfileService profileService, IStarDetection starDetection, IStarAnnotator starAnnotator, PortableImageBuffer rawPixels = null) {
             this.OriginalImage = image;
             this.RawImageData = rawImageData;
             this.profileService = profileService;
             this.starDetection = starDetection;
             this.starAnnotator = starAnnotator;
+            this.rawPixels = rawPixels;
         }
+
+        private readonly PortableImageBuffer rawPixels;
+
+        /// <summary>
+        /// Portable counterpart to Image/OriginalImage - see IRenderedImage.RawPixels.
+        /// Uses the pre-computed buffer passed at construction (e.g. by Stretch(),
+        /// which computes it via the portable ImageUtility.StretchArray()) if one
+        /// was given; otherwise falls back to the raw, unprocessed sensor data
+        /// (RawImageData.Data.FlatArray) - correct for the common case where this
+        /// instance represents an unstretched render (e.g. straight from
+        /// ReRender()/FromBitmapSource()), not correct if some other, non-portable
+        /// path already stretched OriginalImage without also supplying rawPixels.
+        /// </summary>
+        public virtual PortableImageBuffer RawPixels =>
+            rawPixels ?? new PortableImageBuffer(RawImageData.Data.FlatArray, RawImageData.Properties.Width, RawImageData.Properties.Height, PortablePixelFormat.Gray16);
 
         public static async Task<IRenderedImage> FromBitmapSource(BitmapSource source, IExposureDataFactory exposureDataFactory, IProfileService profileService, IStarDetection starDetection, IStarAnnotator starAnnotator, bool calculateStatistics = false) {
             var exposureData = await exposureDataFactory.CreateImageArrayExposureDataFromBitmapSource(source);
@@ -75,7 +91,17 @@ namespace NINA.Image.ImageData {
 
         public virtual async Task<IRenderedImage> Stretch(double factor, double blackClipping, bool unlinked) {
             var stretchedImage = await ImageUtility.Stretch(this, factor, blackClipping);
-            return new RenderedImage(stretchedImage, this.RawImageData, profileService, starDetection, starAnnotator);
+
+            // Also compute the portable (WPF-free) equivalent via the array-based
+            // stretch path, so RawPixels reflects this stretch too, not just
+            // OriginalImage/Image. Same underlying GetStretchMap() math as the
+            // BitmapSource path above, computed independently rather than derived
+            // from it - a real, if duplicated, computation, not a stub.
+            var statistics = await this.RawImageData.Statistics.Task;
+            var stretchedPixels = ImageUtility.StretchArray(statistics, this.RawImageData.Data.FlatArray, factor, blackClipping);
+            var stretchedRawPixels = new PortableImageBuffer(stretchedPixels, this.RawImageData.Properties.Width, this.RawImageData.Properties.Height, PortablePixelFormat.Gray16);
+
+            return new RenderedImage(stretchedImage, this.RawImageData, profileService, starDetection, starAnnotator, stretchedRawPixels);
         }
 
         public async Task<IRenderedImage> DetectStars(

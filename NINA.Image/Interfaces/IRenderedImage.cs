@@ -29,6 +29,14 @@ namespace NINA.Image.Interfaces {
 
         BitmapSource Image { get; }
 
+        /// <summary>
+        /// Portable (no WPF/System.Drawing dependency) counterpart to Image -
+        /// same rendered pixel data, computed via NINA.Image.ImageAnalysis's
+        /// array-based debayer/stretch methods rather than a BitmapSource
+        /// round-trip. See NINA.Image.ImageData.PortableImageBuffer.
+        /// </summary>
+        NINA.Image.ImageData.PortableImageBuffer RawPixels { get; }
+
         IDebayeredImage Debayer(bool saveColorChannels = false, bool saveLumChannel = false, SensorType bayerPattern = SensorType.RGGB);
 
         IRenderedImage ReRender();

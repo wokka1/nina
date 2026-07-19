@@ -38,8 +38,9 @@ namespace NINA.Image.ImageData {
             SensorType bayerPattern,
             IProfileService profileService,
             IStarDetection starDetection,
-            IStarAnnotator starAnnotator) :
-            base(image, rawImageData, profileService, starDetection, starAnnotator) {
+            IStarAnnotator starAnnotator,
+            PortableImageBuffer rawPixels = null) :
+            base(image, rawImageData, profileService, starDetection, starAnnotator, rawPixels) {
             this.DebayeredData = debayeredData;
             this.SaveColorChannels = saveColorChannels;
             this.SaveLumChannel = saveLumChannels;
@@ -55,6 +56,20 @@ namespace NINA.Image.ImageData {
             bool saveLumChannel = false,
             SensorType bayerPattern = SensorType.RGGB) {
             var debayeredImage = ImageUtility.Debayer(imageData.Image, System.Drawing.Imaging.PixelFormat.Format16bppGrayScale, saveColorChannels, saveLumChannel, bayerPattern);
+
+            // Also compute the portable (WPF-free) equivalent directly from the raw
+            // sensor array, via the same BayerFilter16bpp logic as the Bitmap path
+            // above (commit d59d86516/DebayerArray) - independent computation, not
+            // derived from debayeredImage, so it doesn't depend on saveColorChannels
+            // having been set (LRGBArrays is often null/unpopulated otherwise).
+            var (rawPixelsBuffer, _) = ImageUtility.DebayerArray(
+                imageData.RawImageData.Data.FlatArray,
+                imageData.RawImageData.Properties.Width,
+                imageData.RawImageData.Properties.Height,
+                saveColorChannels,
+                saveLumChannel,
+                bayerPattern);
+
             return new DebayeredImage(
                 image: debayeredImage.ImageSource,
                 rawImageData: imageData.RawImageData,
@@ -64,7 +79,8 @@ namespace NINA.Image.ImageData {
                 bayerPattern: bayerPattern,
                 profileService: profileService,
                 starDetection: starDetection,
-                starAnnotator: starAnnotator);
+                starAnnotator: starAnnotator,
+                rawPixels: rawPixelsBuffer);
         }
 
         public override async Task<IRenderedImage> Stretch(double factor, double blackClipping, bool unlinked) {
@@ -74,6 +90,22 @@ namespace NINA.Image.ImageData {
                 unlinked = false;
             }
             var stretchedImage = unlinked ? await ImageUtility.StretchUnlinked(this, factor, blackClipping) : await ImageUtility.Stretch(this, factor, blackClipping);
+
+            // Also compute the portable equivalent, mirroring the same
+            // linked/unlinked branch above via the array-based stretch methods
+            // (commit 841e79bb9) instead of a Bitmap round-trip.
+            ushort[] stretchedPixels;
+            if (unlinked) {
+                var redStats = ImageStatistics.Create(this.RawImageData.Properties, this.DebayeredData.Red);
+                var greenStats = ImageStatistics.Create(this.RawImageData.Properties, this.DebayeredData.Green);
+                var blueStats = ImageStatistics.Create(this.RawImageData.Properties, this.DebayeredData.Blue);
+                stretchedPixels = ImageUtility.StretchUnlinkedArray(redStats, greenStats, blueStats, this.RawPixels.Data, factor, blackClipping);
+            } else {
+                var statistics = await this.RawImageData.Statistics.Task;
+                stretchedPixels = ImageUtility.StretchLinkedRgbArray(statistics, this.RawPixels.Data, factor, blackClipping);
+            }
+            var stretchedRawPixels = new PortableImageBuffer(stretchedPixels, this.RawImageData.Properties.Width, this.RawImageData.Properties.Height, PortablePixelFormat.Rgb48);
+
             return new DebayeredImage(
                 image: stretchedImage,
                 rawImageData: this.RawImageData,
@@ -83,7 +115,8 @@ namespace NINA.Image.ImageData {
                 bayerPattern: this.BayerPattern,
                 profileService: this.profileService,
                 starDetection: this.starDetection,
-                starAnnotator: this.starAnnotator);
+                starAnnotator: this.starAnnotator,
+                rawPixels: stretchedRawPixels);
         }
 
         public override IRenderedImage ReRender() {
