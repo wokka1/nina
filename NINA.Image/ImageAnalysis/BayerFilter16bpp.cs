@@ -61,6 +61,44 @@ namespace NINA.Image.ImageAnalysis {
             }
         }
 
+        /// <summary>
+        /// Portable, Bitmap/GDI+-free entry point that demosaics a raw 16-bit
+        /// Bayer-pattern pixel array directly - for platforms where
+        /// System.Drawing.Common's Bitmap/GDI+ path is unavailable (confirmed
+        /// non-functional on macOS/Linux with this SDK version - see
+        /// project_multiagent_bigproject memory). Reuses the exact same core
+        /// Demosaic()/CopyPatternToRgb()/ExtractLrgba() logic as the
+        /// Bitmap-based ProcessFilter() path above, unchanged - this is a
+        /// different entry point into identical, already-tested logic, not a
+        /// reimplementation.
+        /// </summary>
+        public unsafe ushort[] DemosaicArray(ushort[] source, int width, int height) {
+            InitLRGBArrays(width * height);
+
+            var destination = new ushort[width * height * 3];
+            int srcStride = width;
+            int dstStride = width * 3;
+
+            fixed (ushort* srcPtr = source)
+            fixed (ushort* dstPtr = destination) {
+                using (MyStopWatch.Measure("Demosaicing")) {
+                    if (PerformDemosaicing) {
+                        Demosaic(srcPtr, dstPtr, width, height, srcStride, dstStride);
+                    } else {
+                        CopyPatternToRgb(srcPtr, dstPtr, width, height, srcStride, dstStride);
+                    }
+                }
+
+                using (MyStopWatch.Measure("ExtractLrgba")) {
+                    if (SaveColorChannels || SaveLumChannel) {
+                        ExtractLrgba(dstPtr, width, height, dstStride);
+                    }
+                }
+            }
+
+            return destination;
+        }
+
         private void InitLRGBArrays(int pixelCount) {
             if (SaveColorChannels && SaveLumChannel) {
                 LRGBArrays = new LRGBArrays(

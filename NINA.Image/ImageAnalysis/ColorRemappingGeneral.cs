@@ -128,5 +128,31 @@ namespace NINA.Image.ImageAnalysis {
                 }
             }
         }
+
+        /// <summary>
+        /// Portable, Bitmap/GDI+-free entry point that applies the same
+        /// per-pixel lookup-table remap as ProcessFilter, directly on a raw
+        /// array - see BayerFilter16bpp.DemosaicArray for why this exists.
+        /// Not a reimplementation - identical per-pixel logic to
+        /// ProcessFilter above, just addressed via a managed array instead
+        /// of an UnmanagedImage's raw pointer.
+        /// </summary>
+        public unsafe void ApplyToArray(ushort[] data, bool isGrayscale) {
+            fixed (ushort* ptr0 = data) {
+                ushort* ptr = ptr0;
+                if (isGrayscale) {
+                    for (int i = 0; i < data.Length; i++, ptr++) {
+                        *ptr = grayMap[*ptr];
+                    }
+                } else {
+                    for (int i = 0; i < data.Length; i += 3, ptr += 3) {
+                        ptr[RGB.R] = redMap[ptr[RGB.R]];
+                        ptr[RGB.G] = greenMap[ptr[RGB.G]];
+                        ptr[RGB.B] = blueMap[ptr[RGB.B]];
+                    }
+                }
+            }
+        }
+
     }
 }
