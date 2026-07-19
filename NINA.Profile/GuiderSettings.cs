@@ -13,11 +13,13 @@
 #endregion "copyright"
 
 using NINA.Core.Enum;
+using NINA.Core.Utility.ColorSchema;
 using NINA.Profile.Interfaces;
 using System;
 using System.IO;
 using System.Runtime.Serialization;
 using System.Windows.Media;
+using System.Xml.Serialization;
 
 namespace NINA.Profile {
 
@@ -593,6 +595,10 @@ namespace NINA.Profile {
             }
         }
 
+        [XmlIgnore]
+        [IgnoreDataMember]
+        public PortableColor GuideChartRightAscensionColorPortable => new PortableColor(GuideChartRightAscensionColor.A, GuideChartRightAscensionColor.R, GuideChartRightAscensionColor.G, GuideChartRightAscensionColor.B);
+
         private Color guideChartDeclinationColor;        
         [DataMember]
         public Color GuideChartDeclinationColor {
@@ -604,6 +610,10 @@ namespace NINA.Profile {
                 }
             }
         }
+
+        [XmlIgnore]
+        [IgnoreDataMember]
+        public PortableColor GuideChartDeclinationColorPortable => new PortableColor(GuideChartDeclinationColor.A, GuideChartDeclinationColor.R, GuideChartDeclinationColor.G, GuideChartDeclinationColor.B);
 
         private bool guideChartShowCorrections;
         [DataMember]
