@@ -15,8 +15,24 @@
         <vm:MainViewModel />
     </Design.DataContext>
 
-    <TextBox Text="{Binding Greeting}"
-             HorizontalAlignment="Center"
-             VerticalAlignment="Center" />
+    <DockPanel Margin="16">
+        <StackPanel DockPanel.Dock="Top" Spacing="4" Margin="0,0,0,16">
+            <TextBlock Text="{Binding StatusMessage}" FontSize="18" FontWeight="Bold" />
+            <TextBlock Text="{Binding CurrentTime}" FontSize="14" Opacity="0.7" />
+        </StackPanel>
+
+        <ItemsControl ItemsSource="{Binding Equipment}">
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Border BorderBrush="Gray" BorderThickness="0,0,0,1" Padding="4">
+                        <Grid ColumnDefinitions="150,*">
+                            <TextBlock Grid.Column="0" Text="{Binding Name}" FontWeight="SemiBold" />
+                            <TextBlock Grid.Column="1" Text="{Binding Status}" />
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+    </DockPanel>
 
 </Window>
