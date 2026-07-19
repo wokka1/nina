@@ -141,11 +141,15 @@ namespace NINA.Equipment.Equipment.MyDome {
                     }
                 } else {
                     Logger.Warning("Dome cannot slew");
+#if HAS_WPF
                     Notification.ShowWarning(Loc.Instance["LblDomeCannotSlew"]);
+#endif
                 }
             } else {
                 Logger.Warning("Dome is not connected");
+#if HAS_WPF
                 Notification.ShowWarning(Loc.Instance["LblDomeNotConnected"]);
+#endif
             }
         }
 
@@ -165,7 +169,9 @@ namespace NINA.Equipment.Equipment.MyDome {
                 });
             } else {
                 Logger.Warning("Dome is not connected");
+#if HAS_WPF
                 Notification.ShowWarning(Loc.Instance["LblDomeNotConnected"]);
+#endif
             }
             return Task.CompletedTask;
         }
@@ -181,7 +187,9 @@ namespace NINA.Equipment.Equipment.MyDome {
                 return Task.Run(() => device?.AbortSlew());
             } else {
                 Logger.Warning("Dome is not connected");
+#if HAS_WPF
                 Notification.ShowWarning(Loc.Instance["LblDomeNotConnected"]);
+#endif
             }
             return Task.CompletedTask;
         }
@@ -218,16 +226,22 @@ namespace NINA.Equipment.Equipment.MyDome {
 
                         if (device != null && ShutterStatus == ShutterState.ShutterClosed) {
                             Logger.Error("ShutterStatus is still reported as closed after calling OpenShutter.");
+#if HAS_WPF
                             Notification.ShowWarning(Loc.Instance["LblDomeShutterDidNotRespond"]);
+#endif
                         }
                     }
                 } else {
                     Logger.Warning("Dome cannot open");
+#if HAS_WPF
                     Notification.ShowWarning(Loc.Instance["LblDomeCannotSetShutter"]);
+#endif
                 }
             } else {
                 Logger.Warning("Dome is not connected");
+#if HAS_WPF
                 Notification.ShowWarning(Loc.Instance["LblDomeNotConnected"]);
+#endif
             }
         }
 
@@ -257,16 +271,22 @@ namespace NINA.Equipment.Equipment.MyDome {
 
                         if (device != null && ShutterStatus == ShutterState.ShutterOpen) {
                             Logger.Error("ShutterStatus is still reported as open after calling CloseShutter.");
+#if HAS_WPF
                             Notification.ShowWarning(Loc.Instance["LblDomeShutterDidNotRespond"]);
+#endif
                         }
                     }
                 } else {
                     Logger.Warning("Dome cannot close shutter");
+#if HAS_WPF
                     Notification.ShowWarning(Loc.Instance["LblDomeCannotSetShutter"]);
+#endif
                 }
             } else {
                 Logger.Warning("Dome is not connected");
+#if HAS_WPF
                 Notification.ShowWarning(Loc.Instance["LblDomeNotConnected"]);
+#endif
             }
         }
 
@@ -304,11 +324,15 @@ namespace NINA.Equipment.Equipment.MyDome {
                     }
                 } else {
                     Logger.Warning("Dome cannot find home");
+#if HAS_WPF
                     Notification.ShowWarning(Loc.Instance["LblDomeCannotFindHome"]);
+#endif
                 }
             } else {
                 Logger.Warning("Dome is not connected");
+#if HAS_WPF
                 Notification.ShowWarning(Loc.Instance["LblDomeNotConnected"]);
+#endif
             }
         }
 
@@ -350,11 +374,15 @@ namespace NINA.Equipment.Equipment.MyDome {
                     }
                 } else {
                     Logger.Warning("Dome cannot find park");
+#if HAS_WPF
                     Notification.ShowWarning(Loc.Instance["LblDomeCannotPark"]);
+#endif
                 }
             } else {
                 Logger.Warning("Dome is not connected");
+#if HAS_WPF
                 Notification.ShowWarning(Loc.Instance["LblDomeNotConnected"]);
+#endif
             }
         }
 
@@ -364,11 +392,15 @@ namespace NINA.Equipment.Equipment.MyDome {
                     device.SetPark();
                 } else {
                     Logger.Warning("Dome cannot set park");
+#if HAS_WPF
                     Notification.ShowWarning(Loc.Instance["LblDomeCannotSetPark"]);
+#endif
                 }
             } else {
                 Logger.Warning("Dome is not connected");
+#if HAS_WPF
                 Notification.ShowWarning(Loc.Instance["LblDomeNotConnected"]);
+#endif
             }
         }
 
@@ -378,11 +410,15 @@ namespace NINA.Equipment.Equipment.MyDome {
                     device.SyncToAzimuth(azimuth);
                 } else {
                     Logger.Warning("Dome cannot sync azimuth");
+#if HAS_WPF
                     Notification.ShowWarning(Loc.Instance["LblDomeCannotSyncAzimuth"]);
+#endif
                 }
             } else {
                 Logger.Warning("Dome is not connected");
+#if HAS_WPF
                 Notification.ShowWarning(Loc.Instance["LblDomeNotConnected"]);
+#endif
             }
         }
 

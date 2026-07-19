@@ -336,7 +336,9 @@ namespace NINA.Equipment.Equipment.MyCamera {
                         Logger.Info("ASCOM - Driver does not implement Gain SET");
                     } catch (InvalidValueException ex) {
                         Logger.Error(ex.Message);
+#if HAS_WPF
                         Notification.ShowExternalWarning(ex.Message, Loc.Instance["LblASCOMDriverError"]);
+#endif
                     } catch (Exception) {
                         CanSetGain = false;
                     }
@@ -543,7 +545,9 @@ namespace NINA.Equipment.Equipment.MyCamera {
                         device.ReadoutMode = value;
                     } catch (InvalidValueException ex) {
                         Logger.Error(ex);
+#if HAS_WPF
                         Notification.ShowExternalError(ex.Message, Loc.Instance["LblASCOMDriverError"]);
+#endif
                     } catch (ASCOM.NotImplementedException) {
                         ASCOMInteraction.LogComplianceIssue($"{nameof(ReadoutMode)} SET");
                     }
@@ -667,7 +671,9 @@ namespace NINA.Equipment.Equipment.MyCamera {
                             metaData: metaData);
                     } catch (OperationCanceledException) {
                     } catch (Exception ex) {
+#if HAS_WPF
                         Notification.ShowExternalError(ex.Message, Loc.Instance["LblASCOMDriverError"]);
+#endif
                         Logger.Error(ex);
                     }
                     return null;
@@ -712,7 +718,9 @@ namespace NINA.Equipment.Equipment.MyCamera {
                     device.StopExposure();
                 } catch (Exception e) {
                     Logger.Error(e);
+#if HAS_WPF
                     Notification.ShowExternalError(e.Message, Loc.Instance["LblASCOMDriverError"]);
+#endif
                 }
             }
         }
@@ -723,7 +731,9 @@ namespace NINA.Equipment.Equipment.MyCamera {
                     device.AbortExposure();
                 } catch (Exception e) {
                     Logger.Error(e);
+#if HAS_WPF
                     Notification.ShowExternalError(e.Message, Loc.Instance["LblASCOMDriverError"]);
+#endif
                 }
             }
         }
@@ -823,7 +833,9 @@ namespace NINA.Equipment.Equipment.MyCamera {
                     }
                 } catch (Exception ex) {
                     Logger.Error(ex);
+#if HAS_WPF
                     Notification.ShowExternalError(ex.Message, Loc.Instance["LblASCOMDriverError"]);
+#endif
                 }
             }
         }

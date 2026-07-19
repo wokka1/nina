@@ -23,7 +23,9 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using NINA.Image.ImageData;
+#if HAS_WPF
 using NINA.Core.Utility.WindowService;
+#endif
 using NINA.Core.Enum;
 using NINA.Core.Model.Equipment;
 using NINA.Core.Locale;
@@ -656,7 +658,9 @@ namespace NINA.Equipment.Equipment.MyCamera {
                     RaiseAllPropertiesChanged();
                 } catch (Exception ex) {
                     Logger.Error(ex);
+#if HAS_WPF
                     Notification.ShowError(ex.Message);
+#endif
                 }
                 return success;
             });
@@ -756,6 +760,7 @@ namespace NINA.Equipment.Equipment.MyCamera {
             BinY = y;
         }
 
+#if HAS_WPF
         private IWindowService windowService;
 
         public IWindowService WindowService {
@@ -771,6 +776,10 @@ namespace NINA.Equipment.Equipment.MyCamera {
         public void SetupDialog() {
             WindowService.ShowDialog(this, Loc.Instance["LblFLICameraSetup"], System.Windows.ResizeMode.NoResize, System.Windows.WindowStyle.SingleBorderWindow);
         }
+#else
+        public void SetupDialog() {
+        }
+#endif
 
         public void StartExposure(CaptureSequence sequence) {
             bool isSnap;

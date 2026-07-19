@@ -19,7 +19,9 @@ using System.Threading.Tasks;
 
 namespace NINA.Equipment.Interfaces {
 
+#if HAS_WPF
     [TypeConverter(typeof(EnumDescriptionTypeConverter))]
+#endif
     public enum ShutterState {
 
         [Description("LblUnknown")]

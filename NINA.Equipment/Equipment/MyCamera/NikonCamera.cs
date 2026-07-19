@@ -23,7 +23,9 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+#if HAS_WPF
 using System.Windows.Media.Imaging;
+#endif
 using NINA.Image.ImageData;
 using NINA.Core.Enum;
 using NINA.Equipment.Interfaces.Mediator;
@@ -72,7 +74,9 @@ namespace NINA.Equipment.Equipment.MyCamera {
                 connected = true;
                 Name = _camera.Name;
             } catch (Exception ex) {
+#if HAS_WPF
                 Notification.ShowError(ex.Message);
+#endif
                 Logger.Error(ex);
             } finally {
                 Connected = connected;
@@ -103,6 +107,7 @@ namespace NINA.Equipment.Equipment.MyCamera {
             LiveViewEnabled = false;
         }
 
+#if HAS_WPF
         public Task<IExposureData> DownloadLiveView(CancellationToken token) {
             return Task.Run<IExposureData>(() => {
                 byte[] buffer = _camera.GetLiveViewImage().JpegBuffer;
@@ -132,6 +137,12 @@ namespace NINA.Equipment.Equipment.MyCamera {
                 }
             });
         }
+#else
+        // Portable stub - JPEG decode/convert relies on WPF imaging types; no portable equivalent exists yet.
+        public Task<IExposureData> DownloadLiveView(CancellationToken token) {
+            throw new NotSupportedException("Live view download is not yet supported on this platform.");
+        }
+#endif
 
         private void CleanupUnusedManagers(NikonManager activeManager) {
             foreach (NikonManager mgr in _nikonManagers) {
@@ -671,7 +682,9 @@ namespace NINA.Equipment.Equipment.MyCamera {
         public void StartExposure(CaptureSequence sequence) {
             if (Connected) {
                 if (_downloadExposure != null && _downloadExposure.Task.Status <= TaskStatus.Running) {
+#if HAS_WPF
                     Notification.ShowWarning(Loc.Instance["LblExposureInProgress"]);
+#endif
                     Logger.Warning("An exposure was still in progress. Cancelling it to start another.");
                     try { bulbCompletionCTS?.Cancel(); } catch { }
                     _downloadExposure.TrySetCanceled();

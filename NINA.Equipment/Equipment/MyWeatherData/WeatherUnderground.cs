@@ -180,7 +180,9 @@ namespace NINA.Equipment.Equipment.MyWeatherData {
 
                     // Exit and disconnect if result is empty
                     if (string.IsNullOrEmpty(result)) {
+#if HAS_WPF
                         Notification.ShowError(Loc.Instance["LblWeatherUndergroundErrNoResponse"]);
+#endif
                         Logger.Error("WU: API return is empty.");
                         Disconnect();
                         break;
@@ -191,7 +193,9 @@ namespace NINA.Equipment.Equipment.MyWeatherData {
             } catch (OperationCanceledException) {
                 Logger.Debug("WU: WUnderUpdate task cancelled");
             } catch (Exception ex) {
+#if HAS_WPF
                 Notification.ShowError(string.Format(Loc.Instance["LblWeatherUndergroundErrReqFailed"], ex.Message));
+#endif
                 Logger.Error($"WU: API query failed: {ex.Message}");
             }
         }
@@ -203,14 +207,18 @@ namespace NINA.Equipment.Equipment.MyWeatherData {
             WUStation = profileService.ActiveProfile.WeatherDataSettings.WeatherUndergroundStation;
 
             if (string.IsNullOrEmpty(WUAPIKey)) {
+#if HAS_WPF
                 Notification.ShowError(Loc.Instance["LblWeatherUndergroundErrNoAPIKey"]);
+#endif
                 Logger.Error("WU: No API key has been set");
 
                 return Connected;
             }
 
             if (string.IsNullOrEmpty(WUStation)) {
+#if HAS_WPF
                 Notification.ShowError(Loc.Instance["LblWeatherUndergroundErrNoStationID"]);
+#endif
                 Logger.Error("WU: No Weather Underground station has been set");
 
                 return Connected;
@@ -221,14 +229,18 @@ namespace NINA.Equipment.Equipment.MyWeatherData {
                 var result = await QueryWunderground(WUStation, WUAPIKey, ct);
 
                 if (string.IsNullOrEmpty(result)) {
+#if HAS_WPF
                     Notification.ShowError(Loc.Instance["LblWeatherUndergroundErrNoResponse"]);
+#endif
                     Logger.Error("WU: API return is empty.");
                     return Connected;
                 }
 
                 UpdateWeatherData(result);
             } catch (Exception ex) {
+#if HAS_WPF
                 Notification.ShowError(string.Format(Loc.Instance["LblWeatherUndergroundErrReqFailed"], ex.Message));
+#endif
                 Logger.Error($"WU: API query failed: {ex}");
                 return Connected;
             }

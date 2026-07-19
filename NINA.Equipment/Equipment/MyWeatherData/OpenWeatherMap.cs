@@ -190,7 +190,9 @@ namespace NINA.Equipment.Equipment.MyWeatherData {
 
                 // Show error notification once for every 3 consequtive failed queries
                 if (failedQueries <= 3) {
+#if HAS_WPF
                     Notification.ShowError(ex.Message);
+#endif
                 }
             }
         }

@@ -22,7 +22,9 @@ using NINA.Core.Locale;
 using NINA.Core.Model;
 using NINA.Core.Utility;
 using NINA.Core.Utility.Notification;
+#if HAS_WPF
 using NINA.Core.Utility.WindowService;
+#endif
 using NINA.Equipment.Equipment.MyGuider.PHD2.PhdEvents;
 using NINA.Equipment.Interfaces;
 using NINA.Profile.Interfaces;
@@ -40,20 +42,30 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+#if HAS_WPF
 using System.Windows.Media;
 using System.Windows.Threading;
+#endif
 
 namespace NINA.Equipment.Equipment.MyGuider.PHD2 {
 
     public partial class PHD2Guider : BaseINPC, IGuider {
 
+#if HAS_WPF
         public PHD2Guider(IProfileService profileService, IWindowServiceFactory windowServiceFactory) {
             this.profileService = profileService;
             this.windowServiceFactory = windowServiceFactory;
         }
+#else
+        public PHD2Guider(IProfileService profileService) {
+            this.profileService = profileService;
+        }
+#endif
 
         private readonly IProfileService profileService;
+#if HAS_WPF
         private readonly IWindowServiceFactory windowServiceFactory;
+#endif
         private TcpClient _client;
         private NetworkStream _stream;
         private StreamReader _reader;
@@ -77,6 +89,7 @@ namespace NINA.Equipment.Equipment.MyGuider.PHD2 {
             }
         }
 
+#if HAS_WPF
         private ImageSource _image;
 
         public ImageSource Image {
@@ -86,6 +99,7 @@ namespace NINA.Equipment.Equipment.MyGuider.PHD2 {
                 RaisePropertyChanged();
             }
         }
+#endif
 
         private PhdEventAppState _appState;
 
@@ -191,7 +205,9 @@ namespace NINA.Equipment.Equipment.MyGuider.PHD2 {
             var serverPort = profileService.ActiveProfile.GuiderSettings.PHD2ServerPort;
 
             if (string.IsNullOrEmpty(serverHost)) {
+#if HAS_WPF
                 Notification.ShowError(Loc.Instance["LblPhd2ServerHostNotSet"]);
+#endif
                 return connected;
             }
 
@@ -206,7 +222,9 @@ namespace NINA.Equipment.Equipment.MyGuider.PHD2 {
                     }
                 }
                 Logger.Error($"Failed to resolve PHD2 server {serverHost}: {ex.Message}");
+#if HAS_WPF
                 Notification.ShowError(string.Format(Loc.Instance["LblPhd2ServerHostNotResolved"], serverHost));
+#endif
                 return connected;
             }
 
@@ -241,7 +259,9 @@ namespace NINA.Equipment.Equipment.MyGuider.PHD2 {
             } catch (OperationCanceledException) {
             } catch (Exception ex) {
                 Logger.Error(ex);
+#if HAS_WPF
                 Notification.ShowError(ex.Message);
+#endif
             }
 
             return connected;
@@ -282,7 +302,9 @@ namespace NINA.Equipment.Equipment.MyGuider.PHD2 {
             if (targetProfile == null) {
                 Logger.Error($"PHD2 profile {id} could not be found");
                 await GetProfiles();
+#if HAS_WPF
                 Notification.ShowWarning(String.Format(Loc.Instance["LblPhd2ProfileNotFound"], id, _activeProfile?.name));
+#endif
                 // Clear the saved id so we don't try and restore the missing profile next time
                 profileService.ActiveProfile.GuiderSettings.PHD2ProfileId = null;
                 return false;
@@ -293,7 +315,9 @@ namespace NINA.Equipment.Equipment.MyGuider.PHD2 {
             var setProfileResponse = await SendMessage(setProfile);
             if (setProfileResponse.error != null) {
                 Logger.Error($"Failed SetProfile({id}): {setProfileResponse.error}");
+#if HAS_WPF
                 Notification.ShowWarning(Loc.Instance["LblPhd2ProfileChangeFailed"]);
+#endif
                 await GetProfiles();
                 return false;
             }
@@ -309,9 +333,13 @@ namespace NINA.Equipment.Equipment.MyGuider.PHD2 {
                 var state = await GetAppState();
                 if (state != PhdAppState.GUIDING) {
                     if (state == PhdAppState.LOSTLOCK) {
+#if HAS_WPF
                         Notification.ShowWarning(Loc.Instance["LblDitherSkippedBecauseNotLostLock"]);
+#endif
                     } else {
+#if HAS_WPF
                         Notification.ShowWarning(Loc.Instance["LblDitherSkippedBecauseNotGuiding"]);
+#endif
                     }
 
                     return false;
@@ -353,7 +381,9 @@ namespace NINA.Equipment.Equipment.MyGuider.PHD2 {
                         var timeout = profileService.ActiveProfile.GuiderSettings.SettleTimeout;
                         if (elapsed.TotalSeconds > (timeout + 10)) {
                             //Failsafe when phd is not sending settlingdone message
+#if HAS_WPF
                             Notification.ShowWarning(string.Format(Loc.Instance["LblGuiderNoSettleDone"], timeout));
+#endif
                             Logger.Warning($"Phd2 - Guider did not send SettleDone message in expected time  ({timeout}s + 10s). Skipping.");
                             Settling = false;
                         }
@@ -383,7 +413,9 @@ namespace NINA.Equipment.Equipment.MyGuider.PHD2 {
                         elapsed += await CoreUtil.Delay(500, ct);
                         if (elapsed.TotalSeconds > 60) {
                             //Failsafe when phd is not sending resume message
+#if HAS_WPF
                             Notification.ShowWarning(Loc.Instance["LblGuiderNoResume"]);
+#endif
                             break;
                         }
                     }
@@ -394,7 +426,9 @@ namespace NINA.Equipment.Equipment.MyGuider.PHD2 {
 
         private static void CheckPhdError(PhdMethodResponse m) {
             if (m.error != null) {
+#if HAS_WPF
                 Notification.ShowError(String.Format(Loc.Instance["LblPHDError"], m.error.message, m.error.code));
+#endif
                 Logger.Warning("PHDError: " + m.error.message + " CODE: " + m.error.code);
             }
         }
@@ -582,16 +616,22 @@ namespace NINA.Equipment.Equipment.MyGuider.PHD2 {
 
                 // Don't wait for settling when restarting due to lost lock shift, which should minimize downtime
                 if (!await StartGuidingPrivate(false, false, null, CancellationToken.None)) {
+#if HAS_WPF
                     Notification.ShowError(Loc.Instance["LblRestartGuidingAfterLostShiftLockFailed"]);
+#endif
                     Logger.Error("Failed to restart guiding after lost shift lock");
                     return;
                 }
 
                 if (!await SetShiftRate(ShiftRate, CancellationToken.None)) {
+#if HAS_WPF
                     Notification.ShowError(Loc.Instance["LblPhd2GuiderRestartShiftLockFailed"]);
+#endif
                     Logger.Error("Failed to set shift rate after lost shift lock");
                 } else {
+#if HAS_WPF
                     Notification.ShowInformation(Loc.Instance["LblPhd2GuiderRestartShiftLockSuccess"]);
+#endif
                     Logger.Info("Successfully restarted shift lock after losing it");
                 }
             });
@@ -968,7 +1008,9 @@ namespace NINA.Equipment.Equipment.MyGuider.PHD2 {
                         var settleDone = message.ToObject<PhdEventSettleDone>();
                         if (settleDone.Error != null) {
                             Logger.Error("PHD2 error:" + settleDone.Error);
+#if HAS_WPF
                             Notification.ShowExternalWarning(settleDone.Error, Loc.Instance["LblPhd2Warning"]);
+#endif
                         } else {
                             Logger.Debug("PHD2 settle completed");
                         }
@@ -1068,7 +1110,9 @@ namespace NINA.Equipment.Equipment.MyGuider.PHD2 {
             var getConnected = new Phd2GetConnected();
             var getConnectedResult = await SendMessage(getConnected);
             if (getConnectedResult.error != null) {
+#if HAS_WPF
                 Notification.ShowWarning(Loc.Instance["LblPhd2FailedEquipmentConnection"]);
+#endif
                 return false;
             }
 
@@ -1078,7 +1122,9 @@ namespace NINA.Equipment.Equipment.MyGuider.PHD2 {
                 };
                 var setConnectedResult = await SendMessage(setConnected);
                 if (setConnectedResult.error != null) {
+#if HAS_WPF
                     Notification.ShowWarning(Loc.Instance["LblPhd2FailedEquipmentConnection"]);
+#endif
                     return false;
                 }
             }
@@ -1144,10 +1190,14 @@ namespace NINA.Equipment.Equipment.MyGuider.PHD2 {
                 return socketReady;
             } catch (FileNotFoundException ex) {
                 Logger.Error(Loc.Instance["LblPhd2PathNotFound"], ex);
+#if HAS_WPF
                 Notification.ShowError(Loc.Instance["LblPhd2PathNotFound"]);
+#endif
             } catch (Exception ex) {
                 Logger.Error(ex);
+#if HAS_WPF
                 Notification.ShowError(Loc.Instance["LblPhd2StartProcessError"]);
+#endif
             }
 
             return false;
@@ -1256,7 +1306,9 @@ namespace NINA.Equipment.Equipment.MyGuider.PHD2 {
                 // normal
             } catch (Exception ex) {
                 Logger.Error(ex);
+#if HAS_WPF
                 Notification.ShowError(string.Format(Loc.Instance["LblPHDErrorMsg"], ex.Message));
+#endif
                 throw;
             } finally {
                 // Fail all pending SendMessage awaiters on connection teardown
@@ -1286,18 +1338,28 @@ namespace NINA.Equipment.Equipment.MyGuider.PHD2 {
             }
         }
 
+#if HAS_WPF
         public void SetupDialog() {
             var windowService = windowServiceFactory.Create();
             windowService.ShowDialog(this, Loc.Instance["LblPHD2Setup"], System.Windows.ResizeMode.NoResize, System.Windows.WindowStyle.SingleBorderWindow);
         }
+#else
+        public void SetupDialog() {
+        }
+#endif
 
         [RelayCommand]
+#if HAS_WPF
         private void OpenPHD2FileDialog(object o) {
             var dialog = CoreUtil.GetFilteredFileDialog(profileService.ActiveProfile.GuiderSettings.PHD2Path, "phd2.exe", "PHD2|phd2.exe");
             if (dialog.ShowDialog() == true) {
                 this.profileService.ActiveProfile.GuiderSettings.PHD2Path = dialog.FileName;
             }
         }
+#else
+        private void OpenPHD2FileDialog(object o) {
+        }
+#endif
 
         public event EventHandler PHD2ConnectionLost;
 

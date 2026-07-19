@@ -24,7 +24,9 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
+#if HAS_WPF
 using System.Windows.Media.Imaging;
+#endif
 using NINA.Core.Interfaces;
 using NINA.Image.ImageAnalysis;
 using NINA.Equipment.Interfaces;
@@ -32,7 +34,9 @@ using NINA.Core.Model;
 using NINA.Equipment.Interfaces.Mediator;
 using NINA.Core.Enum;
 using System.Collections.Generic;
+#if HAS_WPF
 using NINA.Core.Utility.WindowService;
+#endif
 using NINA.Equipment.Equipment.MyGuider.PHD2;
 
 namespace NINA.Equipment.Equipment.MyGuider {
@@ -40,14 +44,20 @@ namespace NINA.Equipment.Equipment.MyGuider {
     public class MGENGuider : BaseINPC, IGuider {
         public readonly IMGEN MGen;
         private IProfileService profileService;
+#if HAS_WPF
         private readonly IWindowServiceFactory windowServiceFactory;
+#endif
         private ITelescopeMediator telescopeMediator;
         private Coordinates lastCalibratedCoords = null;
         private PierSide lastCalibratedSideOfPier;
         private Coordinates lastKnownGuidingPosition = null;
 
+#if HAS_WPF
         public MGENGuider(IMGEN mgen, string name, string id, IProfileService profileService, ITelescopeMediator telescopeMediator, IWindowServiceFactory windowServiceFactory) {
             this.windowServiceFactory = windowServiceFactory;
+#else
+        public MGENGuider(IMGEN mgen, string name, string id, IProfileService profileService, ITelescopeMediator telescopeMediator) {
+#endif
             this.MGen = mgen;
             this.Name = name;
             this.Id = id;
@@ -206,6 +216,7 @@ namespace NINA.Equipment.Equipment.MyGuider {
             LEDState = await MGen.ReadLEDState(refreshCts.Token);
         }
 
+#if HAS_WPF
         private async Task RefreshDisplay() {
             var mediaColor1 = profileService.ActiveProfile.ColorSchemaSettings.ColorSchema.PrimaryColor;
             var primary = System.Drawing.Color.FromArgb(mediaColor1.A, mediaColor1.R, mediaColor1.G, mediaColor1.B);
@@ -214,6 +225,11 @@ namespace NINA.Equipment.Equipment.MyGuider {
             var display = await MGen.ReadDisplay(primary, background, refreshCts.Token);
             Display = ImageUtility.ConvertBitmap(display);
         }
+#else
+        private async Task RefreshDisplay() {
+            await Task.CompletedTask;
+        }
+#endif
 
         private MGENGuideStep _lastStep;
         private int _lastStepNumber = 0;
@@ -274,6 +290,7 @@ namespace NINA.Equipment.Equipment.MyGuider {
             }
         }
 
+#if HAS_WPF
         private BitmapSource _display;
 
         public BitmapSource Display {
@@ -284,11 +301,14 @@ namespace NINA.Equipment.Equipment.MyGuider {
                 RaisePropertyChanged();
             }
         }
+#endif
 
         public void Disconnect() {
             try { this.refreshCts?.Cancel(); } catch { }
             MGen.Disconnect();
+#if HAS_WPF
             Display = null;
+#endif
             Connected = false;
         }
 
@@ -307,12 +327,16 @@ namespace NINA.Equipment.Equipment.MyGuider {
                     });
                 } else {
                     Logger.Error("Guiding is not active. Unable to dither");
+#if HAS_WPF
                     Notification.ShowError(Loc.Instance["LblGuidingNotActiveNoDither"]);
+#endif
                 }
             } catch (OperationCanceledException) {
             } catch (Exception ex) {
                 Logger.Error(ex);
+#if HAS_WPF
                 Notification.ShowError(Loc.Instance["LblFailedCommsMGENDither"]);
+#endif
             } finally {
                 progress.Report(new ApplicationStatus { Status = string.Empty });
             }
@@ -369,7 +393,9 @@ namespace NINA.Equipment.Equipment.MyGuider {
                 
             } catch (Exception ex) {
                 Logger.Error(ex);
+#if HAS_WPF
                 Notification.ShowError(ex.Message);
+#endif
                 return false;
             } finally {
                 progress.Report(new ApplicationStatus { Status = string.Empty });
@@ -502,17 +528,24 @@ namespace NINA.Equipment.Equipment.MyGuider {
                 RaisePropertyChanged(nameof(PixelScale));
             } catch (Exception ex) {
                 Logger.Error(ex);
+#if HAS_WPF
                 Notification.ShowError(ex.Message);
+#endif
                 try { refreshCts?.Cancel(); } catch { }
                 return false;
             }
             return true;
         }
 
+#if HAS_WPF
         public void SetupDialog() {
             var windowService = windowServiceFactory.Create();
             windowService.ShowDialog(this, Loc.Instance["LblMGENSetup"], System.Windows.ResizeMode.NoResize, System.Windows.WindowStyle.SingleBorderWindow);
         }
+#else
+        public void SetupDialog() {
+        }
+#endif
 
         public ICommand MGenUpCommand { get; }
         public ICommand MGenDownCommand { get; }

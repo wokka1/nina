@@ -25,10 +25,14 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
+#if HAS_WPF
 using System.Windows.Media.Imaging;
+#endif
 using NINA.Core.Locale;
 using NINA.Core.Model.Equipment;
+#if HAS_WPF
 using NINA.Core.MyMessageBox;
+#endif
 
 using NINA.Equipment.Exceptions;
 using NINA.Equipment.Model;
@@ -207,7 +211,9 @@ namespace NINA.Equipment.Equipment.MyCamera {
                 ValidateMode();
                 int iso = ISOSpeeds.Where((x) => x.Key == value).FirstOrDefault().Value;
                 if (CheckError(SetProperty(EDSDK.PropID_ISOSpeed, iso))) {
+#if HAS_WPF
                     Notification.ShowExternalError(Loc.Instance["LblUnableToSetISO"], Loc.Instance["LblCanonDriverError"]);
+#endif
                 }
                 RaisePropertyChanged();
             }
@@ -325,13 +331,17 @@ namespace NINA.Equipment.Equipment.MyCamera {
 
                 case EDSDK.StateEvent_Shutdown:
                     Logger.Error("CANON: Camera has suddenly disconnected");
+#if HAS_WPF
                     Notification.ShowExternalError(string.Format(Loc.Instance["LblCanonCameraDisconnected"], Name), Loc.Instance["LblCanonDriverError"]);
+#endif
                     Disconnect();
                     break;
 
                 case EDSDK.StateEvent_InternalError:
                     Logger.Error("CANON: Canon SDK has encountered an internal error");
+#if HAS_WPF
                     Notification.ShowExternalError(Loc.Instance["LblCanonSdkError"], Loc.Instance["LblCanonDriverError"]);
+#endif
                     break;
             }
 
@@ -613,6 +623,7 @@ namespace NINA.Equipment.Equipment.MyCamera {
 
         private void ValidateMode() {
             if (!IsManualMode() && !IsBulbMode()) {
+#if HAS_WPF
                 var result = MyMessageBox.Show(
                     Loc.Instance["LblEDCameraNotInManualMode"],
                     Loc.Instance["LblInvalidMode"],
@@ -623,11 +634,16 @@ namespace NINA.Equipment.Equipment.MyCamera {
                 } else {
                     throw new Exception("Invalid camera mode");
                 }
+#else
+                // Portable stub - no dialog UI exists yet to prompt the user; fail immediately instead.
+                throw new Exception("Invalid camera mode");
+#endif
             }
         }
 
         private void ValidateModeForExposure(double exposureTime) {
             if (!IsManualMode() && !IsBulbMode()) {
+#if HAS_WPF
                 var result = MyMessageBox.Show(
                     Loc.Instance["LblEDCameraNotInManualMode"],
                     Loc.Instance["LblInvalidMode"],
@@ -638,6 +654,10 @@ namespace NINA.Equipment.Equipment.MyCamera {
                 } else {
                     throw new Exception("Invalid camera mode for taking exposures");
                 }
+#else
+                // Portable stub - no dialog UI exists yet to prompt the user; fail immediately instead.
+                throw new Exception("Invalid camera mode for taking exposures");
+#endif
             }
 
             if (IsManualMode()) {
@@ -647,6 +667,7 @@ namespace NINA.Equipment.Equipment.MyCamera {
                 } else {
                     var success = SetExposureTime(double.MaxValue);
                     if (!success) {
+#if HAS_WPF
                         var result = MyMessageBox.Show(
                             Loc.Instance["LblChangeToBulbMode"],
                             Loc.Instance["LblInvalidModeManual"],
@@ -657,11 +678,16 @@ namespace NINA.Equipment.Equipment.MyCamera {
                         } else {
                             throw new Exception("Invalid camera mode [Manual] for taking bulb exposures");
                         }
+#else
+                        // Portable stub - no dialog UI exists yet to prompt the user; fail immediately instead.
+                        throw new Exception("Invalid camera mode [Manual] for taking bulb exposures");
+#endif
                     }
                 }
             }
 
             if (IsBulbMode() && exposureTime < 1.0) {
+#if HAS_WPF
                 var result = MyMessageBox.Show(
                     Loc.Instance["LblChangeToManualMode"],
                     Loc.Instance["LblInvalidModeBulb"],
@@ -672,6 +698,10 @@ namespace NINA.Equipment.Equipment.MyCamera {
                 } else {
                     throw new Exception("Invalid camera mode [Bulb] for taking exposures < 1s");
                 }
+#else
+                // Portable stub - no dialog UI exists yet to prompt the user; fail immediately instead.
+                throw new Exception("Invalid camera mode [Bulb] for taking exposures < 1s");
+#endif
             };
         }
 
@@ -1020,7 +1050,9 @@ namespace NINA.Equipment.Equipment.MyCamera {
                     return true;
                 } catch (Exception ex) {
                     Logger.Error(ex);
+#if HAS_WPF
                     Notification.ShowExternalError(ex.Message, Loc.Instance["LblCanonDriverError"]);
+#endif
                     return false;
                 }
             });
@@ -1098,6 +1130,7 @@ namespace NINA.Equipment.Equipment.MyCamera {
                     //Move from unmanaged to managed code.
                     Marshal.Copy(pointer, bytes, 0, bytes.Length);
 
+#if HAS_WPF
                     using (var memoryStream = new System.IO.MemoryStream(bytes)) {
                         JpegBitmapDecoder decoder = new JpegBitmapDecoder(memoryStream, BitmapCreateOptions.IgnoreColorProfile, BitmapCacheOption.OnLoad);
 
@@ -1120,6 +1153,10 @@ namespace NINA.Equipment.Equipment.MyCamera {
                             isBayered: false,
                             metaData: metaData);
                     }
+#else
+                    // Portable stub - JPEG decode/convert relies on WPF imaging types; no portable equivalent exists yet.
+                    throw new NotSupportedException("Live view download is not yet supported on this platform.");
+#endif
                 } finally {
                     /* Memory cleanup */
                     if (stream != IntPtr.Zero) {

@@ -15,11 +15,15 @@
 using NINA.Image.ImageData;
 using NINA.Equipment.Equipment.MyCamera;
 using NINA.Core.Utility;
+#if HAS_WPF
 using NINA.Core.Utility.WindowService;
+#endif
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
+#if HAS_WPF
 using System.Windows.Media.Imaging;
+#endif
 using NINA.Image.ImageAnalysis;
 using NINA.Astrometry;
 using NINA.Core.Model;
@@ -31,7 +35,9 @@ namespace NINA.Equipment.Interfaces.ViewModel {
 
     public interface IImageControlVM : IDockableVM {
         bool AutoStretch { get; set; }
+#if HAS_WPF
         BahtinovImage BahtinovImage { get; }
+#endif
         ObservableRectangle BahtinovRectangle { get; set; }
         ICommand CancelPlateSolveImageCommand { get; }
         bool DetectStars { get; set; }
@@ -39,7 +45,9 @@ namespace NINA.Equipment.Interfaces.ViewModel {
         double DragResizeBoundary { get; }
         ICommand DragStartCommand { get; }
         ICommand DragStopCommand { get; }
+#if HAS_WPF
         BitmapSource Image { get; set; }
+#endif
         IAsyncCommand InspectAberrationCommand { get; }
         bool IsLiveViewEnabled { get; }
         IAsyncCommand PlateSolveImageCommand { get; }
@@ -48,7 +56,9 @@ namespace NINA.Equipment.Interfaces.ViewModel {
         bool ShowBahtinovAnalyzer { get; set; }
         bool ShowCrossHair { get; set; }
         ApplicationStatus Status { get; set; }
+#if HAS_WPF
         IWindowServiceFactory WindowServiceFactory { get; set; }
+#endif
         int ImageRotation { get; set; }
 
         void Dispose();

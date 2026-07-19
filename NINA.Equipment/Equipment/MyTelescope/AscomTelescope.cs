@@ -383,7 +383,9 @@ namespace NINA.Equipment.Equipment.MyTelescope {
                     if (!success) {
                         if (retries++ >= MERIDIAN_FLIP_SLEW_RETRY_ATTEMPTS) {
                             Logger.Error("Failed to slew for Meridian Flip, even after retrying");
+#if HAS_WPF
                             Notification.ShowError(Loc.Instance["LblMeridianFlipRetryFailed"]);
+#endif
                             break;
                         } else {
                             var jsnowCoordinates = targetCoordinates.Transform(Epoch.JNOW);
@@ -391,7 +393,9 @@ namespace NINA.Equipment.Equipment.MyTelescope {
                             Logger.Warning($"Failed to slew for Meridian Flip. Retry {retries} of {MERIDIAN_FLIP_SLEW_RETRY_ATTEMPTS} times with a {MERIDIAN_FLIP_SLEW_RETRY_WAIT} wait between each.  " +
                                 $"SideOfPier: {SideOfPier}, RA: {jsnowCoordinates.RAString}, Dec: {jsnowCoordinates.DecString}, Azimuth: {topocentricCoordinates.Azimuth}");
 
+#if HAS_WPF
                             Notification.ShowWarning(string.Format(Loc.Instance["LblMeridianFlipRetry"], MERIDIAN_FLIP_SLEW_RETRY_WAIT.TotalSeconds, retries, MERIDIAN_FLIP_SLEW_RETRY_ATTEMPTS));
+#endif
                             await Task.Delay(MERIDIAN_FLIP_SLEW_RETRY_WAIT, token);
                         }
                     }
@@ -399,11 +403,15 @@ namespace NINA.Equipment.Equipment.MyTelescope {
 
                 if (success && retries > 0) {
                     Logger.Info("Successfully slewed for Meridian Flip after retrying");
+#if HAS_WPF
                     Notification.ShowWarning(string.Format(Loc.Instance["LblMeridianFlipWaitLonger"], retries));
+#endif
                 }
             } catch (Exception ex) {
                 Logger.Error(ex);
+#if HAS_WPF
                 Notification.ShowExternalError(Loc.Instance["LblMeridianFlipFailed"] + "" + ex.Message, Loc.Instance["LblASCOMDriverError"]);
+#endif
             } finally {
                 TargetCoordinates = null;
                 TargetSideOfPier = null;
@@ -461,10 +469,14 @@ namespace NINA.Equipment.Equipment.MyTelescope {
 
                             if (axis == TelescopeAxes.Primary && !CanMovePrimaryAxis) {
                                 Logger.Warning("Telescope cannot move primary axis");
+#if HAS_WPF
                                 Notification.ShowWarning(Loc.Instance["LblTelescopeCannotMovePrimaryAxis"]);
+#endif
                             } else if (axis == TelescopeAxes.Secondary && !CanMoveSecondaryAxis) {
                                 Logger.Warning("Telescope cannot move secondary axis");
+#if HAS_WPF
                                 Notification.ShowWarning(Loc.Instance["LblTelescopeCannotMoveSecondaryAxis"]);
+#endif
                             } else {
                                 if (actualRate != 0) {
                                     //Check that the given rate falls into the values of acceptable rates and adjust to the nearest rate if outside
@@ -478,22 +490,32 @@ namespace NINA.Equipment.Equipment.MyTelescope {
                             }
                         } catch (ASCOM.InvalidValueException e) {
                             Logger.Error(e);
+#if HAS_WPF
                             Notification.ShowExternalError(string.Format(Loc.Instance["LblASCOMTelescopeDriveRateInvalid"], actualRate), Loc.Instance["LblASCOMDriverError"]);
+#endif
                         } catch (Exception e) {
                             Logger.Error(e);
+#if HAS_WPF
                             Notification.ShowExternalError(e.Message, Loc.Instance["LblASCOMDriverError"]);
+#endif
                         }
                     } else {
                         Logger.Warning("Telescope parked");
+#if HAS_WPF
                         Notification.ShowWarning(Loc.Instance["LblTelescopeParkedWarn"]);
+#endif
                     }
                 } else {
                     Logger.Warning("Telescope cannot slew");
+#if HAS_WPF
                     Notification.ShowWarning(Loc.Instance["LblTelescopeCannotSlew"]);
+#endif
                 }
             } else {
                 Logger.Warning("Telescope not connected");
+#if HAS_WPF
                 Notification.ShowWarning(Loc.Instance["LblTelescopeNotConnected"]);
+#endif
             }
         }
 
@@ -506,16 +528,24 @@ namespace NINA.Equipment.Equipment.MyTelescope {
                             InvalidatePropertyCache();
                         } catch (Exception e) {
                             Logger.Error(e);
+#if HAS_WPF
                             Notification.ShowExternalError(e.Message, Loc.Instance["LblASCOMDriverError"]);
+#endif
                         }
                     } else {
+#if HAS_WPF
                         Notification.ShowWarning(Loc.Instance["LblTelescopeParkedWarn"]);
+#endif
                     }
                 } else {
+#if HAS_WPF
                     Notification.ShowWarning(Loc.Instance["LblTelescopeCannotPulseGuide"]);
+#endif
                 }
             } else {
+#if HAS_WPF
                 Notification.ShowWarning(Loc.Instance["LblTelescopeNotConnected"]);
+#endif
             }
         }
 
@@ -528,7 +558,9 @@ namespace NINA.Equipment.Equipment.MyTelescope {
                     throw;
                 } catch (Exception e) {
                     Logger.Error(e);
+#if HAS_WPF
                     Notification.ShowExternalError(e.Message, Loc.Instance["LblASCOMDriverError"]);
+#endif
                 }
             }
         }
@@ -538,7 +570,9 @@ namespace NINA.Equipment.Equipment.MyTelescope {
                     device.SetPark();
                 } catch (Exception e) {
                     Logger.Error(e);
+#if HAS_WPF
                     Notification.ShowExternalError(e.Message, Loc.Instance["LblASCOMDriverError"]);
+#endif
                 }
             }
         }
@@ -579,7 +613,9 @@ namespace NINA.Equipment.Equipment.MyTelescope {
                     throw;
                 } catch (Exception e) {
                     Logger.Error(e);
+#if HAS_WPF
                     Notification.ShowExternalError(e.Message, Loc.Instance["LblASCOMDriverError"]);
+#endif
                 } finally {
                     TargetCoordinates = null;
                 }
@@ -609,7 +645,9 @@ namespace NINA.Equipment.Equipment.MyTelescope {
                     throw;
                 } catch (Exception e) {
                     Logger.Error(e);
+#if HAS_WPF
                     Notification.ShowExternalError(e.Message, Loc.Instance["LblASCOMDriverError"]);
+#endif
                 } finally {
                     TargetCoordinates = null;
                 }
@@ -634,11 +672,15 @@ namespace NINA.Equipment.Equipment.MyTelescope {
                         success = true;
                     } catch (Exception ex) {
                         Logger.Error(ex);
+#if HAS_WPF
                         Notification.ShowExternalError(ex.Message, Loc.Instance["LblASCOMDriverError"]);
+#endif
                     }
                 } else {
                     Logger.Error("Telescope is not tracking to be able to sync");
+#if HAS_WPF
                     Notification.ShowError(Loc.Instance["LblTelescopeNotTrackingForSync"]);
+#endif
                 }
             }
             return success;
@@ -653,7 +695,9 @@ namespace NINA.Equipment.Equipment.MyTelescope {
                     throw;
                 } catch (Exception e) {
                     Logger.Error(e);
+#if HAS_WPF
                     Notification.ShowExternalError(e.Message, Loc.Instance["LblASCOMDriverError"]);
+#endif
                 }
             }
         }
@@ -667,7 +711,9 @@ namespace NINA.Equipment.Equipment.MyTelescope {
                     throw;
                 } catch (Exception e) {
                     Logger.Error(e);
+#if HAS_WPF
                     Notification.ShowExternalError(e.Message, Loc.Instance["LblASCOMDriverError"]);
+#endif
                 }
             }
         }
@@ -697,7 +743,9 @@ namespace NINA.Equipment.Equipment.MyTelescope {
                     }
                 } catch (Exception ex) {
                     Logger.Error(ex);
+#if HAS_WPF
                     Notification.ShowExternalError(ex.Message, Loc.Instance["LblASCOMDriverError"]);
+#endif
                 }
                 return 24;
             }
@@ -860,7 +908,9 @@ namespace NINA.Equipment.Equipment.MyTelescope {
 
                         if (timeDiff >= warningThreshold) {
                             Logger.Warning($"{message} Mount and system have an excessive time difference of {timeDiff:0.0##} seconds.");
+#if HAS_WPF
                             Notification.ShowWarning(string.Format(Loc.Instance["LblMountTimeDifferenceTooLarge"], timeDiff));
+#endif
                             return;
                         }
 
@@ -878,7 +928,9 @@ namespace NINA.Equipment.Equipment.MyTelescope {
 
             if (timeDiff >= warningThreshold) {
                 Logger.Warning($"System and mount time differ by {timeDiff:0.0##} seconds.");
+#if HAS_WPF
                 Notification.ShowWarning(string.Format(Loc.Instance["LblMountTimeDifferenceTooLarge"], timeDiff));
+#endif
             }
 
         }
@@ -1003,7 +1055,9 @@ namespace NINA.Equipment.Equipment.MyTelescope {
                         }
                     } catch (Exception ex) {
                         Logger.Error(ex);
+#if HAS_WPF
                         Notification.ShowExternalError(ex.Message, Loc.Instance["LblASCOMDriverError"]);
+#endif
                     }
                 }
             }

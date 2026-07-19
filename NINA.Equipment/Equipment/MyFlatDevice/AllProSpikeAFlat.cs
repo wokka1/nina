@@ -52,7 +52,9 @@ namespace NINA.Equipment.Equipment.MyFlatDevice {
                     if (Connected) {
                         if (USBD.USBD_LightOn(this._usbdHandle, value) != 0) {
                             Logger.Error($"Failed to turn LightOn status to {value}");
+#if HAS_WPF
                             Notification.ShowError(Loc.Instance["LblFlatDeviceInvalidResponse"]);
+#endif
                         }
                     }
                 }
@@ -79,7 +81,9 @@ namespace NINA.Equipment.Equipment.MyFlatDevice {
                         }
                         if (USBD.USBD_SetBrightness(this._usbdHandle, (uint)value) != 0) {
                             Logger.Error($"Failed to set brightness to {value}");
+#if HAS_WPF
                             Notification.ShowError(Loc.Instance["LblFlatDeviceInvalidResponse"]);
+#endif
                         }
                     }
                 }
@@ -134,12 +138,16 @@ namespace NINA.Equipment.Equipment.MyFlatDevice {
                     }
                     if (this._usbdHandle == (IntPtr)0) {
                         Logger.Error("Unable to open AllPro Spike-a-Flat device");
+#if HAS_WPF
                         Notification.ShowError(Loc.Instance["LblFlatDeviceInvalidResponse"]);
+#endif
                         return false;
                     }
                     if (USBD.USBD_Connect(this._usbdHandle) != 0) {
                         Logger.Error("Unable to connect AllPro Spike-a-Flat device");
+#if HAS_WPF
                         Notification.ShowError(Loc.Instance["LblFlatDeviceInvalidResponse"]);
+#endif
                         return false;
                     }
                     this.Connected = true;

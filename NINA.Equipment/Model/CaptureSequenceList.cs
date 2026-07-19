@@ -90,7 +90,9 @@ namespace NINA.Equipment.Model {
                 }
             } catch (Exception ex) {
                 Logger.Error(ex);
+#if HAS_WPF
                 Notification.ShowError(ex.Message);
+#endif
             }
         }
 
@@ -101,7 +103,9 @@ namespace NINA.Equipment.Model {
                 }
             } catch (Exception ex) {
                 Logger.Error(ex);
+#if HAS_WPF
                 Notification.ShowError(ex.Message);
+#endif
                 return null;
             }
         }
@@ -122,7 +126,9 @@ namespace NINA.Equipment.Model {
                 AdjustSequenceToMatchCurrentProfile(filters, latitude, longitude, l);
             } catch (Exception ex) {
                 Logger.Error(ex);
+#if HAS_WPF
                 Notification.ShowError(Loc.Instance["LblLoadSequenceFailed"] + Environment.NewLine + ex.Message);
+#endif
             }
             return l;
         }
@@ -135,7 +141,9 @@ namespace NINA.Equipment.Model {
                     if (filter == null) {
                         filter = filters.Where((f) => f.Position == s.FilterType.Position).FirstOrDefault();
                         if (filter == null) {
+#if HAS_WPF
                             Notification.ShowWarning(string.Format(Loc.Instance["LblFilterNotFoundForPosition"], (s.FilterType.Position + 1)));
+#endif
                         }
                     }
                     s.FilterType = filter;
@@ -153,7 +161,9 @@ namespace NINA.Equipment.Model {
                 }
             } catch (Exception ex) {
                 Logger.Error(ex);
+#if HAS_WPF
                 Notification.ShowError(ex.Message);
+#endif
             }
         }
 
@@ -176,7 +186,9 @@ namespace NINA.Equipment.Model {
                 }
             } catch (Exception ex) {
                 Logger.Error(ex);
+#if HAS_WPF
                 Notification.ShowError(Loc.Instance["LblLoadSequenceSetFailed"] + Environment.NewLine + ex.Message);
+#endif
             }
             return c;
         }

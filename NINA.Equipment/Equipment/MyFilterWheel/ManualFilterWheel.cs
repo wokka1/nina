@@ -14,7 +14,9 @@
 
 using NINA.Core.Locale;
 using NINA.Core.Model.Equipment;
+#if HAS_WPF
 using NINA.Core.MyMessageBox;
+#endif
 using NINA.Core.Utility;
 using NINA.Equipment.Interfaces;
 using NINA.Profile.Interfaces;
@@ -69,11 +71,13 @@ namespace NINA.Equipment.Equipment.MyFilterWheel {
             get => position;
 
             set {
+#if HAS_WPF
                 MyMessageBox.Show(
                     string.Format(Loc.Instance["LblPleaseChangeToFilter"], this.Filters[value].Name),
                     Loc.Instance["LblFilterChangeRequired"],
                     System.Windows.MessageBoxButton.OK,
                     System.Windows.MessageBoxResult.OK);
+#endif
                 position = value;
                 RaisePropertyChanged();
             }

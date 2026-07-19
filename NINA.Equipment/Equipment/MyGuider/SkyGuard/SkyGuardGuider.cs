@@ -16,9 +16,13 @@ using NINA.Core.Interfaces;
 using NINA.Equipment.Equipment.MyTelescope;
 using NINA.Core.Utility.Notification;
 using NINA.Core.Model;
+#if HAS_WPF
 using NINA.Core.Utility.WindowService;
+#endif
 using NINA.Core.Locale;
+#if HAS_WPF
 using System.Windows.Threading;
+#endif
 using NINA.Core.Utility.Http;
 using NINA.Astrometry;
 using System.Collections.Generic;
@@ -33,7 +37,9 @@ namespace NINA.Equipment.Equipment.MyGuider.SkyGuard
 
         #region Fields
         private IProfileService profileService;
+#if HAS_WPF
         private readonly IWindowServiceFactory windowServiceFactory;
+#endif
 
         private bool _connected;
 
@@ -54,10 +60,16 @@ namespace NINA.Equipment.Equipment.MyGuider.SkyGuard
         /// </summary>
         /// <param name="profileService"></param>
         /// <param name="windowServiceFactory"></param>
+#if HAS_WPF
         public SkyGuardGuider(IProfileService profileService, IWindowServiceFactory windowServiceFactory)
         {
             this.profileService = profileService;
             this.windowServiceFactory = windowServiceFactory;
+#else
+        public SkyGuardGuider(IProfileService profileService)
+        {
+            this.profileService = profileService;
+#endif
             _connected = false;
 
             OpenSkyGuardDiagCommand = new RelayCommand(OpenSkyGuardFileDiag);
@@ -192,7 +204,9 @@ namespace NINA.Equipment.Equipment.MyGuider.SkyGuard
 
         public event EventHandler<IGuideStep> GuideEvent;
 
+#if HAS_WPF
         private Dispatcher _dispatcher = Dispatcher.CurrentDispatcher;
+#endif
 
         private TelescopeInfo telescopeInfo = DeviceInfo.CreateDefaultInstance<TelescopeInfo>();
 
@@ -296,7 +310,9 @@ namespace NINA.Equipment.Equipment.MyGuider.SkyGuard
                 catch (Exception ex)
                 {
                     Logger.Warning($"{Loc.Instance["LblSkyGuardNotReady"]} : {ex.Message}");
+#if HAS_WPF
                     Notification.ShowError(Loc.Instance["LblSkyGuardNotReady"]);
+#endif
                     throw;
                 }
 
@@ -310,19 +326,25 @@ namespace NINA.Equipment.Equipment.MyGuider.SkyGuard
             catch (FileNotFoundException ex)
             {
                 Logger.Error(Loc.Instance["LblSkyGuardPathNotFound"], ex);
+#if HAS_WPF
                 Notification.ShowError(Loc.Instance["LblSkyGuardPathNotFound"]);
+#endif
                 throw;
             }
             catch (OperationCanceledException cancelException)
             {
                 Logger.Warning($"{Loc.Instance["LblSkyGuardOperationCancelled"]} : {cancelException}");
+#if HAS_WPF
                 Notification.ShowWarning(Loc.Instance["LblSkyGuardOperationCancelled"]);
+#endif
                 return false;
             }
             catch (Exception ex)
             {
                 Logger.Error(ex);
+#if HAS_WPF
                 Notification.ShowError(Loc.Instance["LblSkyGuardStartProcessError"]);
+#endif
                 throw;
             }
         }
@@ -371,7 +393,9 @@ namespace NINA.Equipment.Equipment.MyGuider.SkyGuard
             catch (OperationCanceledException cancelException)
             {
                 Logger.Error($"{Loc.Instance["LblSkyGuardOperationCancelled"]} : {cancelException}");
+#if HAS_WPF
                 Notification.ShowError(Loc.Instance["LblSkyGuardOperationCancelled"]);
+#endif
                 throw;
             }
             catch (Exception ex)
@@ -509,6 +533,7 @@ namespace NINA.Equipment.Equipment.MyGuider.SkyGuard
         /// </summary>
         /// <param name="o"></param>
         //TODO : Verify if [o] parameter could be removed.
+#if HAS_WPF
         private void OpenSkyGuardFileDiag(object o)
         {
             var dialog = CoreUtil.GetFilteredFileDialog(profileService.ActiveProfile.GuiderSettings.SkyGuardPath, "SkyGuard.exe", "SkyGuard files :|SkyGuard.exe;SkyGuide.exe;SkySurveyor.exe| All files(*.*) | *.*");
@@ -517,6 +542,11 @@ namespace NINA.Equipment.Equipment.MyGuider.SkyGuard
                 this.profileService.ActiveProfile.GuiderSettings.SkyGuardPath = dialog.FileName;
             }
         }
+#else
+        private void OpenSkyGuardFileDiag(object o)
+        {
+        }
+#endif
 
         /// <summary>
         /// 
@@ -558,7 +588,9 @@ namespace NINA.Equipment.Equipment.MyGuider.SkyGuard
             catch
             {
                 Logger.Warning("SkyGuard endpoint [SKSS_StartGuiderCameraExposure] is not reachable.");
+#if HAS_WPF
                 Notification.ShowError(Loc.Instance["LblSkyGuardEndpointNotReachable"]);
+#endif
                 return false;
             }
         }
@@ -598,7 +630,9 @@ namespace NINA.Equipment.Equipment.MyGuider.SkyGuard
             catch (Exception ex)
             {
                 Logger.Warning(ex.Message);
+#if HAS_WPF
                 Notification.ShowError(Loc.Instance["LblSkyGuardEndpointNotReachable"]);
+#endif
                 return false;
             }
         }
@@ -643,7 +677,9 @@ namespace NINA.Equipment.Equipment.MyGuider.SkyGuard
             catch (Exception ex)
             {
                 Logger.Warning(ex.Message);
+#if HAS_WPF
                 Notification.ShowError(Loc.Instance["LblSkyGuardEndpointNotReachable"]);
+#endif
                 return false;
             }
         }
@@ -791,7 +827,9 @@ namespace NINA.Equipment.Equipment.MyGuider.SkyGuard
                 if (string.IsNullOrEmpty(versionResponse))
                 {
                     Logger.Error(msgVersionNotCompatible);
+#if HAS_WPF
                     Notification.ShowError(Loc.Instance["lblSkyGuardWrongVersion"]);
+#endif
                     return _connected;
                 }
 
@@ -800,7 +838,9 @@ namespace NINA.Equipment.Equipment.MyGuider.SkyGuard
 
                 if (skyGuardVersion < minimumSkyGuardVersion) {
                     Logger.Error(msgVersionNotCompatible);
+#if HAS_WPF
                     Notification.ShowError(Loc.Instance["lblSkyGuardWrongVersion"]);
+#endif
                     return _connected;
                 }
 
@@ -822,7 +862,9 @@ namespace NINA.Equipment.Equipment.MyGuider.SkyGuard
             catch (Exception ex)
             {
                 Logger.Error(ex);
+#if HAS_WPF
                 Notification.ShowError(Loc.Instance["LblSkyGuardConnectError"]);
+#endif
             }
             return _connected;
         }
@@ -842,7 +884,9 @@ namespace NINA.Equipment.Equipment.MyGuider.SkyGuard
             catch (Exception ex)
             {
                 Logger.Error(ex.Message);
+#if HAS_WPF
                 Notification.ShowError(Loc.Instance["LblSkyGuardDisonnectError"]);
+#endif
             }
             finally
             {
@@ -853,11 +897,17 @@ namespace NINA.Equipment.Equipment.MyGuider.SkyGuard
         /// <summary>
         /// Saves user information entered in SkyGuard Setup
         /// </summary>
+#if HAS_WPF
         public void SetupDialog()
         {
             var windowService = windowServiceFactory.Create();
             windowService.ShowDialog(this, Loc.Instance["LblSkyGuardSetup"], System.Windows.ResizeMode.NoResize, System.Windows.WindowStyle.SingleBorderWindow);
         }
+#else
+        public void SetupDialog()
+        {
+        }
+#endif
 
         public string Action(string actionName, string actionParameters) {
             throw new NotImplementedException();
@@ -898,7 +948,9 @@ namespace NINA.Equipment.Equipment.MyGuider.SkyGuard
                 var guidingStatus = JsonConvert.DeserializeObject<SkyGuardStatusMessage>(guidingStatusResponse);
 
                 if (!guidingStatus.Data.Equals("guiding") && !guidingStatus.Data.Equals("looping")) {
+#if HAS_WPF
                     Notification.ShowWarning(Loc.Instance["LblDitherSkyGuardSkippedBecauseNotGuiding"]);
+#endif
                     return false;
                 }
 
@@ -957,18 +1009,24 @@ namespace NINA.Equipment.Equipment.MyGuider.SkyGuard
             } catch (OperationCanceledException) {
                 var msg = $"Operation cancelled.";
                 Logger.Warning(msg);
+#if HAS_WPF
                 Notification.ShowWarning(Loc.Instance["LblSkyGuardOperationCancelled"]);
+#endif
                 ExecuteWebRequest($"{SKSS_Uri}/SKSS_StopGuiderCameraExposure");
                 return false;
 
             } catch (TimeoutException) {
                 Logger.Error("TimeOut for Dithering");
+#if HAS_WPF
                 Notification.ShowError(Loc.Instance["LblSkyGuardDitheringError"]);
+#endif
                 return false;
 
             } catch (Exception ex) {
                 Logger.Warning(ex.Message);
+#if HAS_WPF
                 Notification.ShowError(Loc.Instance["LblSkyGuardDitheringError"]);
+#endif
                 return false;
 
             }
@@ -1056,7 +1114,9 @@ namespace NINA.Equipment.Equipment.MyGuider.SkyGuard
             {
                 var msg = $"Operation cancelled.";
                 Logger.Warning(msg);
+#if HAS_WPF
                 Notification.ShowWarning(Loc.Instance["LblSkyGuardOperationCancelled"]);
+#endif
                 ExecuteWebRequest($"{SKSS_Uri}/SKSS_StopGuiderCameraExposure");
                 return false;
 
@@ -1064,14 +1124,18 @@ namespace NINA.Equipment.Equipment.MyGuider.SkyGuard
             catch (TimeoutException)
             {
                 Logger.Error("TimeOut for StartGuiding");
+#if HAS_WPF
                 Notification.ShowError(Loc.Instance["LblSkyGuardGuidingError"]);
+#endif
                 return false;
 
             }
             catch (Exception ex)
             {
                 Logger.Error(ex);
+#if HAS_WPF
                 Notification.ShowError(Loc.Instance["LblSkyGuardGuidingError"]);
+#endif
                 return false;
 
             }
@@ -1119,7 +1183,9 @@ namespace NINA.Equipment.Equipment.MyGuider.SkyGuard
             catch (Exception ex)
             {
                 Logger.Warning(ex.Message);
+#if HAS_WPF
                 Notification.ShowError(Loc.Instance["LblSkyGuardStopGuidingError"]);
+#endif
                 return false;
             }
         }

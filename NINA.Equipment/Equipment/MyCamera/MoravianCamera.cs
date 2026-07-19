@@ -17,7 +17,9 @@ using System.Numerics;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+#if HAS_WPF
 using System.Windows.Interop;
+#endif
 
 namespace NINA.Equipment.Equipment.MyCamera {
     public class MoravianCamera : BaseINPC, ICamera {
@@ -119,12 +121,17 @@ namespace NINA.Equipment.Equipment.MyCamera {
             }
         }
 
+#if HAS_WPF
         public void SetupDialog() {
             if (sdk is IMoravianConfigurable configurable) {
                 var hwnd = new WindowInteropHelper(System.Windows.Application.Current.MainWindow).Handle;
                 configurable.Configure(handle, hwnd);
             }
         }
+#else
+        public void SetupDialog() {
+        }
+#endif
 
         public string Action(string actionName, string actionParameters) => throw new NotImplementedException();
         public string SendCommandString(string command, bool raw = true) => throw new NotImplementedException();

@@ -64,7 +64,9 @@ namespace NINA.Equipment.Equipment.MyFilterWheel {
                 } catch (Exception e) {
                     connected = false;
                     Logger.Error(e);
+#if HAS_WPF
                     Notification.ShowError(e.Message);
+#endif
                 }
 
                 return success;

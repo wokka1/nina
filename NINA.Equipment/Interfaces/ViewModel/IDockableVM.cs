@@ -14,7 +14,9 @@
 
 using System.ComponentModel;
 using System.Windows.Input;
+#if HAS_WPF
 using System.Windows.Media;
+#endif
 
 namespace NINA.Equipment.Interfaces.ViewModel {
 
@@ -22,7 +24,9 @@ namespace NINA.Equipment.Interfaces.ViewModel {
         bool CanClose { get; set; }
         string ContentId { get; }
         ICommand HideCommand { get; }
+#if HAS_WPF
         GeometryGroup ImageGeometry { get; set; }
+#endif
         bool IsClosed { get; set; }
         bool HasSettings { get; set; }
         bool IsVisible { get; set; }

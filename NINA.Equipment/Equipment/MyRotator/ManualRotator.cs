@@ -14,7 +14,9 @@
 
 using NINA.Core.Utility;
 using NINA.Profile.Interfaces;
+#if HAS_WPF
 using NINA.Core.Utility.WindowService;
+#endif
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -96,6 +98,7 @@ namespace NINA.Equipment.Equipment.MyRotator {
         public void Halt() {
         }
 
+#if HAS_WPF
         private IWindowService windowService;
 
         public IWindowService WindowService {
@@ -107,6 +110,7 @@ namespace NINA.Equipment.Equipment.MyRotator {
             }
             set => windowService = value;
         }
+#endif
 
         public float Rotation => Math.Abs(TargetPosition - Position);
 
@@ -147,6 +151,7 @@ namespace NINA.Equipment.Equipment.MyRotator {
                     TargetPosition = TargetPosition + 360;
                 }
 
+#if HAS_WPF
                 // Reference: https://devblogs.microsoft.com/premier-developer/the-danger-of-taskcompletionsourcet-class/
                 var window = WindowService.ShowDialog(this, Loc.Instance["LblRotationRequired"], System.Windows.ResizeMode.NoResize, System.Windows.WindowStyle.ToolWindow);
                 var cancelTaskSource = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
@@ -158,6 +163,11 @@ namespace NINA.Equipment.Equipment.MyRotator {
                     await WindowService.Close();
                     ct.ThrowIfCancellationRequested();
                 }
+#else
+                // Portable stub - no dialog UI exists yet to prompt the user to manually rotate,
+                // so the position update below is applied immediately without a wait/confirmation step.
+                ct.ThrowIfCancellationRequested();
+#endif
 
                 Position = AstroUtil.EuclidianModulus(TargetPosition, 360);
                 TargetPosition = Position;

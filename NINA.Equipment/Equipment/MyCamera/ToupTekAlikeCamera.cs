@@ -714,7 +714,9 @@ namespace NINA.Equipment.Equipment.MyCamera {
                     Connected = false;
                     try { sdk?.Close(); } catch { }
                     Logger.Error(ex);
+#if HAS_WPF
                     Notification.ShowError(ex.Message);
+#endif
                 }
                 return false;
             });
@@ -853,13 +855,17 @@ namespace NINA.Equipment.Equipment.MyCamera {
 
                 case ToupTekAlikeEvent.EVENT_ERROR: // Error
                     Logger.Error($"{Category} - Camera reported a generic error!");
+#if HAS_WPF
                     Notification.ShowError(Loc.Instance["LblGenericCameraError"]);
+#endif
                     Disconnect();
                     break;
 
                 case ToupTekAlikeEvent.EVENT_DISCONNECTED:
                     Logger.Warning($"{Category} - Camera disconnected! Maybe USB connection was interrupted.");
+#if HAS_WPF
                     Notification.ShowError(Loc.Instance["LblCameraDisconnected"]);
+#endif
                     OnEventDisconnected();
                     break;
             }

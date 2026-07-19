@@ -176,7 +176,9 @@ namespace NINA.Equipment.Equipment.MyFilterWheel {
                     RaiseAllPropertiesChanged();
                 } catch (Exception ex) {
                     Logger.Error(ex);
+#if HAS_WPF
                     Notification.ShowError(ex.Message);
+#endif
                 }
                 return success;
             });
@@ -215,7 +217,9 @@ namespace NINA.Equipment.Equipment.MyFilterWheel {
                         return true;
                     } catch (OperationCanceledException) {
                         Logger.Error("Calibration of filter wheel timed out.");
+#if HAS_WPF
                         Notification.ShowError("Calibration of filter wheel timed out.");
+#endif
                     }
                 }
                 return false;

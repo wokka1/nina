@@ -714,7 +714,9 @@ namespace NINA.Equipment.Equipment.MyCamera {
                     success = true;
                 } catch (Exception e) {
                     Logger.Error(e);
+#if HAS_WPF
                     Notification.ShowError(e.Message);
+#endif
                 }
 
                 return success;
@@ -766,7 +768,9 @@ namespace NINA.Equipment.Equipment.MyCamera {
                         } catch (OperationCanceledException) {
                         } catch (Exception ex) {
                             Logger.Error(ex);
+#if HAS_WPF
                             Notification.ShowError(ex.Message);
+#endif
                         }
                     }
 

@@ -52,7 +52,9 @@ namespace NINA.Equipment.Equipment.MyGuider {
         public void UpdateDeviceInfo(TelescopeInfo telescopeInfo) {
             this.telescopeInfo = telescopeInfo;
             if (Connected && !this.telescopeInfo.Connected) {
+#if HAS_WPF
                 Notification.ShowWarning(Loc.Instance["LblMountDitherMountDisconnect"]);
+#endif
                 Logger.Warning("Telescope is disconnected. Direct Guide will disconnect. Dither will not occur.");
                 Disconnect();
             } else {
@@ -164,7 +166,9 @@ namespace NINA.Equipment.Equipment.MyGuider {
             if (telescopeInfo.Connected) {
                 Connected = true;
             } else {
+#if HAS_WPF
                 Notification.ShowWarning(Loc.Instance["LblMountDitherConnectionFail"]);
+#endif
                 Connected = false;
             }
 

@@ -99,7 +99,9 @@ namespace NINA.Equipment.Equipment.MyDome {
             var dotProduct = Vector4.Dot(scopeDirection, scopeApertureOrigin);
             var domeRadius = domeSettings.DomeRadius_mm;
             if (Vector4.Dot(scopeApertureOrigin, scopeApertureOrigin) > (domeRadius * domeRadius)) {
+#if HAS_WPF
                 Notification.ShowError(Loc.Instance["LblDomeRadiusMisconfigured"]);
+#endif
                 throw new Exception(Loc.Instance["LblDomeRadiusMisconfigured"]);
             }
 

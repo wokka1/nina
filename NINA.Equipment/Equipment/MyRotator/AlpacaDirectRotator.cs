@@ -1,6 +1,8 @@
 ﻿using ASCOM.Alpaca.Discovery;
 using NINA.Core.Locale;
+#if HAS_WPF
 using NINA.Core.Utility.WindowService;
+#endif
 using NINA.Equipment.Equipment.MyFocuser;
 using NINA.Equipment.Equipment.MySwitch.Ascom;
 using NINA.Equipment.Equipment.MyTelescope;
@@ -85,13 +87,22 @@ namespace NINA.Equipment.Equipment.MyRotator {
             return connect;
         }
 
+#if HAS_WPF
         private IWindowService windowService = new WindowService();
+#endif
 
+#if HAS_WPF
         public void SetupDialog() {
             windowService.OnDialogResultChanged -= WindowService_OnDialogResultChanged;
             windowService.ShowDialog(settings, Loc.Instance["LblAlpacaDirectIPSetup"], System.Windows.ResizeMode.NoResize, System.Windows.WindowStyle.ToolWindow);
             windowService.OnDialogResultChanged += WindowService_OnDialogResultChanged;
         }
+#else
+        // Portable stub - showing a settings dialog is inherently a UI operation
+        // (WindowService is WPF-only), no portable equivalent exists yet.
+        public void SetupDialog() {
+        }
+#endif
 
         private void WindowService_OnDialogResultChanged(object sender, EventArgs e) {
             RaisePropertyChanged(nameof(DisplayName));

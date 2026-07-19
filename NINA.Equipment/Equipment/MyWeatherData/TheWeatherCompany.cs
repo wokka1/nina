@@ -224,7 +224,9 @@ namespace NINA.Equipment.Equipment.MyWeatherData {
 
         public Task<bool> Connect(CancellationToken ct) {
             if (string.IsNullOrEmpty(GetTWCAPIKey())) {
+#if HAS_WPF
                 Notification.ShowError(Loc.Instance["LblTWCNoAPIKey"]);
+#endif
                 Logger.Warning("TWC: No API key has been set");
 
                 Connected = false;

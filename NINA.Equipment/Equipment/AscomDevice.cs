@@ -114,7 +114,9 @@ namespace NINA.Equipment.Equipment {
 
         private void DisconnectOnConnectionError() {
             try {
+#if HAS_WPF
                 Notification.ShowWarning(ConnectionLostMessage);
+#endif
                 Disconnect();
             } catch (Exception ex) {
                 Logger.Error(ex);
@@ -306,7 +308,9 @@ namespace NINA.Equipment.Equipment {
                     }
                 } catch (Exception ex) {
                     Logger.Error(ex);
+#if HAS_WPF
                     Notification.ShowExternalError(string.Format(Loc.Instance["LblUnableToConnect"], Name, ex.Message), Loc.Instance["LblASCOMDriverError"]);
+#endif
                     try {
                         Disconnect();
                     } catch { }
@@ -353,7 +357,9 @@ namespace NINA.Equipment.Equipment {
                         }
                     } catch (Exception ex) {
                         Logger.Error(ex);
+#if HAS_WPF
                         Notification.ShowExternalError(ex.Message, Loc.Instance["LblASCOMDriverError"]);
+#endif
                     }
                 } else {
                     // Alpaca
@@ -367,7 +373,9 @@ namespace NINA.Equipment.Equipment {
                         Process.Start(new ProcessStartInfo(url) { UseShellExecute = true });
                     } catch (Exception ex) {
                         Logger.Error(ex);
+#if HAS_WPF
                         Notification.ShowError(ex.Message);
+#endif
                     }
                 }
             }

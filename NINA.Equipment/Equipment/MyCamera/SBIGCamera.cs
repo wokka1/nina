@@ -165,7 +165,9 @@ namespace NINA.Equipment.Equipment.MyCamera {
                 return true;
             } catch (Exception e) {
                 Logger.Error($"SBIGCCD: Failed to connect {this.queriedCameraInfo.DeviceId}", e);
+#if HAS_WPF
                 Notification.ShowError(String.Format(Loc.Instance["LblFailedToConnectDevice"], this.queriedCameraInfo.DeviceId, e));
+#endif
                 if (connectedDevice.HasValue) {
                     sdk.CloseDevice(connectedDevice.Value.DeviceId);
                     connectedDevice = null;
@@ -625,7 +627,9 @@ namespace NINA.Equipment.Equipment.MyCamera {
                 } catch (OperationCanceledException) {
                 } catch (Exception e) {
                     Logger.Error(e);
+#if HAS_WPF
                     Notification.ShowError(e.Message);
+#endif
                 } finally {
                     CameraStatus = SBIGCameraStatus.IDLE;
                 }
@@ -685,7 +689,9 @@ namespace NINA.Equipment.Equipment.MyCamera {
             set {
                 if (profileService.ActiveProfile.CameraSettings.SBIGUseExternalCcdTracker != value) {
                     if (_trackingCamera != null) {
+#if HAS_WPF
                         Notification.ShowInformation(Loc.Instance["LblSBIGUseExternalTrackingCCDChanged"]);
+#endif
                     }
 
                     profileService.ActiveProfile.CameraSettings.SBIGUseExternalCcdTracker = value;
@@ -718,10 +724,14 @@ namespace NINA.Equipment.Equipment.MyCamera {
                 var grpcWrapped = GrpcErrorPropagatingProxy<Core.API.ASCOM.Camera.CameraService.CameraServiceBase>.Wrap(loggingWrapped);
                 Core.API.ASCOM.Camera.CameraService.BindService(_trackingCcdAscomServer.ServiceBinder, grpcWrapped);
                 _trackingCcdAscomServer.Start();
+#if HAS_WPF
                 Notification.ShowInformation(Loc.Instance["LblTrackingASCOMServerStarted"]);
+#endif
             } catch (Exception e) {
                 Logger.Error($"SBIGCCD: Failed to started tracking CCD ASCOM server", e);
+#if HAS_WPF
                 Notification.ShowError(String.Format(Loc.Instance["LblTrackingASCOMServerStartFailed"], e.Message));
+#endif
                 _trackingCcdAscomServer?.Dispose();
                 _trackingCcdAscomServer = null;
                 if (connected) {
@@ -743,7 +753,9 @@ namespace NINA.Equipment.Equipment.MyCamera {
                 Logger.Error($"SBIGCCD: Failed to stop tracking CCD ASCOM server", e);
             } finally {
                 _trackingCcdAscomServer = null;
+#if HAS_WPF
                 Notification.ShowInformation(Loc.Instance["LblTrackingASCOMServerStopped"]);
+#endif
             }
         }
 

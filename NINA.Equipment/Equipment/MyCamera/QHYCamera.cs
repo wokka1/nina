@@ -788,7 +788,9 @@ namespace NINA.Equipment.Equipment.MyCamera {
 
                 if (CheckUvloIsActive()) {
                     Sdk.Close();
+#if HAS_WPF
                     Notification.ShowError(Loc.Instance["LblQhyUvloActiveError"]);
+#endif
                     return false;
                 }
 
@@ -1037,7 +1039,9 @@ namespace NINA.Equipment.Equipment.MyCamera {
                 RaiseAllPropertiesChanged();
             } catch (Exception ex) {
                 Logger.Error(ex);
+#if HAS_WPF
                 Notification.ShowError(ex.Message);
+#endif
                 Disconnect();
             }
             return success;
@@ -1825,7 +1829,9 @@ namespace NINA.Equipment.Equipment.MyCamera {
 
                             if (compare > 0) {
                                 Logger.Warning($"QHYCCD: Installed USB driver version {QhyUsbDriverVersion} is older than recommended version {minimumVersion}. Operation of the camera may not be reliable and updating is HIGHLY suggested.");
+#if HAS_WPF
                                 Notification.ShowWarning(string.Format(Loc.Instance["LblQhyccdDriverVersionWarning"], QhyUsbDriverVersion, minimumVersion));
+#endif
                             }
                         }
 

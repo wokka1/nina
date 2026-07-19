@@ -15,7 +15,9 @@
 using NINA.Core.Enum;
 using NINA.Profile.Interfaces;
 using NINA.Core.Utility;
+#if HAS_WPF
 using NINA.Core.Utility.WindowService;
+#endif
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -48,6 +50,7 @@ namespace NINA.Equipment.Equipment.MyCamera {
             SelectedFileExtension = FileExtensions.FirstOrDefault(x => x.Name == profileService.ActiveProfile.CameraSettings.FileCameraExtension) ?? FileExtensions.First();
         }
 
+#if HAS_WPF
         private void OpenFolderDiag(object obj) {
             var dialog = new OpenFolderDialog();
             dialog.InitialDirectory = FolderPath;
@@ -56,6 +59,10 @@ namespace NINA.Equipment.Equipment.MyCamera {
                 FolderPath = dialog.FolderName;
             }
         }
+#else
+        private void OpenFolderDiag(object obj) {
+        }
+#endif
 
         public ICommand OpenFolderDiagCommand { get; }
         public FileCameraFolderWatcher folderWatcher;
@@ -401,6 +408,7 @@ namespace NINA.Equipment.Equipment.MyCamera {
         public void SetBinning(short x, short y) {
         }
 
+#if HAS_WPF
         private IWindowService windowService;
 
         public IWindowService WindowService {
@@ -425,6 +433,10 @@ namespace NINA.Equipment.Equipment.MyCamera {
                 }
             });
         }
+#else
+        public void SetupDialog() {
+        }
+#endif
 
         public bool IsBayered {
             get => profileService.ActiveProfile.CameraSettings.FileCameraIsBayered;

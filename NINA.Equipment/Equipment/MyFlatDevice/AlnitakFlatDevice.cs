@@ -16,7 +16,9 @@ using NINA.Core.Locale;
 using NINA.Core.Utility;
 using NINA.Core.Utility.Notification;
 using NINA.Core.Utility.SerialCommunication;
+#if HAS_WPF
 using NINA.Core.Utility.WindowService;
+#endif
 using NINA.Equipment.Exceptions;
 using NINA.Equipment.Interfaces;
 using NINA.Equipment.SDK.FlatDeviceSDKs.AlnitakSDK;
@@ -52,12 +54,16 @@ namespace NINA.Equipment.Equipment.MyFlatDevice {
         private static void LogAndNotify(ISerialCommand command, InvalidDeviceResponseException ex) {
             Logger.Error($"Invalid response from flat device. " +
                          $"Command was: {command} Response was: {ex.Message}.");
+#if HAS_WPF
             Notification.ShowError(Loc.Instance["LblFlatDeviceInvalidResponse"]);
+#endif
         }
 
         private void HandlePortClosed(ISerialCommand command, SerialPortClosedException ex) {
             Logger.Error($"Serial port was closed. Command was: {command} Exception: {ex.InnerException}.");
+#if HAS_WPF
             Notification.ShowError(Loc.Instance["LblFlatDeviceInvalidResponse"]);
+#endif
             Disconnect();
             RaiseAllPropertiesChanged();
         }
@@ -274,7 +280,9 @@ namespace NINA.Equipment.Equipment.MyFlatDevice {
             Sdk.Dispose(this);
         }
 
+#if HAS_WPF
         public IWindowService WindowService { get; set; } = new WindowService();
+#endif
 
         public async Task<bool> Open(CancellationToken ct, int delay = 300) {
             if (!Connected) return await Task.Run(() => false, ct);
@@ -297,9 +305,14 @@ namespace NINA.Equipment.Equipment.MyFlatDevice {
             }, ct);
         }
 
+#if HAS_WPF
         public void SetupDialog() {
             WindowService.ShowDialog(this, "Flat Panel Setup", System.Windows.ResizeMode.NoResize, System.Windows.WindowStyle.SingleBorderWindow);
         }
+#else
+        public void SetupDialog() {
+        }
+#endif
 
         public IList<string> SupportedActions => new List<string>();
 

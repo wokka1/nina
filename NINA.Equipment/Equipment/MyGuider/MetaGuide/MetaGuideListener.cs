@@ -120,7 +120,9 @@ namespace NINA.Equipment.Equipment.MyGuider.MetaGuide {
                 }
             } catch (Exception ex) {
                 Logger.Error(ex);
+#if HAS_WPF
                 Notification.ShowError(String.Format(Loc.Instance["LblMetaGuideListenerError"], ex.Message));
+#endif
             }
         }
 
@@ -179,7 +181,9 @@ namespace NINA.Equipment.Equipment.MyGuider.MetaGuide {
                     }
                 } catch (Exception ex) {
                     Logger.Error(ex);
+#if HAS_WPF
                     Notification.ShowError(ex.Message);
+#endif
                     throw;
                 } finally {
                     socket?.Close();

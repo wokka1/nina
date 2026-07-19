@@ -20,7 +20,9 @@ using NINA.Image.Interfaces;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+#if HAS_WPF
 using System.Windows.Media.Imaging;
+#endif
 
 namespace NINA.Equipment.Interfaces.ViewModel {
 
@@ -29,7 +31,9 @@ namespace NINA.Equipment.Interfaces.ViewModel {
 
         void DestroyImage();
 
+#if HAS_WPF
         void SetImage(BitmapSource img);
+#endif
         int GetImageRotation();
         void SetImageRotation(int rotation);
         void SetSubSambleRectangle(ObservableRectangle observableRectangle);

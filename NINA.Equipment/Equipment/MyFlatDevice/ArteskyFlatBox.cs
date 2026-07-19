@@ -17,7 +17,9 @@ using NINA.Profile.Interfaces;
 using NINA.Core.Utility;
 using NINA.Core.Utility.Notification;
 using NINA.Core.Utility.SerialCommunication;
+#if HAS_WPF
 using NINA.Core.Utility.WindowService;
+#endif
 using System;
 using System.Collections.ObjectModel;
 using System.Threading;
@@ -45,12 +47,16 @@ namespace NINA.Equipment.Equipment.MyFlatDevice {
         private static void LogAndNotify(ISerialCommand command, InvalidDeviceResponseException ex) {
             Logger.Error($"Invalid response from flat device. " +
                          $"Command was: {command} Response was: {ex.Message}.");
+#if HAS_WPF
             Notification.ShowError(Loc.Instance["LblFlatDeviceInvalidResponse"]);
+#endif
         }
 
         private void HandlePortClosed(ISerialCommand command, SerialPortClosedException ex) {
             Logger.Error($"Serial port was closed. Command was: {command} Exception: {ex.InnerException}.");
+#if HAS_WPF
             Notification.ShowError(Loc.Instance["LblFlatDeviceInvalidResponse"]);
+#endif
             Disconnect();
             RaiseAllPropertiesChanged();
         }
@@ -227,7 +233,9 @@ namespace NINA.Equipment.Equipment.MyFlatDevice {
             Sdk.Dispose(this);
         }
 
+#if HAS_WPF
         public IWindowService WindowService { get; set; } = new WindowService();
+#endif
 
         public Task<bool> Open(CancellationToken ct, int delay = 300) {
             throw new NotImplementedException();
@@ -241,9 +249,14 @@ namespace NINA.Equipment.Equipment.MyFlatDevice {
 
         public bool SupportsOnOff => true;
 
+#if HAS_WPF
         public void SetupDialog() {
             WindowService.ShowDialog(this, "Artesky Flat Box Setup", System.Windows.ResizeMode.NoResize, System.Windows.WindowStyle.SingleBorderWindow);
         }
+#else
+        public void SetupDialog() {
+        }
+#endif
 
         public IList<string> SupportedActions => new List<string>();
 

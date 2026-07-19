@@ -2,7 +2,9 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using NINA.Core.Locale;
+#if HAS_WPF
 using NINA.Core.MyMessageBox;
+#endif
 using NINA.Core.Utility;
 using NINA.Core.Utility.Notification;
 using NINA.Equipment.Interfaces;
@@ -101,7 +103,9 @@ namespace NINA.Equipment.Equipment.MyFocuser {
 
         private void DisconnectOnRemovedError() {
             try {
+#if HAS_WPF
                 Notification.ShowWarning(Loc.Instance["LblFocuserConnectionLost"]);
+#endif
                 Logger.Error($"Oasis device was removed");
                 Disconnect();
             } catch (Exception ex) {
@@ -203,6 +207,7 @@ namespace NINA.Equipment.Equipment.MyFocuser {
         }
 
         [RelayCommand]
+#if HAS_WPF
         public void ResetPosition() {
             if (MyMessageBox.Show(Loc.Instance["LblZwoResetZeroPositionPrompt"], "", System.Windows.MessageBoxButton.YesNo, System.Windows.MessageBoxResult.No) == System.Windows.MessageBoxResult.Yes) {
                 if (Position > 0) {
@@ -211,6 +216,11 @@ namespace NINA.Equipment.Equipment.MyFocuser {
                 }
             }
         }
+#else
+        // Portable stub - no dialog UI exists yet for this confirmation prompt.
+        public void ResetPosition() {
+        }
+#endif
 
         private int syncPosition;
         public int SyncPosition {
@@ -224,6 +234,7 @@ namespace NINA.Equipment.Equipment.MyFocuser {
         }
 
         [RelayCommand]
+#if HAS_WPF
         public void SyncToPosition() {
             if (MyMessageBox.Show(Loc.Instance["LblOasisSyncPositionPrompt"], "", System.Windows.MessageBoxButton.YesNo, System.Windows.MessageBoxResult.No) == System.Windows.MessageBoxResult.Yes) {
                 if (Position != SyncPosition) {
@@ -232,8 +243,14 @@ namespace NINA.Equipment.Equipment.MyFocuser {
                 }
             }
         }
+#else
+        // Portable stub - no dialog UI exists yet for this confirmation prompt.
+        public void SyncToPosition() {
+        }
+#endif
 
         [RelayCommand]
+#if HAS_WPF
         public void ClearStall() {
             if (isFocuserRose) {
                 if (MyMessageBox.Show(Loc.Instance["LblOasisClearStallPrompt"], "", System.Windows.MessageBoxButton.YesNo, System.Windows.MessageBoxResult.No) == System.Windows.MessageBoxResult.Yes) {
@@ -244,6 +261,11 @@ namespace NINA.Equipment.Equipment.MyFocuser {
                 }
             }
         }
+#else
+        // Portable stub - no dialog UI exists yet for this confirmation prompt.
+        public void ClearStall() {
+        }
+#endif
 
         public string Description => "Native driver for Oasis focusers";
 
@@ -262,7 +284,9 @@ namespace NINA.Equipment.Equipment.MyFocuser {
                 int[] ids = new int[AO_FOCUSER_MAX_NUM];
                 FocuserScan(out var count, ids);
                 if (!ids.Take(count).Contains(id)) {
+#if HAS_WPF
                     Notification.ShowError(Loc.Instance["LblOasisFocuserNotAvailableError"]);
+#endif
                     Logger.Error("Selected Oasis focuser not available (disconnected?)");
                     return false;
                 }
@@ -354,7 +378,9 @@ namespace NINA.Equipment.Equipment.MyFocuser {
                     isStalled = value;
                     RaisePropertyChanged();
                     if (isStalled == true) {
+#if HAS_WPF
                         Notification.ShowWarning(Loc.Instance["LblOasisFocuserStalledWarning"]);
+#endif
                         Logger.Info("Oasis focuser is stalled");
                     }
                 }

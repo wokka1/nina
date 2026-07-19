@@ -18,7 +18,9 @@ using NINA.Core.Locale;
 using NINA.Core.Model;
 using NINA.Core.Utility;
 using NINA.Core.Utility.Notification;
+#if HAS_WPF
 using NINA.Core.Utility.WindowService;
+#endif
 using NINA.Equipment.Equipment.MyGuider.MetaGuide;
 using NINA.Equipment.Interfaces;
 using NINA.Profile.Interfaces;
@@ -59,7 +61,9 @@ namespace NINA.Equipment.Equipment.MyGuider {
         private readonly AsyncAutoResetEvent metaGuideMessageReceivedEvent = new AsyncAutoResetEvent(false);
 
         private readonly IProfileService profileService;
+#if HAS_WPF
         private readonly IWindowServiceFactory windowServiceFactory;
+#endif
         private CancellationTokenSource clientCTS = null;
         private MetaGuideListener listener = null;
         private Task listenerTask = null;
@@ -67,10 +71,16 @@ namespace NINA.Equipment.Equipment.MyGuider {
         private MetaGuideGuideMsg latestUnpublishedGuide = null;
         private volatile MetaGuideStatusMsg latestStatus = null;
 
+#if HAS_WPF
         public MetaGuideGuider(IProfileService profileService, IWindowServiceFactory windowServiceFactory) {
             this.profileService = profileService;
             this.windowServiceFactory = windowServiceFactory;
         }
+#else
+        public MetaGuideGuider(IProfileService profileService) {
+            this.profileService = profileService;
+        }
+#endif
 
         public string Name => "MetaGuide";
 
@@ -265,10 +275,14 @@ namespace NINA.Equipment.Equipment.MyGuider {
                 lock (this.lockobj) {
                     if (!connectionSuccess) {
                         Logger.Error("Failed to connect to MetaGuide. Check to make sure it is running, that broadcast is enabled in Setup -> Extra, and that the broadcast address and port match up with NINA settings.");
+#if HAS_WPF
                         Notification.ShowError(Loc.Instance["LblMetaGuideConnectionFailed"]);
+#endif
                     } else if (this.latestStatus != null && this.latestStatus.MetaGuideVersion < MINIMUM_MG_VERSION) {
                         Logger.Error($"MetaGuide is version {this.latestStatus.MetaGuideVersion} but must be at least {MINIMUM_MG_VERSION}");
+#if HAS_WPF
                         Notification.ShowError(String.Format(Loc.Instance["LblMetaGuideVersionCheckFailed"], MINIMUM_MG_VERSION));
+#endif
                         connectionSuccess = false;
                     }
                     this.Connected = connectionSuccess;
@@ -277,7 +291,9 @@ namespace NINA.Equipment.Equipment.MyGuider {
                 return connectionSuccess;
             } catch (Exception ex) {
                 Logger.Error("Failed to connect to MetaGuide. Check to make sure it is running, that broadcast is enabled in Setup -> Extra, and that the broadcast address and port match up with NINA settings.", ex);
+#if HAS_WPF
                 Notification.ShowError(Loc.Instance["LblMetaGuideConnectionFailed"]);
+#endif
                 return false;
             } finally {
                 if (!connectionSuccess) {
@@ -454,7 +470,9 @@ namespace NINA.Equipment.Equipment.MyGuider {
                     // Stop guiding due to low star intensity
                     if (lowIntensityChangeGuidingTask.Status > TaskStatus.Running) {
                         Logger.Warning($"Star intensity {currentIntensity} lower than {minIntensity} for longer than {LOW_INTENSITY_THRESHOLD}. Stopping guiding until intensity comes back.");
+#if HAS_WPF
                         Notification.ShowWarning(Loc.Instance["LblMetaGuideLowIntensityStopGuiding"]);
+#endif
                         lowIntensityChangeGuidingTask = Task.Run(async () => {
                             if (await StopGuiding(new CancellationTokenSource(LOW_INTENSITY_GUIDING_TIMEOUT).Token)) {
                                 guidingHaltedDueToLowIntensity = true;
@@ -474,7 +492,9 @@ namespace NINA.Equipment.Equipment.MyGuider {
                 if (lowIntensityChangeGuidingTask.Status > TaskStatus.Running) {
                     if (lowIntensityGuidingAttemptCount == 0) {
                         Logger.Info($"Star intensity {currentIntensity} now above {minIntensity}. Resuming guiding.");
+#if HAS_WPF
                         Notification.ShowInformation(Loc.Instance["LblMetaGuideLowIntensityRestoreGuiding"]);
+#endif
                     }
 
                     ++lowIntensityGuidingAttemptCount;
@@ -484,7 +504,9 @@ namespace NINA.Equipment.Equipment.MyGuider {
                             lowIntensityGuidingAttemptCount = 0;
                         } else if (lowIntensityGuidingAttemptCount >= MAX_LOW_INTENSITY_GUIDING_RETRIES) {
                             Logger.Error("Failed to resume guiding after star intensity recovered");
+#if HAS_WPF
                             Notification.ShowError(Loc.Instance["LblMetaGuideLowIntensityRestoreGuidingFailed"]);
+#endif
                             guidingHaltedDueToLowIntensity = false;
                             lowIntensityGuidingAttemptCount = 0;
                         }
@@ -519,7 +541,9 @@ namespace NINA.Equipment.Equipment.MyGuider {
         private static bool PostAndCheckMessage(string messageType, uint msg, int wParam, int lParam) {
             if (!PostMessage(HWND_BROADCAST, msg, wParam, lParam)) {
                 Logger.Error($"Failed to post {messageType} message");
+#if HAS_WPF
                 Notification.ShowError(String.Format(Loc.Instance["LblPostFailed"], messageType));
+#endif
                 return false;
             }
             return true;
@@ -555,10 +579,15 @@ namespace NINA.Equipment.Equipment.MyGuider {
             return await WaitOnEventChangeCondition(() => this.IsGuiding, ct);
         }
 
+#if HAS_WPF
         public void SetupDialog() {
             var windowService = windowServiceFactory.Create();
             windowService.ShowDialog(this, Loc.Instance["LblMetaGuideSetup"], System.Windows.ResizeMode.NoResize, System.Windows.WindowStyle.SingleBorderWindow);
         }
+#else
+        public void SetupDialog() {
+        }
+#endif
 
         public async Task<bool> SetShiftRate(SiderealShiftTrackingRate shiftTrackingRate, CancellationToken ct) {
             if (!shiftTrackingRate.Enabled) {

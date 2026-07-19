@@ -1,4 +1,6 @@
-﻿using Accessibility;
+﻿#if HAS_WPF
+using Accessibility;
+#endif
 using NINA.Core.Utility;
 using System;
 using System.IO;

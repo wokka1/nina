@@ -1,7 +1,9 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using NINA.Core.Locale;
+#if HAS_WPF
 using NINA.Core.MyMessageBox;
+#endif
 using NINA.Core.Utility;
 using NINA.Core.Utility.Notification;
 using NINA.Equipment.Interfaces;
@@ -93,7 +95,9 @@ namespace NINA.Equipment.Equipment.MyFocuser {
 
         private void DisconnectOnRemovedError() {
             try {
+#if HAS_WPF
                 Notification.ShowWarning(Loc.Instance["LblFocuserConnectionLost"]);
+#endif
                 Logger.Error($"EAF device was removed");
                 Disconnect();
             } catch (Exception ex) {
@@ -199,6 +203,7 @@ namespace NINA.Equipment.Equipment.MyFocuser {
         }
 
         [RelayCommand]
+#if HAS_WPF
         public void ResetPosition() {
             if (MyMessageBox.Show(Loc.Instance["LblZwoResetZeroPositionPrompt"], "", System.Windows.MessageBoxButton.YesNo, System.Windows.MessageBoxResult.No) == System.Windows.MessageBoxResult.Yes) {
                 if(Position > 0) {
@@ -207,6 +212,11 @@ namespace NINA.Equipment.Equipment.MyFocuser {
                 }
             }
         }
+#else
+        // Portable stub - no dialog UI exists yet for this confirmation prompt.
+        public void ResetPosition() {
+        }
+#endif
 
         public string Description => "Native driver for ZWOptical focusers";
 

@@ -170,7 +170,9 @@ namespace NINA.Equipment.Equipment.MyFilterWheel {
                     return true;
                 } catch (Exception e) {
                     Logger.Error($"SBIGFW: Failed to connect {this.queriedDeviceInfo.DeviceId}", e);
+#if HAS_WPF
                     Notification.ShowError(String.Format(Loc.Instance["LblFailedToConnectDevice"], this.queriedDeviceInfo.DeviceId, e));
+#endif
                     if (connectedDevice.HasValue) {
                         sdk.CloseDevice(connectedDevice.Value.DeviceId);
                         connectedDevice = null;

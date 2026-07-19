@@ -107,7 +107,9 @@ namespace NINA.Equipment.Equipment.MyFilterWheel {
 
         private void DisconnectOnRemovedError() {
             try {
+#if HAS_WPF
                 Notification.ShowWarning(Loc.Instance["LblFilterwheelConnectionLost"]);
+#endif
                 Logger.Error($"Oasis filter wheel device was removed");
                 Disconnect();
             } catch (Exception ex) {
@@ -269,7 +271,9 @@ namespace NINA.Equipment.Equipment.MyFilterWheel {
                 int[] ids = new int[OFW_MAX_NUM];
                 FilterWheelScan(out var count, ids);
                 if (!ids.Take(count).Contains(id)) {
+#if HAS_WPF
                     Notification.ShowError(Loc.Instance["LblOasisFilterWheelNotAvailableError"]);
+#endif
                     Logger.Error("Selected Oasis filter wheel not available (disconnected?)");
                     return false;
                 }

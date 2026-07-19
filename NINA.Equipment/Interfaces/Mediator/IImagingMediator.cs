@@ -21,7 +21,9 @@ using NINA.Image.Interfaces;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+#if HAS_WPF
 using System.Windows.Media.Imaging;
+#endif
 
 namespace NINA.Equipment.Interfaces.Mediator {
 
@@ -53,7 +55,9 @@ namespace NINA.Equipment.Interfaces.Mediator {
 
         void DestroyImage();
 
+#if HAS_WPF
         void SetImage(BitmapSource img);
+#endif
         int GetImageRotation();
         void SetImageRotation(int rotation);
 
