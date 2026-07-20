@@ -25,6 +25,7 @@ using NINA.WPF.Base.ViewModel.Equipment.Guider;
 using NINA.WPF.Base.ViewModel.Equipment.Rotator;
 using NINA.WPF.Base.ViewModel.Equipment.Switch;
 using NINA.WPF.Base.ViewModel.Equipment.Telescope;
+using NINA.WPF.Base.ViewModel.Equipment.WeatherData;
 
 namespace NINA.Avalonia {
 
@@ -80,6 +81,7 @@ namespace NINA.Avalonia {
             services.AddSingleton<ISafetyMonitorMediator, SafetyMonitorMediator>();
             services.AddSingleton<ISwitchMediator, SwitchMediator>();
             services.AddSingleton<IFlatDeviceMediator, FlatDeviceMediator>();
+            services.AddSingleton<IWeatherDataMediator, WeatherDataMediator>();
 
             services.AddSingleton<ISbigSdk, SbigSdk>();
 
@@ -98,6 +100,7 @@ namespace NINA.Avalonia {
             services.AddSingleton<IEquipmentProviders<IGuider>, NullEquipmentProviders<IGuider>>();
             services.AddSingleton<IEquipmentProviders<ISwitchHub>, NullEquipmentProviders<ISwitchHub>>();
             services.AddSingleton<IEquipmentProviders<IFlatDevice>, NullEquipmentProviders<IFlatDevice>>();
+            services.AddSingleton<IEquipmentProviders<IWeatherData>, NullEquipmentProviders<IWeatherData>>();
             services.AddSingleton<IApplicationResourceDictionary, NullApplicationResourceDictionary>();
             services.AddSingleton<IDeviceUpdateTimerFactory, DefaultDeviceUpateTimerFactory>();
             services.AddSingleton<IDomeSynchronization, DomeSynchronization>();
@@ -186,6 +189,13 @@ namespace NINA.Avalonia {
                                  f.GetRequiredService<IApplicationStatusMediator>(),
                                  f.GetRequiredService<ICameraMediator>(),
                                  f.GetRequiredService<FlatDeviceChooserVM>()));
+
+            services.AddSingleton<WeatherDataChooserVM>();
+            services.AddSingleton<IWeatherDataVM, WeatherDataVM>(f =>
+                new WeatherDataVM(f.GetRequiredService<IProfileService>(),
+                                  f.GetRequiredService<IWeatherDataMediator>(),
+                                  f.GetRequiredService<IApplicationStatusMediator>(),
+                                  f.GetRequiredService<WeatherDataChooserVM>()));
 
             services.AddSingleton<EquipmentViewModel>();
             services.AddSingleton<MainViewModel>();
