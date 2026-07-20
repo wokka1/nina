@@ -20,6 +20,7 @@ using NINA.WPF.Base.ViewModel.Equipment.Camera;
 using NINA.WPF.Base.ViewModel.Equipment.Dome;
 using NINA.WPF.Base.ViewModel.Equipment.FilterWheel;
 using NINA.WPF.Base.ViewModel.Equipment.Focuser;
+using NINA.WPF.Base.ViewModel.Equipment.Guider;
 using NINA.WPF.Base.ViewModel.Equipment.Rotator;
 using NINA.WPF.Base.ViewModel.Equipment.Telescope;
 
@@ -90,6 +91,7 @@ namespace NINA.Avalonia {
             services.AddSingleton<IEquipmentProviders<IFocuser>, NullEquipmentProviders<IFocuser>>();
             services.AddSingleton<IEquipmentProviders<IRotator>, NullEquipmentProviders<IRotator>>();
             services.AddSingleton<IEquipmentProviders<IDome>, NullEquipmentProviders<IDome>>();
+            services.AddSingleton<IEquipmentProviders<IGuider>, NullEquipmentProviders<IGuider>>();
             services.AddSingleton<IApplicationResourceDictionary, NullApplicationResourceDictionary>();
             services.AddSingleton<IDeviceUpdateTimerFactory, DefaultDeviceUpateTimerFactory>();
             services.AddSingleton<IDomeSynchronization, DomeSynchronization>();
@@ -156,6 +158,13 @@ namespace NINA.Avalonia {
                            f.GetRequiredService<ISafetyMonitorMediator>(),
                            f.GetRequiredService<IApplicationResourceDictionary>(),
                            f.GetRequiredService<IDeviceUpdateTimerFactory>()));
+
+            services.AddSingleton<GuiderChooserVM>();
+            services.AddSingleton<IGuiderVM, GuiderVM>(f =>
+                new GuiderVM(f.GetRequiredService<IProfileService>(),
+                             f.GetRequiredService<IGuiderMediator>(),
+                             f.GetRequiredService<IApplicationStatusMediator>(),
+                             f.GetRequiredService<GuiderChooserVM>()));
 
             services.AddSingleton<EquipmentViewModel>();
             services.AddSingleton<MainViewModel>();
