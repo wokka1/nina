@@ -12,6 +12,16 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- NINADbContext.Migrate() (NINA.Core, portable) reads these relative to
+         AppDomain.CurrentDomain.BaseDirectory, so every executable that touches the DSO
+         catalog DB needs its own copy - same as NINA.csproj's own Content items for this,
+         globbed instead of hand-listed so new migrations upstream don't need a matching edit here. -->
+    <Content Include="..\NINA\Database\**\*.sql" Link="Database\%(RecursiveDir)%(Filename)%(Extension)">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Avalonia" Version="12.1.0" />
     <PackageReference Include="Avalonia.Desktop" Version="12.1.0" />
     <PackageReference Include="Avalonia.Themes.Fluent" Version="12.1.0" />

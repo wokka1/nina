@@ -225,6 +225,9 @@ namespace NINA.Avalonia {
             services.AddSingleton<EquipmentViewModel>();
             services.AddSingleton<ImagingViewModel>();
             services.AddSingleton<SequencerViewModel>();
+            // Phase 4 first slice - constructs its own DatabaseInteraction directly (real,
+            // unchanged NINA.Astrometry catalog query code), no equipment/imaging dependencies.
+            services.AddSingleton<SkyAtlasViewModel>();
             services.AddSingleton<MainViewModel>();
 
             var provider = services.BuildServiceProvider();

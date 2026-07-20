@@ -426,7 +426,52 @@
                 </WrapPanel>
             </TabItem>
             <TabItem Header="Sky Atlas">
-                <TextBlock Margin="0,12,0,0" Opacity="0.6" Text="Sky Atlas / Framing Assistant - Phase 4" />
+                <!-- Phase 4 first slice: real DSO catalog search via the unchanged, portable
+                     NINA.Astrometry.DatabaseInteraction (same SQLite catalog the WPF app reads).
+                     No framing/rendering yet - that needs Avalonia-native sky survey image
+                     rendering, a separate problem (see SkyAtlasViewModel doc comment). -->
+                <Grid Margin="12" RowDefinitions="Auto,Auto,*">
+                    <WrapPanel Grid.Row="0" Margin="0,0,0,8">
+                        <StackPanel Margin="0,0,12,0">
+                            <TextBlock Text="Object name" FontWeight="SemiBold" />
+                            <TextBox Text="{Binding SkyAtlasVM.SearchObjectName}" Width="160" PlaceholderText="e.g. M31" />
+                        </StackPanel>
+                        <StackPanel Margin="0,0,12,0">
+                            <TextBlock Text="Object type" FontWeight="SemiBold" />
+                            <ComboBox ItemsSource="{Binding SkyAtlasVM.ObjectTypes}" SelectedItem="{Binding SkyAtlasVM.SelectedObjectType}" Width="160" />
+                        </StackPanel>
+                        <StackPanel Margin="0,0,12,0">
+                            <TextBlock Text="Constellation" FontWeight="SemiBold" />
+                            <ComboBox ItemsSource="{Binding SkyAtlasVM.Constellations}" SelectedItem="{Binding SkyAtlasVM.SelectedConstellation}" Width="140" />
+                        </StackPanel>
+                        <StackPanel Margin="0,0,12,0">
+                            <TextBlock Text="Magnitude from" FontWeight="SemiBold" />
+                            <NumericUpDown Value="{Binding SkyAtlasVM.MagnitudeFrom}" Width="110" FormatString="0.##" />
+                        </StackPanel>
+                        <StackPanel Margin="0,0,12,0">
+                            <TextBlock Text="Magnitude through" FontWeight="SemiBold" />
+                            <NumericUpDown Value="{Binding SkyAtlasVM.MagnitudeThrough}" Width="110" FormatString="0.##" />
+                        </StackPanel>
+                        <StackPanel VerticalAlignment="Bottom" Orientation="Horizontal">
+                            <Button Content="Search" Command="{Binding SkyAtlasVM.SearchCommand}" Margin="0,0,8,0" />
+                            <Button Content="Reset" Command="{Binding SkyAtlasVM.ResetFiltersCommand}" />
+                        </StackPanel>
+                    </WrapPanel>
+                    <TextBlock Grid.Row="1" Margin="0,0,0,8" Opacity="0.7" Text="{Binding SkyAtlasVM.StatusMessage}" />
+                    <ListBox Grid.Row="2" ItemsSource="{Binding SkyAtlasVM.SearchResults}" SelectedItem="{Binding SkyAtlasVM.SelectedResult}">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <Grid ColumnDefinitions="160,80,90,90,70">
+                                    <TextBlock Grid.Column="0" Text="{Binding Name}" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Column="1" Text="{Binding DSOType}" />
+                                    <TextBlock Grid.Column="2" Text="{Binding Coordinates.RAString}" />
+                                    <TextBlock Grid.Column="3" Text="{Binding Coordinates.DecString}" />
+                                    <TextBlock Grid.Column="4" Text="{Binding Magnitude}" />
+                                </Grid>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </Grid>
             </TabItem>
             <TabItem Header="Framing Assistant">
                 <TextBlock Margin="0,12,0,0" Opacity="0.6" Text="Framing Assistant - Phase 4" />

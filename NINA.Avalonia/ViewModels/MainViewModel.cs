@@ -21,11 +21,12 @@ namespace NINA.Avalonia.ViewModels;
 public partial class MainViewModel : ViewModelBase {
     private readonly IProfileService profileService;
 
-    public MainViewModel(IProfileService profileService, EquipmentViewModel equipmentViewModel, ImagingViewModel imagingViewModel, SequencerViewModel sequencerViewModel) {
+    public MainViewModel(IProfileService profileService, EquipmentViewModel equipmentViewModel, ImagingViewModel imagingViewModel, SequencerViewModel sequencerViewModel, SkyAtlasViewModel skyAtlasViewModel) {
         this.profileService = profileService;
         EquipmentVM = equipmentViewModel;
         ImagingVM = imagingViewModel;
         SequencerVM = sequencerViewModel;
+        SkyAtlasVM = skyAtlasViewModel;
 
         // Proves NINA.Profile is a real, working dependency now too - shows the profile
         // ProfileService.TryLoad(null) actually selected at startup, not a placeholder string.
@@ -66,6 +67,9 @@ public partial class MainViewModel : ViewModelBase {
 
     // Real sequence tree display (Phase 3, first slice).
     public SequencerViewModel SequencerVM { get; }
+
+    // Real DSO catalog search (Phase 4, first slice - search only, no framing/rendering yet).
+    public SkyAtlasViewModel SkyAtlasVM { get; }
 
     private readonly DispatcherTimer clockTimer;
 }
