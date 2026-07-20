@@ -21,13 +21,14 @@ namespace NINA.Avalonia.ViewModels;
 public partial class MainViewModel : ViewModelBase {
     private readonly IProfileService profileService;
 
-    public MainViewModel(IProfileService profileService, EquipmentViewModel equipmentViewModel, ImagingViewModel imagingViewModel, SequencerViewModel sequencerViewModel, SkyAtlasViewModel skyAtlasViewModel, OptionsViewModel optionsViewModel) {
+    public MainViewModel(IProfileService profileService, EquipmentViewModel equipmentViewModel, ImagingViewModel imagingViewModel, SequencerViewModel sequencerViewModel, SkyAtlasViewModel skyAtlasViewModel, OptionsViewModel optionsViewModel, PluginsViewModel pluginsViewModel) {
         this.profileService = profileService;
         EquipmentVM = equipmentViewModel;
         ImagingVM = imagingViewModel;
         SequencerVM = sequencerViewModel;
         SkyAtlasVM = skyAtlasViewModel;
         OptionsVM = optionsViewModel;
+        PluginsVM = pluginsViewModel;
 
         // Proves NINA.Profile is a real, working dependency now too - shows the profile
         // ProfileService.TryLoad(null) actually selected at startup, not a placeholder string.
@@ -74,6 +75,9 @@ public partial class MainViewModel : ViewModelBase {
 
     // Real settings editor over the active profile (Phase 5, first slice).
     public OptionsViewModel OptionsVM { get; }
+
+    // Real IPluginLoader-backed Plugins tab (Phase 5).
+    public PluginsViewModel PluginsVM { get; }
 
     private readonly DispatcherTimer clockTimer;
 }

@@ -1,10 +1,13 @@
 using System;
 using Microsoft.Extensions.DependencyInjection;
+using NINA.Astrometry;
+using NINA.Astrometry.Interfaces;
 using NINA.Avalonia.Utility;
 using NINA.Avalonia.ViewModels;
 using NINA.Core.Interfaces;
 using NINA.Core.Utility;
 using NINA.Equipment.Equipment.MyDome;
+using NINA.Equipment.Equipment.MyPlanetarium;
 using NINA.Equipment.Interfaces;
 using NINA.Equipment.Interfaces.Mediator;
 using NINA.Equipment.Interfaces.ViewModel;
@@ -12,11 +15,22 @@ using NINA.Equipment.SDK.CameraSDKs.SBIGSDK;
 using NINA.Image.ImageAnalysis;
 using NINA.Image.ImageData;
 using NINA.Image.Interfaces;
+using NINA.PlateSolving;
+using NINA.PlateSolving.Interfaces;
+using NINA.Plugin;
+using NINA.Plugin.Interfaces;
+using NINA.Plugin.Messaging;
 using NINA.Profile;
 using NINA.Profile.Interfaces;
+using NINA.Sequencer;
+using NINA.Sequencer.Interfaces.Mediator;
+using NINA.Sequencer.Logic;
+using NINA.Sequencer.Mediator;
+using NINA.WPF.Base.Interfaces;
 using NINA.WPF.Base.Interfaces.Mediator;
 using NINA.WPF.Base.Interfaces.ViewModel;
 using NINA.WPF.Base.Mediator;
+using NINA.WPF.Base.ViewModel;
 using NINA.WPF.Base.ViewModel.Equipment.Camera;
 using NINA.WPF.Base.ViewModel.Equipment.Dome;
 using NINA.WPF.Base.ViewModel.Equipment.FilterWheel;
@@ -222,6 +236,28 @@ namespace NINA.Avalonia {
             // the full reasoning on why this exists instead of a real MEF CompositionContainer.
             services.AddSingleton<SequenceItemCatalog>();
 
+            // Phase 5 Plugins tab: the ~13 services IPluginLoader's real constructor needs
+            // beyond what's already registered above. Most are real, portable, unchanged
+            // classes - only IOptionsVM/IImageControlVM/IImageStatisticsVM are the same
+            // main-exe-only fork-in-the-road situation as IImageHistoryVM was, so those three
+            // get minimal real (not mocked) stand-ins, same pattern as MinimalImageHistoryVM.
+            services.AddSingleton<INighttimeCalculator, NighttimeCalculator>();
+            services.AddSingleton<ITwilightCalculator, TwilightCalculator>();
+            services.AddSingleton<IPlanetariumFactory, PlanetariumFactory>();
+            services.AddSingleton<IPlateSolverFactory, PlateSolverFactoryProxy>();
+            services.AddSingleton<ISequenceMediator, SequenceMediator>();
+            services.AddSingleton<IMessageBroker, MessageBroker>();
+            services.AddSingleton<ISymbolBroker, SymbolBroker>();
+            services.AddSingleton<ITemplateLinkResolver, TemplateLinkResolver>();
+            services.AddSingleton<IApplicationMediator, ApplicationMediator>();
+            services.AddSingleton<IAutoFocusVMFactory, BuiltInAutoFocusVMFactory>();
+            services.AddSingleton<IMeridianFlipVMFactory, MeridianFlipVMFactory>();
+            services.AddSingleton<IOptionsVM, MinimalOptionsVM>();
+            services.AddSingleton<IImageStatisticsVM, MinimalImageStatisticsVM>();
+            services.AddSingleton<IImageControlVM, MinimalImageControlVM>();
+            services.AddSingleton<MinimalImagingVM>();
+            services.AddSingleton<IPluginLoader, PluginLoader>();
+
             services.AddSingleton<EquipmentViewModel>();
             services.AddSingleton<ImagingViewModel>();
             services.AddSingleton<SequencerViewModel>();
@@ -231,9 +267,18 @@ namespace NINA.Avalonia {
             // Phase 5 first slice - generic settings editor over IProfile's real, portable
             // settings categories, reusing the Sequencer's PropertyEditRow.
             services.AddSingleton<OptionsViewModel>();
+            services.AddSingleton<PluginsViewModel>();
             services.AddSingleton<MainViewModel>();
 
             var provider = services.BuildServiceProvider();
+
+            // ImagingMediator's own ImagePrepared event accessor dereferences its registered
+            // handler unconditionally ("this.handler.ImagePrepared += value") - without this,
+            // anything that subscribes (e.g. SymbolBroker's constructor, once wired for the
+            // Plugins tab) NullReferenceExceptions. A disposable console harness caught this,
+            // not a clean compile - see MinimalImagingVM's doc comment for the full story.
+            provider.GetRequiredService<IImagingMediator>().RegisterHandler(provider.GetRequiredService<MinimalImagingVM>());
+
             var mainViewModel = provider.GetRequiredService<MainViewModel>();
             return (provider, mainViewModel);
         }

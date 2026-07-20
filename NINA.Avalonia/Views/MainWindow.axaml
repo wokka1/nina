@@ -621,7 +621,27 @@
                 </Grid>
             </TabItem>
             <TabItem Header="Plugins">
-                <TextBlock Margin="0,12,0,0" Opacity="0.6" Text="Plugins - Phase 5" />
+                <!-- Real IPluginLoader (NINA.Plugin, now portable - see project memory) behind
+                     this tab. Load is user-triggered, not automatic at startup - real filesystem
+                     scan + MEF composition, not something to run unprompted every dev launch. -->
+                <StackPanel Margin="0,12,0,0" Spacing="8">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <Button Content="Load Plugins" Command="{Binding PluginsVM.LoadPluginsCommand}" />
+                        <TextBlock Text="{Binding PluginsVM.StatusMessage}" VerticalAlignment="Center" Opacity="0.7" />
+                    </StackPanel>
+                    <ListBox ItemsSource="{Binding PluginsVM.Plugins}">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <Grid ColumnDefinitions="220,160,100,80">
+                                    <TextBlock Grid.Column="0" Text="{Binding Name}" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Column="1" Text="{Binding Author}" />
+                                    <TextBlock Grid.Column="2" Text="{Binding Version}" />
+                                    <TextBlock Grid.Column="3" Text="{Binding Enabled}" />
+                                </Grid>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </StackPanel>
             </TabItem>
         </TabControl>
     </DockPanel>
