@@ -456,6 +456,12 @@
                     <Border BorderBrush="Gray" BorderThickness="1" MinHeight="300">
                         <Image Source="{Binding ImagingVM.Image}" Stretch="Uniform" />
                     </Border>
+                    <!-- Real StarDetection.DetectPortable() output (via IRenderedImage.
+                         DetectStars(), see ImagingViewModel's doc comment) - text stats, not a
+                         visual marker overlay yet (deliberately deferred, needs real
+                         pixel-to-display-coordinate math against the image's Stretch="Uniform"
+                         scaling). -->
+                    <TextBlock Text="{Binding ImagingVM.StarDetectionStatus}" Opacity="0.8" />
                 </StackPanel>
             </TabItem>
             <TabItem Header="Options">
