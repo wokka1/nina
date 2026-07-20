@@ -40,7 +40,7 @@ namespace NINA.Astrometry {
         private string connectionString;
 
         public DatabaseInteraction()
-            : this(string.Format(@"Data Source={0};", Environment.ExpandEnvironmentVariables(@"%localappdata%\NINA\NINA.sqlite"))) {
+            : this(string.Format("Data Source={0};", Path.Combine(CoreUtil.APPLICATIONTEMPPATH, "NINA.sqlite"))) {
         }
 
         public DatabaseInteraction(string connectionString) {
