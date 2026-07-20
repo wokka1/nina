@@ -12,6 +12,9 @@ using NINA.Core.Model;
 using NINA.Core.Model.Equipment;
 using NINA.Equipment.Interfaces.ViewModel;
 using NINA.Equipment.Model;
+using OxyPlot;
+using OxyPlot.Axes;
+using OxyPlot.Series;
 
 namespace NINA.Avalonia.ViewModels;
 
@@ -44,9 +47,11 @@ namespace NINA.Avalonia.ViewModels;
 /// Image statistics (mean/median/stdev/min/max) come from the real IImageData.Statistics
 /// (AsyncLazy&lt;IImageStatistics&gt;, computed once and cached), the same source
 /// NINA/ViewModel/ImageStatisticsVM.cs uses - no new statistics math, just reading the existing
-/// portable computation. IImageStatistics.Histogram (OxyPlot.DataPoint list) exists too but a
-/// real rendered histogram chart needs the OxyPlot.Avalonia package, not yet added - text stats
-/// only for now, same proportion-of-effort choice as the star detection stats above.
+/// portable computation. The histogram chart is real too now: IImageStatistics.Histogram
+/// (already-computed OxyPlot.DataPoint list, same data the WPF app's histogram plots) feeds a
+/// real OxyPlot.Avalonia PlotView via a plain LineSeries - OxyPlot's core model/series types are
+/// UI-framework-agnostic (only the WPF vs Avalonia *rendering* package differs), so this is
+/// genuinely the same charting library the real app uses, not a rewrite.
 /// </summary>
 public partial class ImagingViewModel : ViewModelBase {
     private readonly ICameraVM cameraVM;
@@ -116,6 +121,9 @@ public partial class ImagingViewModel : ViewModelBase {
     [ObservableProperty]
     public partial string StatisticsStatus { get; set; } = string.Empty;
 
+    [ObservableProperty]
+    public partial PlotModel? HistogramModel { get; set; }
+
     [RelayCommand]
     private async Task Capture() {
         if (!cameraVM.GetDeviceInfo().Connected) {
@@ -150,6 +158,7 @@ public partial class ImagingViewModel : ViewModelBase {
             CaptureStatus = "Computing statistics...";
             var stats = await imageData.Statistics.Task;
             StatisticsStatus = $"Mean {stats.Mean:0.0}, Median {stats.Median:0.0}, StDev {stats.StDev:0.0}, Min {stats.Min}, Max {stats.Max}";
+            HistogramModel = BuildHistogramModel(stats.Histogram);
 
             CaptureStatus = "Stretching...";
             var stretched = await renderedImage.Stretch(0.2, -2.8, false);
@@ -183,5 +192,15 @@ public partial class ImagingViewModel : ViewModelBase {
     [RelayCommand]
     private void CancelCapture() {
         captureCts?.Cancel();
+    }
+
+    private static PlotModel BuildHistogramModel(System.Collections.Immutable.ImmutableList<DataPoint> histogram) {
+        var model = new PlotModel();
+        model.Axes.Add(new LinearAxis { Position = AxisPosition.Bottom, Title = "Pixel value" });
+        model.Axes.Add(new LinearAxis { Position = AxisPosition.Left, Title = "Count" });
+        var series = new LineSeries();
+        series.Points.AddRange(histogram);
+        model.Series.Add(series);
+        return model;
     }
 }

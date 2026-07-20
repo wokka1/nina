@@ -3,6 +3,7 @@
         xmlns:vm="using:NINA.Avalonia.ViewModels"
         xmlns:seq="using:NINA.Sequencer"
         xmlns:seqc="using:NINA.Sequencer.Container"
+        xmlns:oxy="using:OxyPlot.Avalonia"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d" d:DesignWidth="900" d:DesignHeight="550"
@@ -498,9 +499,12 @@
                          scaling). -->
                     <TextBlock Text="{Binding ImagingVM.StarDetectionStatus}" Opacity="0.8" />
                     <!-- Real IImageData.Statistics (mean/median/stdev/min/max), same source
-                         NINA/ViewModel/ImageStatisticsVM.cs uses - text only, no histogram
-                         chart yet (would need the OxyPlot.Avalonia package, not added). -->
+                         NINA/ViewModel/ImageStatisticsVM.cs uses. -->
                     <TextBlock Text="{Binding ImagingVM.StatisticsStatus}" Opacity="0.8" />
+                    <!-- Real OxyPlot.Avalonia PlotView bound to the real IImageStatistics.Histogram
+                         data - OxyPlot's model/series types are UI-framework-agnostic, only the
+                         rendering package differs from the WPF app's OxyPlot.Wpf. -->
+                    <oxy:PlotView Model="{Binding ImagingVM.HistogramModel}" Height="180" />
                 </StackPanel>
             </TabItem>
             <TabItem Header="Options">
