@@ -25,8 +25,16 @@ namespace NINA.Astrometry {
     public static class SOFA {
         private const string DLLNAME = "SOFA_2023_10_11.dll";
 
+        // The native SOFA_2023_10_11.dll is a Windows-only binary (wrong format entirely on
+        // macOS/Linux, not just missing - loading it there always fails). On non-Windows every
+        // public method below dispatches to ManagedSofa instead - a faithful, verified port of
+        // the same real IAU SOFA reference C source (vendored in this repo under SOFA/SOFA/src)
+        // rather than a reimplementation. See project memory for the verification story (checked
+        // against SOFA's own official test vectors, not just a clean compile).
         static SOFA() {
-            DllLoader.LoadDll(Path.Combine("SOFA", DLLNAME));
+            if (OperatingSystem.IsWindows()) {
+                DllLoader.LoadDll(Path.Combine("SOFA", DLLNAME));
+            }
         }
 
         #region "Public Methods"
@@ -106,7 +114,11 @@ namespace NINA.Astrometry {
         /// <param name="di">CIRS geocentric RA,Dec (radians)</param>
         /// <param name="eo">equation of the origins (ERA−GST, Note 5)</param>
         public static void CelestialToIntermediate(double rc, double dc, double pr, double pd, double px, double rv, double date1, double date2, ref double ri, ref double di, ref double eo) {
-            SOFA_Atci13(rc, dc, pr, pd, px, rv, date1, date2, ref ri, ref di, ref eo);
+            if (OperatingSystem.IsWindows()) {
+                SOFA_Atci13(rc, dc, pr, pd, px, rv, date1, date2, ref ri, ref di, ref eo);
+            } else {
+                ManagedSofa.Atci13(rc, dc, pr, pd, px, rv, date1, date2, ref ri, ref di, ref eo);
+            }
         }
 
         /// <summary>
@@ -172,7 +184,11 @@ namespace NINA.Astrometry {
         /// <param name="dc">ICRS astrometric Dec(radians)</param>
         /// <param name="eo">equation of the origins (ERA−GST, Note 4)</param>
         public static void IntermediateToCelestial(double ri, double di, double date1, double date2, ref double rc, ref double dc, ref double eo) {
-            SOFA_Atic13(ri, di, date1, date2, ref rc, ref dc, ref eo);
+            if (OperatingSystem.IsWindows()) {
+                SOFA_Atic13(ri, di, date1, date2, ref rc, ref dc, ref eo);
+            } else {
+                ManagedSofa.Atic13(ri, di, date1, date2, ref rc, ref dc, ref eo);
+            }
         }
 
         /// <summary>
@@ -184,7 +200,7 @@ namespace NINA.Astrometry {
         /// <param name="a">angle (radians)</param>
         /// <returns>angle in range 0−2pi</returns>
         public static double Anp(double a) {
-            return SOFA_Anp(a);
+            return OperatingSystem.IsWindows() ? SOFA_Anp(a) : ManagedSofa.Anp(a);
         }
 
         /// <summary>
@@ -222,7 +238,7 @@ namespace NINA.Astrometry {
         /// <param name="date2">TT as a 2−part Julian Date (Note 1)</param>
         /// <returns></returns>
         public static double Eo06a(double date1, double date2) {
-            return SOFA_Eo06a(date1, date2);
+            return OperatingSystem.IsWindows() ? SOFA_Eo06a(date1, date2) : ManagedSofa.Eo06a(date1, date2);
         }
 
         /// <summary>
@@ -278,7 +294,9 @@ namespace NINA.Astrometry {
         /// <param name="d2">2−part Julian Date (Notes 3,4)</param>
         /// <returns></returns>
         public static short Dtf2d(string scale, int iy, int im, int id, int ihr, int imn, double sec, ref double d1, ref double d2) {
-            return SOFA_Dtf2d(scale, iy, im, id, ihr, imn, sec, ref d1, ref d2);
+            return OperatingSystem.IsWindows()
+                ? SOFA_Dtf2d(scale, iy, im, id, ihr, imn, sec, ref d1, ref d2)
+                : (short)ManagedSofa.Dtf2d(scale, iy, im, id, ihr, imn, sec, ref d1, ref d2);
         }
 
         /// <summary>
@@ -316,7 +334,9 @@ namespace NINA.Astrometry {
         /// <param name="tai2">TAI as a 2−part Julian Date (Note 5)</param>
         /// <returns>int status: +1 = dubious year (Note 3); 0 = OK; −1 = unacceptable date</returns>
         public static short UtcTai(double utc1, double utc2, ref double tai1, ref double tai2) {
-            return SOFA_Utctai(utc1, utc2, ref tai1, ref tai2);
+            return OperatingSystem.IsWindows()
+                ? SOFA_Utctai(utc1, utc2, ref tai1, ref tai2)
+                : (short)ManagedSofa.Utctai(utc1, utc2, out tai1, out tai2);
         }
 
         /// <summary>
@@ -336,7 +356,9 @@ namespace NINA.Astrometry {
         /// <param name="tt2">TT as a 2−part Julian Date</param>
         /// <returns>status 0 = ok</returns>
         public static short TaiTt(double tai1, double tai2, ref double tt1, ref double tt2) {
-            return SOFA_Taitt(tai1, tai2, ref tt1, ref tt2);
+            return OperatingSystem.IsWindows()
+                ? SOFA_Taitt(tai1, tai2, ref tt1, ref tt2)
+                : (short)ManagedSofa.Taitt(tai1, tai2, out tt1, out tt2);
         }
 
         /// <summary>
@@ -397,7 +419,16 @@ namespace NINA.Astrometry {
         /// <param name="declination">declination</param>
         /// <returns></returns>
         public static short Ae2hd(double azimuth, double altitude, double latitude, ref double hourAngle, ref double declination) {
-            return SOFA_Ae2hd(azimuth, altitude, latitude, ref hourAngle, ref declination);
+            // The real iauAe2hd is void (no status) - the native P/Invoke below declaring a
+            // short return is a pre-existing latent inconsistency (harmless since nothing reads
+            // it meaningfully), found while porting the managed fallback. Left as-is on the
+            // Windows path since it's untouched and apparently harmless there; the managed path
+            // just returns 0, matching the real function's actual (lack of a) status semantics.
+            if (OperatingSystem.IsWindows()) {
+                return SOFA_Ae2hd(azimuth, altitude, latitude, ref hourAngle, ref declination);
+            }
+            ManagedSofa.Ae2hd(azimuth, altitude, latitude, ref hourAngle, ref declination);
+            return 0;
         }
 
         /// <summary>
@@ -462,7 +493,12 @@ namespace NINA.Astrometry {
         /// <param name="altitude">altitude</param>
         /// <returns></returns>
         public static short Hd2ae(double hourAngle, double declination, double latitude, ref double azimuth, ref double altitude) {
-            return SOFA_Hd2ae(hourAngle, declination, latitude, ref azimuth, ref altitude);
+            // Same real-function-is-void situation as Ae2hd above.
+            if (OperatingSystem.IsWindows()) {
+                return SOFA_Hd2ae(hourAngle, declination, latitude, ref azimuth, ref altitude);
+            }
+            ManagedSofa.Hd2ae(hourAngle, declination, latitude, ref azimuth, ref altitude);
+            return 0;
         }
 
         /// <summary>
@@ -631,7 +667,9 @@ namespace NINA.Astrometry {
         /// <param name="eo">returned equation of the origins (ERA−GST)</param>
         /// <returns></returns>
         public static short CelestialToTopocentric(double rc, double dc, double pr, double pd, double px, double rv, double utc1, double utc2, double dut1, double elong, double phi, double hm, double xp, double yp, double phpa, double tc, double rh, double wl, ref double aob, ref double zob, ref double hob, ref double dob, ref double rob, ref double eo) {
-            return SOFA_Atco13(rc, dc, pr, pd, px, rv, utc1, utc2, dut1, elong, phi, hm, xp, yp, phpa, tc, rh, wl, ref aob, ref zob, ref hob, ref dob, ref rob, ref eo);
+            return OperatingSystem.IsWindows()
+                ? SOFA_Atco13(rc, dc, pr, pd, px, rv, utc1, utc2, dut1, elong, phi, hm, xp, yp, phpa, tc, rh, wl, ref aob, ref zob, ref hob, ref dob, ref rob, ref eo)
+                : (short)ManagedSofa.Atco13(rc, dc, pr, pd, px, rv, utc1, utc2, dut1, elong, phi, hm, xp, yp, phpa, tc, rh, wl, ref aob, ref zob, ref hob, ref dob, ref rob, ref eo);
         }
 
         /// <summary>
@@ -785,7 +823,9 @@ namespace NINA.Astrometry {
         /// <param name="dc">ICRS astrometric Dec (radians)</param>
         /// <returns></returns>
         public static short TopocentricToCelestial(string type, double ob1, double ob2, double utc1, double utc2, double dut1, double elong, double phi, double hm, double xp, double yp, double phpa, double tc, double rh, double wl, ref double rc, ref double dc) {
-            return SOFA_Atoc13(type, ob1, ob2, utc1, utc2, dut1, elong, phi, hm, xp, yp, phpa, tc, rh, wl, ref rc, ref dc);
+            return OperatingSystem.IsWindows()
+                ? SOFA_Atoc13(type, ob1, ob2, utc1, utc2, dut1, elong, phi, hm, xp, yp, phpa, tc, rh, wl, ref rc, ref dc)
+                : (short)ManagedSofa.Atoc13(type, ob1, ob2, utc1, utc2, dut1, elong, phi, hm, xp, yp, phpa, tc, rh, wl, ref rc, ref dc);
         }
 
         /// <summary>
@@ -800,7 +840,7 @@ namespace NINA.Astrometry {
         /// <param name="bp">second latitude (radians)</param>
         /// <returns>angular separation (radians)</returns>
         public static double Seps(double al, double ap, double bl, double bp) {
-            return SOFA_Seps(al, ap, bl, bp);
+            return OperatingSystem.IsWindows() ? SOFA_Seps(al, ap, bl, bp) : ManagedSofa.Seps(al, ap, bl, bp);
         }
 
         /// <summary>
@@ -813,10 +853,16 @@ namespace NINA.Astrometry {
         /// <returns>obliquity of the ecliptic (radians, Note 2)</returns>
         public static Angle MeanEcclipticObliquity(double utc1, double utc2) {
             double tai1 = 0, tai2 = 0, tt1 = 0, tt2 = 0;
-            SOFA_Utctai(utc1, utc2, ref tai1, ref tai2);
-            SOFA_Taitt(tai1, tai2, ref tt1, ref tt2);
-
-            var meanObliquity = SOFA_iauObl80(tt1, tt2);
+            double meanObliquity;
+            if (OperatingSystem.IsWindows()) {
+                SOFA_Utctai(utc1, utc2, ref tai1, ref tai2);
+                SOFA_Taitt(tai1, tai2, ref tt1, ref tt2);
+                meanObliquity = SOFA_iauObl80(tt1, tt2);
+            } else {
+                ManagedSofa.Utctai(utc1, utc2, out tai1, out tai2);
+                ManagedSofa.Taitt(tai1, tai2, out tt1, out tt2);
+                meanObliquity = ManagedSofa.Obl80(tt1, tt2);
+            }
             return Angle.ByRadians(meanObliquity);
         }
 
@@ -937,7 +983,11 @@ namespace NINA.Astrometry {
         /// <param name="refa">returned tan Z coefficient (radians)</param>
         /// <param name="refb">returned tan^3 Z coefficient (radians)</param>
         public static void RefractionConstants(double phpa, double tc, double rh, double wl, ref double refa, ref double refb) {
-            SOFA_iauRefco(phpa, tc, rh, wl, ref refa, ref refb);
+            if (OperatingSystem.IsWindows()) {
+                SOFA_iauRefco(phpa, tc, rh, wl, ref refa, ref refb);
+            } else {
+                ManagedSofa.Refco(phpa, tc, rh, wl, ref refa, ref refb);
+            }
         }
 
         #endregion "Public Methods"
