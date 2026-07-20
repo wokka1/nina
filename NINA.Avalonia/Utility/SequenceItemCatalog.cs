@@ -37,14 +37,11 @@ namespace NINA.Avalonia.Utility {
     ///
     /// Verified end to end with a throwaway console harness (not just "it compiles"): discovery
     /// finds 72 real [Export(typeof(ISequenceItem))] types in NINA.Sequencer.dll (matches a
-    /// direct grep count), of which 52 have every constructor dependency already registered in
-    /// this app's real CompositionRoot registrations. Real construction confirmed working for
-    /// Annotation, WaitForTimeSpan, and CoolCamera (a genuinely equipment-mediator-dependent
-    /// item, not just a trivial one). TakeExposure - arguably the single most important item
-    /// type - is correctly excluded: its real constructor needs IImageHistoryVM, whose only
-    /// implementation lives in NINA/ViewModel/ImageHistory/ImageHistoryVM.cs - the main NINA exe
-    /// project, not a library, same non-portable situation as ImagingVM. A fresh Avalonia-side
-    /// IImageHistoryVM (or registering a portable stand-in) would unlock it; not attempted here.
+    /// direct grep count). After registering IImagingMediator/IImageSaveMediator/
+    /// IImageHistoryVM (a minimal-but-real MinimalImageHistoryVM stand-in - see its own doc
+    /// comment), 60 have every constructor dependency this app's CompositionRoot registers,
+    /// including TakeExposure - arguably the single most important item type, previously
+    /// excluded until those three registrations landed.
     ///
     /// The harness itself also caught a real bug before it shipped: the first discovery pass
     /// used GetCustomAttribute&lt;ExportAttribute&gt;() (singular), which throws
@@ -53,6 +50,17 @@ namespace NINA.Avalonia.Utility {
     /// ResetVariable*, Variable, SaveSequence, WaitForTime) - would have silently broken
     /// discovery for everything past the first ambiguous type encountered. Fixed by switching to
     /// GetCustomAttributes (plural) + Any(), see the comment at that call site.
+    ///
+    /// Known, real, not-yet-handled gap: "resolvable constructor" only means every parameter
+    /// type is DI-registered - it does NOT guarantee the constructor runs without throwing.
+    /// Confirmed via the same harness: WaitForAltitude's constructor touches NINA.Astrometry's
+    /// SOFA library, which throws DllNotFoundException for kernel32.dll on macOS (a genuine
+    /// Windows-only native dependency, same category as the vendor camera SDKs found during the
+    /// NINA.Equipment multi-target) - so this type currently shows up in Entries as
+    /// "resolvable" but would actually throw if Create() were called on this platform. Not
+    /// worth a general fix (would mean speculatively constructing every candidate just to test
+    /// it, defeating the point of a cheap discovery pass) - flagging here so it isn't mistaken
+    /// for a bug in the DI-resolution logic itself if it resurfaces.
     /// </summary>
     public class SequenceItemCatalog {
         private readonly IServiceProvider serviceProvider;
