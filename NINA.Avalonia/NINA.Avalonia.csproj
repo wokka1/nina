@@ -19,6 +19,12 @@
     <Content Include="..\NINA\Database\**\*.sql" Link="Database\%(RecursiveDir)%(Filename)%(Extension)">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <!-- NOVAS.cs's managed (non-Windows) path reads the real CIO locator lookup table via
+         ManagedNovas.SetRacioFile/CioArray - same "every executable needs its own copy of a
+         real data file" situation as the Database SQL scripts above. -->
+    <Content Include="..\NOVAS31\NOVAS31\CIO_RA.TXT" Link="NOVAS\CIO_RA.TXT">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
   <ItemGroup>

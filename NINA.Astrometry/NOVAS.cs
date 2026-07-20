@@ -28,42 +28,77 @@ namespace NINA.Astrometry {
         private static double JPL_EPHEM_START_DATE = 2305424.5; // First date of data in the ephemerides file
         private static double JPL_EPHEM_END_DATE = 2525008.5; // Last date of data in the ephemerides file
         private static readonly Lazy<NOVAS.CatalogueEntry> dummy_star = new Lazy<NOVAS.CatalogueEntry>(() => {
-            var result = NOVAS_make_cat_entry("DUMMY", "xxx", 0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, out var output);
-            if (result != 0) {
-                throw new Exception($"Failed to create dummy star cat entry. Result={result}");
+            if (OperatingSystem.IsWindows()) {
+                var result = NOVAS_make_cat_entry("DUMMY", "xxx", 0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, out var output);
+                if (result != 0) {
+                    throw new Exception($"Failed to create dummy star cat entry. Result={result}");
+                }
+                return output;
+            } else {
+                var output = default(CatalogueEntry);
+                var result = ManagedNovas.MakeCatEntry("DUMMY", "xxx", 0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, ref output);
+                if (result != 0) {
+                    throw new Exception($"Failed to create dummy star cat entry. Result={result}");
+                }
+                return output;
             }
-            return output;
         });
 
         public static string EphemerisLocation = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "External", "JPLEPH");
 
-        static NOVAS() {
-            DllLoader.LoadDll(Path.Combine("NOVAS", DLLNAME));
+        // CIO_RA.TXT (the CIO locator lookup table ManagedNovas.SetRacioFile/CioArray reads) is
+        // expected next to the running executable, same "ship a real data file alongside the
+        // app" pattern already used for the SQLite catalog's migration scripts (Phase 4) - see
+        // NINA.Avalonia.csproj for the actual Content-copy wiring.
+        public static string CioRaFileLocation = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "NOVAS", "CIO_RA.TXT");
 
-            short a = 0;
-            if(File.Exists(EphemerisLocation)) {
-                var code = EphemOpen(EphemerisLocation, ref JPL_EPHEM_START_DATE, ref JPL_EPHEM_END_DATE, ref a);
-                if (code > 0) {
-                    Logger.Error($"Failed to load ephemerides file due to error {code}");
+        // The native NOVAS31lib.dll is Windows-only (same situation as SOFA_2023_10_11.dll - see
+        // SOFA.cs). On non-Windows every public method below dispatches to ManagedNovas instead -
+        // a faithful port of the real vendored NOVAS C source (NOVAS31/NOVAS31/*.c), except
+        // solarsystem/solarsystem_hp, which are ported from NOVAS's own self-contained solsys3.c
+        // rather than the real Windows build's solsys1.c (which needs a binary JPL DE ephemeris
+        // file this project does not reliably have - see project memory for the full reasoning).
+        // That means EphemOpen/EphemClose (solsys1-specific) are Windows-only concerns and are
+        // skipped entirely on the managed path - ManagedNovas.SolarsystemHp never needs them.
+        static NOVAS() {
+            if (OperatingSystem.IsWindows()) {
+                DllLoader.LoadDll(Path.Combine("NOVAS", DLLNAME));
+
+                short a = 0;
+                if (File.Exists(EphemerisLocation)) {
+                    var code = EphemOpen(EphemerisLocation, ref JPL_EPHEM_START_DATE, ref JPL_EPHEM_END_DATE, ref a);
+                    if (code > 0) {
+                        Logger.Error($"Failed to load ephemerides file due to error {code}");
+                    }
+                } else {
+                    Logger.Error($"Ephemeris file not found at {EphemerisLocation}");
                 }
             } else {
-                Logger.Error($"Ephemeris file not found at {EphemerisLocation}");
+                if (File.Exists(CioRaFileLocation)) {
+                    ManagedNovas.SetRacioFile(CioRaFileLocation);
+                } else {
+                    Logger.Error($"CIO_RA.TXT not found at {CioRaFileLocation}");
+                }
             }
-            
         }
 
         #region "Public Methods"
 
         public static short Shutdown() {
-            return EphemClose();
+            // EphemClose is a solsys1.c-specific concern (closes the JPL ephemeris file handle) -
+            // the managed path (solsys3.c-based) never opens one, so there's nothing to close.
+            return OperatingSystem.IsWindows() ? EphemClose() : (short)0;
         }
 
         public static short SiderealTime(double jdHigh, double jdLow, double deltaT, GstType gstType, Method method, Accuracy accuracy, ref double gst) {
-            return NOVAS_SiderealTime(jdHigh, jdLow, deltaT, gstType, method, accuracy, ref gst);
+            if (OperatingSystem.IsWindows()) {
+                return NOVAS_SiderealTime(jdHigh, jdLow, deltaT, gstType, method, accuracy, ref gst);
+            }
+            return ManagedNovas.SiderealTime(jdHigh, jdLow, deltaT, (short)gstType, (short)method, (short)accuracy, ref gst);
         }
 
         public static double JulianDate(short year, short month, short day, double hour) {
-            return NOVAS_JulianDate(year, month, day, hour);
+            return OperatingSystem.IsWindows() ? NOVAS_JulianDate(year, month, day, hour) : ManagedNovas.JulianDate(year, month, day, hour);
         }
 
         public static DateTime JulianToDateTime(double jdtt) {
@@ -71,7 +106,15 @@ namespace NINA.Astrometry {
         }
 
         public static double CalDate(double jtd, ref short year, ref short month, ref short day, ref double hour) {
-            return NOVAS_CalDate(jtd, ref year, ref month, ref day, ref hour);
+            // The real native cal_date is void (no return) - NOVAS_CalDate's `double` return below
+            // is a pre-existing latent inconsistency in this wrapper (harmless, same category as
+            // SOFA.cs's Ae2hd/Hd2ae short-vs-void finding). Left untouched on the Windows path;
+            // the managed path just returns 0.0, matching the real function's actual lack of one.
+            if (OperatingSystem.IsWindows()) {
+                return NOVAS_CalDate(jtd, ref year, ref month, ref day, ref hour);
+            }
+            ManagedNovas.CalDate(jtd, ref year, ref month, ref day, ref hour);
+            return 0.0;
         }
 
         /// <summary>
@@ -82,7 +125,10 @@ namespace NINA.Astrometry {
         /// <param name="zdObs"></param>
         /// <returns></returns>
         public static double Refract(ref OnSurface location, RefractionOption refractionOption, double zdObs) {
-            return NOVAS_Refract(ref location, refractionOption, zdObs);
+            if (OperatingSystem.IsWindows()) {
+                return NOVAS_Refract(ref location, refractionOption, zdObs);
+            }
+            return ManagedNovas.Refract(ref location, (short)refractionOption, zdObs);
         }
 
         /// <summary>
@@ -99,8 +145,10 @@ namespace NINA.Astrometry {
         /// <returns></returns>
         public static short Place(double jdTt, CelestialObject celestialObject, Observer observer, double deltaT, CoordinateSystem coordinateSystem, Accuracy accuracy, ref SkyPosition position) {
             lock (lockObj) {
-                var err = NOVAS_Place(jdTt, ref celestialObject, ref observer, deltaT, (short)coordinateSystem, (short)accuracy, ref position);
-                return err;
+                if (OperatingSystem.IsWindows()) {
+                    return NOVAS_Place(jdTt, ref celestialObject, ref observer, deltaT, (short)coordinateSystem, (short)accuracy, ref position);
+                }
+                return ManagedNovas.Place(jdTt, ref celestialObject, ref observer, deltaT, (short)coordinateSystem, (short)accuracy, ref position);
             }
         }
 
@@ -112,14 +160,31 @@ namespace NINA.Astrometry {
         /// <param name="accuracy">Requested level of accuracy. Full by default</param>
         /// <returns>Apparent equatorial coordinates from an earth-based geocentric observer</returns>
         public static Coordinates PlanetApparentCoordinates(double jd_tt, Body body, Accuracy accuracy = Accuracy.Full) {
-            var result = NOVAS_make_object(ObjectType.MajorPlanetSunOrMoon, (short)body, body.ToString(), dummy_star.Value, out var celestialObject);
-            if (result != 0) {
-                throw new Exception($"Failed MakeObject for {body}. Result={result}");
-            }
+            short result;
+            CelestialObject celestialObject;
+            double ra, dec;
 
-            result = NOVAS_app_planet(jd_tt, celestialObject, accuracy, out var ra, out var dec, out var _);
-            if (result != 0) {
-                throw new Exception($"Failed AppPlanet for {body}. Result={result}");
+            if (OperatingSystem.IsWindows()) {
+                result = NOVAS_make_object(ObjectType.MajorPlanetSunOrMoon, (short)body, body.ToString(), dummy_star.Value, out celestialObject);
+                if (result != 0) {
+                    throw new Exception($"Failed MakeObject for {body}. Result={result}");
+                }
+
+                result = NOVAS_app_planet(jd_tt, celestialObject, accuracy, out ra, out dec, out var _);
+                if (result != 0) {
+                    throw new Exception($"Failed AppPlanet for {body}. Result={result}");
+                }
+            } else {
+                celestialObject = default;
+                result = ManagedNovas.MakeObject((short)ObjectType.MajorPlanetSunOrMoon, (short)body, body.ToString(), dummy_star.Value, ref celestialObject);
+                if (result != 0) {
+                    throw new Exception($"Failed MakeObject for {body}. Result={result}");
+                }
+
+                result = ManagedNovas.AppPlanet(jd_tt, celestialObject, accuracy, out ra, out dec, out var _);
+                if (result != 0) {
+                    throw new Exception($"Failed AppPlanet for {body}. Result={result}");
+                }
             }
 
             var referenceDateTime = JulianToDateTime(jd_tt);
@@ -137,7 +202,9 @@ namespace NINA.Astrometry {
             var jd = new double[] { jdtt, 0 };
             var position = new double[3];
             var velocity = new double[3];
-            var result = NOVAS_solarsystem_hp(jd, body, origin, position, velocity);
+            var result = OperatingSystem.IsWindows()
+                ? NOVAS_solarsystem_hp(jd, body, origin, position, velocity)
+                : ManagedNovas.SolarsystemHp(jd, body, origin, position, velocity);
             if (result != 0) {
                 throw new Exception($"SolarSystemBodyPV failed for {body} with origin {origin}. Result={result}");
             }
@@ -159,7 +226,9 @@ namespace NINA.Astrometry {
 
             var pos = new double[3];
             var vel = new double[3];
-            var result = NOVAS_geo_posvel(jdtt, deltaT, NOVAS.Accuracy.Full, observer, pos, vel);
+            var result = OperatingSystem.IsWindows()
+                ? NOVAS_geo_posvel(jdtt, deltaT, NOVAS.Accuracy.Full, observer, pos, vel)
+                : ManagedNovas.GeoPosvel(jdtt, deltaT, NOVAS.Accuracy.Full, observer, pos, vel);
             if (result != 0) {
                 throw new Exception($"NOVAS geo_posvel failed. Result={result}");
             }
