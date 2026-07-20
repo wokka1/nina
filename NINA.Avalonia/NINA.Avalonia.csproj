@@ -32,5 +32,6 @@
     <ProjectReference Include="../NINA.Equipment/NINA.Equipment.csproj" />
     <ProjectReference Include="../NINA.Platesolving/NINA.Platesolving.csproj" />
     <ProjectReference Include="../NINA.WPF.Base/NINA.WPF.Base.csproj" />
+    <ProjectReference Include="../NINA.Sequencer/NINA.Sequencer.csproj" />
   </ItemGroup>
 </Project>

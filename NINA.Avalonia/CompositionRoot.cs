@@ -208,6 +208,7 @@ namespace NINA.Avalonia {
 
             services.AddSingleton<EquipmentViewModel>();
             services.AddSingleton<ImagingViewModel>();
+            services.AddSingleton<SequencerViewModel>();
             services.AddSingleton<MainViewModel>();
 
             var provider = services.BuildServiceProvider();

@@ -1,6 +1,8 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:NINA.Avalonia.ViewModels"
+        xmlns:seq="using:NINA.Sequencer"
+        xmlns:seqc="using:NINA.Sequencer.Container"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d" d:DesignWidth="900" d:DesignHeight="550"
@@ -419,7 +421,28 @@
                 <TextBlock Margin="0,12,0,0" Opacity="0.6" Text="Flat Wizard - not yet scoped" />
             </TabItem>
             <TabItem Header="Sequencer">
-                <TextBlock Margin="0,12,0,0" Opacity="0.6" Text="Sequencer - Phase 3" />
+                <!-- Phase 3's first slice: a real NINA.Sequencer.Container.SequenceRootContainer
+                     (multi-targeted, portable, unchanged from the WPF app's own domain model),
+                     hand-populated with a couple of real Annotation items in a nested
+                     SequentialContainer - see SequencerViewModel's doc comment for why it isn't
+                     going through the real MEF item-catalog (SequencerFactory) yet. Read-only
+                     tree display only: no add/remove/reorder UI, no per-item-type property
+                     editors, no real drag-and-drop - all deliberately deferred, this slice only
+                     proves the recursive tree renders against the real domain types.
+                     Two DataTemplates, ISequenceContainer listed first: Avalonia picks the first
+                     matching template in TreeView.DataTemplates, and containers are-a
+                     ISequenceItem too, so order here is what makes containers get their
+                     children shown instead of falling through to the leaf-item template. -->
+                <TreeView Margin="0,12,0,0" ItemsSource="{Binding SequencerVM.RootContainer.Items}">
+                    <TreeView.DataTemplates>
+                        <TreeDataTemplate DataType="seqc:ISequenceContainer" ItemsSource="{Binding Items}">
+                            <TextBlock Text="{Binding Name}" FontWeight="SemiBold" />
+                        </TreeDataTemplate>
+                        <DataTemplate DataType="seq:ISequenceEntity">
+                            <TextBlock Text="{Binding Name}" />
+                        </DataTemplate>
+                    </TreeView.DataTemplates>
+                </TreeView>
             </TabItem>
             <TabItem Header="Imaging">
                 <!-- Phase 2's first real slice: a real capture through the actual portable
