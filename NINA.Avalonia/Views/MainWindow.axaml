@@ -439,6 +439,7 @@
                 <DockPanel Margin="0,12,0,0">
                     <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="6" Margin="0,0,0,8">
                         <Button Content="Add Annotation" Command="{Binding SequencerVM.AddAnnotationCommand}" />
+                        <Button Content="Add Wait" Command="{Binding SequencerVM.AddWaitCommand}" />
                         <Button Content="Move Up" Command="{Binding SequencerVM.SelectedItem.MoveUpCommand}" />
                         <Button Content="Move Down" Command="{Binding SequencerVM.SelectedItem.MoveDownCommand}" />
                         <Button Content="Remove" Command="{Binding SequencerVM.SelectedItem.DetachCommand}" />

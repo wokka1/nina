@@ -22,11 +22,20 @@ namespace NINA.Avalonia.ViewModels;
 /// Real finding: IDroppable (which ISequenceEntity/ISequenceItem implement) already exposes
 /// MoveUpCommand/MoveDownCommand/DetachCommand and a Parent back-reference - the real app's own
 /// reorder/remove logic, already built and portable. No new logic needed for those, just real
-/// buttons bound to them. AddAnnotationCommand is new here (the real app would offer every
-/// registered item type via the MEF catalog's palette; this adds one hardcoded type to the
-/// selected container, or root if the selection isn't a container itself, as a proportionate
-/// stand-in for that catalog). Per-item-type property editors (dozens of types) and real
-/// drag-and-drop remain deliberately deferred.
+/// buttons bound to them.
+///
+/// AddAnnotation/AddWait are hardcoded stand-ins for the real app's MEF item catalog
+/// (SequencerFactory, fed by IPluginLoader's real [Export(typeof(ISequenceItem))] composition -
+/// confirmed this lives in the main NINA exe project, not a library, same situation as the
+/// imaging ViewModels). Building a genuine equivalent catalog is real, separate design work
+/// (System.ComponentModel.Composition itself is a portable NuGet package, so an
+/// AssemblyCatalog scan of NINA.Sequencer.dll is plausible - the harder open question is
+/// bridging MEF-discovered types with constructor dependencies already wired through this
+/// app's own Microsoft.Extensions.DependencyInjection container, e.g. TakeExposure needing
+/// camera/filter wheel mediators). Deliberately not attempted in this pass; these two hardcoded
+/// item types (both have trivial, dependency-free constructors) just prove the add-to-tree
+/// pattern generalizes beyond one type. Per-item-type property editors and real drag-and-drop
+/// remain deliberately deferred too.
 /// </summary>
 public partial class SequencerViewModel : ViewModelBase {
     public SequencerViewModel() {
@@ -46,9 +55,19 @@ public partial class SequencerViewModel : ViewModelBase {
     [ObservableProperty]
     public partial ISequenceEntity? SelectedItem { get; set; }
 
+    // Resolves which container a new item should land in: the selected item itself if it's a
+    // container, else its parent, else the root. Shared by every AddXxx command below - this is
+    // the one bit of real logic standing in for the real app's drag-and-drop-onto-a-container
+    // gesture.
+    private ISequenceContainer TargetContainer => SelectedItem as ISequenceContainer ?? SelectedItem?.Parent ?? RootContainer;
+
     [RelayCommand]
     private void AddAnnotation() {
-        var target = SelectedItem as ISequenceContainer ?? SelectedItem?.Parent ?? RootContainer;
-        target.Add(new Annotation { Name = "New annotation", Text = "Edit me." });
+        TargetContainer.Add(new Annotation { Name = "New annotation", Text = "Edit me." });
+    }
+
+    [RelayCommand]
+    private void AddWait() {
+        TargetContainer.Add(new WaitForTimeSpan { Name = "New wait", Time = 60 });
     }
 }
