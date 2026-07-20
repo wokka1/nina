@@ -40,6 +40,13 @@ namespace NINA.Avalonia.ViewModels;
 /// is passed false to DetectStars() since the portable side has no annotator to draw with
 /// regardless (PortableStarAnnotator is a real no-op, see its own doc comment) - passing true
 /// would just be requesting work that silently can't happen.
+///
+/// Image statistics (mean/median/stdev/min/max) come from the real IImageData.Statistics
+/// (AsyncLazy&lt;IImageStatistics&gt;, computed once and cached), the same source
+/// NINA/ViewModel/ImageStatisticsVM.cs uses - no new statistics math, just reading the existing
+/// portable computation. IImageStatistics.Histogram (OxyPlot.DataPoint list) exists too but a
+/// real rendered histogram chart needs the OxyPlot.Avalonia package, not yet added - text stats
+/// only for now, same proportion-of-effort choice as the star detection stats above.
 /// </summary>
 public partial class ImagingViewModel : ViewModelBase {
     private readonly ICameraVM cameraVM;
@@ -106,6 +113,9 @@ public partial class ImagingViewModel : ViewModelBase {
     [ObservableProperty]
     public partial string StarDetectionStatus { get; set; } = string.Empty;
 
+    [ObservableProperty]
+    public partial string StatisticsStatus { get; set; } = string.Empty;
+
     [RelayCommand]
     private async Task Capture() {
         if (!cameraVM.GetDeviceInfo().Connected) {
@@ -136,6 +146,10 @@ public partial class ImagingViewModel : ViewModelBase {
 
             var imageData = await exposureData.ToImageData(progress, captureCts.Token);
             var renderedImage = imageData.RenderImage();
+
+            CaptureStatus = "Computing statistics...";
+            var stats = await imageData.Statistics.Task;
+            StatisticsStatus = $"Mean {stats.Mean:0.0}, Median {stats.Median:0.0}, StDev {stats.StDev:0.0}, Min {stats.Min}, Max {stats.Max}";
 
             CaptureStatus = "Stretching...";
             var stretched = await renderedImage.Stretch(0.2, -2.8, false);

@@ -462,6 +462,10 @@
                          pixel-to-display-coordinate math against the image's Stretch="Uniform"
                          scaling). -->
                     <TextBlock Text="{Binding ImagingVM.StarDetectionStatus}" Opacity="0.8" />
+                    <!-- Real IImageData.Statistics (mean/median/stdev/min/max), same source
+                         NINA/ViewModel/ImageStatisticsVM.cs uses - text only, no histogram
+                         chart yet (would need the OxyPlot.Avalonia package, not added). -->
+                    <TextBlock Text="{Binding ImagingVM.StatisticsStatus}" Opacity="0.8" />
                 </StackPanel>
             </TabItem>
             <TabItem Header="Options">
