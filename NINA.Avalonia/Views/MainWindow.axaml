@@ -22,56 +22,102 @@
         </StackPanel>
 
         <!-- Real navigation shell (Phase 0): one TabItem per NINA.Core.Enum.ApplicationTab entry,
-             same order as the real app. Equipment now has a real Camera panel (Phase 1, the
-             first of 11 device types) - the rest get built out phase by phase per the roadmap
-             in wokka1/nina#1. -->
+             same order as the real app. Equipment now has real Camera + Telescope panels
+             (Phase 1) - the rest get built out phase by phase per the roadmap in
+             wokka1/nina#1, one device-card WrapPanel entry at a time. -->
         <TabControl SelectedIndex="{Binding TabIndex}">
             <TabItem Header="Equipment">
-                <!-- Camera - Phase 1's first proven device pattern. Real NINA.WPF.Base.CameraVM/
-                     CameraChooserVM underneath (see CompositionRoot.Compose), not a rewrite.
-                     ICameraVM/IDeviceChooserVM (interfaces, deliberately kept for testability
-                     same as the real app) don't declare ConnectCommand/DisconnectCommand/
-                     RescanDevicesCommand/CameraInfo - those are real members of the concrete
-                     CameraVM class only. Avalonia's default compiled bindings type-check
-                     strictly against the declared (interface) property type and can't see them,
-                     so this panel uses {ReflectionBinding} (runtime/reflection-based, resolves
-                     against the actual CameraVM instance) for just these paths instead of
-                     weakening EquipmentViewModel.CameraVM's type to the concrete class - the
-                     rest of the window keeps ordinary compiled {Binding}.
-                     No Setup Dialog button yet, same reasoning (SetupDialogCommand lives on the
-                     concrete DeviceChooserVM&lt;T&gt; base) - small, deliberately deferred
-                     follow-up, not needed to prove connect/disconnect/status today. -->
-                <StackPanel Margin="0,12,0,0" Spacing="8" MaxWidth="500" HorizontalAlignment="Left">
-                    <TextBlock Text="Camera" FontSize="16" FontWeight="SemiBold" />
-                    <Grid ColumnDefinitions="*,Auto,Auto,Auto" ColumnSpacing="6">
-                        <ComboBox Grid.Column="0"
-                                  ItemsSource="{Binding EquipmentVM.CameraVM.DeviceChooserVM.Devices}"
-                                  SelectedItem="{Binding EquipmentVM.CameraVM.DeviceChooserVM.SelectedDevice}"
-                                  HorizontalAlignment="Stretch">
-                            <ComboBox.ItemTemplate>
-                                <DataTemplate>
-                                    <TextBlock Text="{Binding Name}" />
-                                </DataTemplate>
-                            </ComboBox.ItemTemplate>
-                        </ComboBox>
-                        <Button Grid.Column="1" Content="Rescan" Command="{ReflectionBinding EquipmentVM.CameraVM.RescanDevicesCommand}" />
-                        <Button Grid.Column="2" Content="Connect" Command="{ReflectionBinding EquipmentVM.CameraVM.ConnectCommand}" />
-                        <Button Grid.Column="3" Content="Disconnect" Command="{ReflectionBinding EquipmentVM.CameraVM.DisconnectCommand}" />
-                    </Grid>
-
-                    <Border BorderBrush="Gray" BorderThickness="0,1,0,0" Padding="0,8,0,0">
-                        <Grid ColumnDefinitions="150,*" RowDefinitions="Auto,Auto,Auto,Auto" RowSpacing="4">
-                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Connected" FontWeight="SemiBold" />
-                            <TextBlock Grid.Row="0" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.CameraVM.CameraInfo.Connected}" />
-                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Name" FontWeight="SemiBold" />
-                            <TextBlock Grid.Row="1" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.CameraVM.CameraInfo.Name}" />
-                            <TextBlock Grid.Row="2" Grid.Column="0" Text="Temperature" FontWeight="SemiBold" />
-                            <TextBlock Grid.Row="2" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.CameraVM.CameraInfo.Temperature, StringFormat='{}{0:0.0} °C'}" />
-                            <TextBlock Grid.Row="3" Grid.Column="0" Text="Cooler" FontWeight="SemiBold" />
-                            <TextBlock Grid.Row="3" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.CameraVM.CameraInfo.CoolerOn, StringFormat='On: {0}'}" />
+                <!-- Real NINA.WPF.Base ViewModels underneath each card (CameraVM/TelescopeVM
+                     etc. via CompositionRoot.Compose), not rewrites. Every device VM's
+                     interface (ICameraVM/ITelescopeVM/IDeviceChooserVM - deliberately kept for
+                     testability same as the real app) omits the concrete class's
+                     Connect/Disconnect/Rescan commands and *Info status property, so Avalonia's
+                     default compiled bindings (which type-check strictly against the declared
+                     interface type) can't see them - {ReflectionBinding} (runtime/reflection)
+                     is used for just those paths per card instead of weakening
+                     EquipmentViewModel's properties to their concrete classes. (ICameraVM
+                     happens to also declare DeviceChooserVM itself, unlike ITelescopeVM - an
+                     inconsistency in the real interfaces, not something introduced here - so
+                     Camera's chooser binding is plain {Binding} while Telescope's needs
+                     {ReflectionBinding} too; check each device type's own interface rather than
+                     assuming the same binding style carries over.) No Setup Dialog buttons yet
+                     for the same reason (SetupDialogCommand lives on the concrete
+                     DeviceChooserVM&lt;T&gt; base) - small, deliberately deferred, not needed to
+                     prove connect/disconnect/status. -->
+                <WrapPanel Margin="0,12,0,0" Orientation="Horizontal">
+                    <StackPanel Spacing="8" Width="480" Margin="0,0,24,24">
+                        <TextBlock Text="Camera" FontSize="16" FontWeight="SemiBold" />
+                        <Grid ColumnDefinitions="*,Auto,Auto,Auto" ColumnSpacing="6">
+                            <ComboBox Grid.Column="0"
+                                      ItemsSource="{Binding EquipmentVM.CameraVM.DeviceChooserVM.Devices}"
+                                      SelectedItem="{Binding EquipmentVM.CameraVM.DeviceChooserVM.SelectedDevice}"
+                                      HorizontalAlignment="Stretch">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Name}" />
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+                            <Button Grid.Column="1" Content="Rescan" Command="{ReflectionBinding EquipmentVM.CameraVM.RescanDevicesCommand}" />
+                            <Button Grid.Column="2" Content="Connect" Command="{ReflectionBinding EquipmentVM.CameraVM.ConnectCommand}" />
+                            <Button Grid.Column="3" Content="Disconnect" Command="{ReflectionBinding EquipmentVM.CameraVM.DisconnectCommand}" />
                         </Grid>
-                    </Border>
-                </StackPanel>
+
+                        <Border BorderBrush="Gray" BorderThickness="0,1,0,0" Padding="0,8,0,0">
+                            <Grid ColumnDefinitions="150,*" RowDefinitions="Auto,Auto,Auto,Auto" RowSpacing="4">
+                                <TextBlock Grid.Row="0" Grid.Column="0" Text="Connected" FontWeight="SemiBold" />
+                                <TextBlock Grid.Row="0" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.CameraVM.CameraInfo.Connected}" />
+                                <TextBlock Grid.Row="1" Grid.Column="0" Text="Name" FontWeight="SemiBold" />
+                                <TextBlock Grid.Row="1" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.CameraVM.CameraInfo.Name}" />
+                                <TextBlock Grid.Row="2" Grid.Column="0" Text="Temperature" FontWeight="SemiBold" />
+                                <TextBlock Grid.Row="2" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.CameraVM.CameraInfo.Temperature, StringFormat='{}{0:0.0} °C'}" />
+                                <TextBlock Grid.Row="3" Grid.Column="0" Text="Cooler" FontWeight="SemiBold" />
+                                <TextBlock Grid.Row="3" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.CameraVM.CameraInfo.CoolerOn, StringFormat='On: {0}'}" />
+                            </Grid>
+                        </Border>
+                    </StackPanel>
+
+                    <StackPanel Spacing="8" Width="480" Margin="0,0,24,24">
+                        <TextBlock Text="Telescope" FontSize="16" FontWeight="SemiBold" />
+                        <Grid ColumnDefinitions="*,Auto,Auto,Auto" ColumnSpacing="6">
+                            <ComboBox Grid.Column="0"
+                                      ItemsSource="{ReflectionBinding EquipmentVM.TelescopeVM.DeviceChooserVM.Devices}"
+                                      SelectedItem="{ReflectionBinding EquipmentVM.TelescopeVM.DeviceChooserVM.SelectedDevice}"
+                                      HorizontalAlignment="Stretch">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <!-- {ReflectionBinding}, not {Binding}: the ItemsSource
+                                             above is itself a ReflectionBinding (untyped at
+                                             compile time), so the compiler has no static item
+                                             type to check a compiled binding against here -
+                                             unlike Camera's version of this same template, where
+                                             ItemsSource is a plain typed {Binding} and the
+                                             compiler can infer IDevice for this nested one. -->
+                                        <TextBlock Text="{ReflectionBinding Name}" />
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+                            <Button Grid.Column="1" Content="Rescan" Command="{ReflectionBinding EquipmentVM.TelescopeVM.RescanDevicesCommand}" />
+                            <Button Grid.Column="2" Content="Connect" Command="{ReflectionBinding EquipmentVM.TelescopeVM.ConnectCommand}" />
+                            <Button Grid.Column="3" Content="Disconnect" Command="{ReflectionBinding EquipmentVM.TelescopeVM.DisconnectCommand}" />
+                        </Grid>
+
+                        <Border BorderBrush="Gray" BorderThickness="0,1,0,0" Padding="0,8,0,0">
+                            <Grid ColumnDefinitions="150,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto" RowSpacing="4">
+                                <TextBlock Grid.Row="0" Grid.Column="0" Text="Connected" FontWeight="SemiBold" />
+                                <TextBlock Grid.Row="0" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.TelescopeVM.TelescopeInfo.Connected}" />
+                                <TextBlock Grid.Row="1" Grid.Column="0" Text="Name" FontWeight="SemiBold" />
+                                <TextBlock Grid.Row="1" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.TelescopeVM.TelescopeInfo.Name}" />
+                                <TextBlock Grid.Row="2" Grid.Column="0" Text="RA / Dec" FontWeight="SemiBold" />
+                                <TextBlock Grid.Row="2" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.TelescopeVM.TelescopeInfo.RightAscension, StringFormat='{}{0:0.0000}h'}" />
+                                <TextBlock Grid.Row="3" Grid.Column="0" Text="Tracking" FontWeight="SemiBold" />
+                                <TextBlock Grid.Row="3" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.TelescopeVM.TelescopeInfo.TrackingEnabled}" />
+                                <TextBlock Grid.Row="4" Grid.Column="0" Text="At Park" FontWeight="SemiBold" />
+                                <TextBlock Grid.Row="4" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.TelescopeVM.TelescopeInfo.AtPark}" />
+                            </Grid>
+                        </Border>
+                    </StackPanel>
+                </WrapPanel>
             </TabItem>
             <TabItem Header="Sky Atlas">
                 <TextBlock Margin="0,12,0,0" Opacity="0.6" Text="Sky Atlas / Framing Assistant - Phase 4" />

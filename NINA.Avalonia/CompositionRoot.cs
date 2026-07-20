@@ -16,6 +16,7 @@ using NINA.Profile.Interfaces;
 using NINA.WPF.Base.Interfaces.Mediator;
 using NINA.WPF.Base.Mediator;
 using NINA.WPF.Base.ViewModel.Equipment.Camera;
+using NINA.WPF.Base.ViewModel.Equipment.Telescope;
 
 namespace NINA.Avalonia {
 
@@ -64,6 +65,7 @@ namespace NINA.Avalonia {
             services.AddSingleton<IFilterWheelMediator, FilterWheelMediator>();
             services.AddSingleton<ITelescopeMediator, TelescopeMediator>();
             services.AddSingleton<IApplicationStatusMediator, ApplicationStatusMediator>();
+            services.AddSingleton<IDomeMediator, DomeMediator>();
 
             services.AddSingleton<ISbigSdk, SbigSdk>();
 
@@ -74,6 +76,7 @@ namespace NINA.Avalonia {
             services.AddSingleton<IPluggableBehaviorSelector<IStarAnnotator>>(
                 f => new DefaultBehaviorSelector<IStarAnnotator>(new PortableStarAnnotator()));
             services.AddSingleton<IEquipmentProviders<ICamera>, NullEquipmentProviders<ICamera>>();
+            services.AddSingleton<IEquipmentProviders<ITelescope>, NullEquipmentProviders<ITelescope>>();
 
             services.AddSingleton<IImageDataFactory, ImageDataFactory>();
             services.AddSingleton<IExposureDataFactory, ExposureDataFactory>();
@@ -92,6 +95,14 @@ namespace NINA.Avalonia {
                              f.GetRequiredService<IFilterWheelMediator>(),
                              f.GetRequiredService<IApplicationStatusMediator>(),
                              f.GetRequiredService<CameraChooserVM>()));
+
+            services.AddSingleton<TelescopeChooserVM>();
+            services.AddSingleton<ITelescopeVM, TelescopeVM>(f =>
+                new TelescopeVM(f.GetRequiredService<IProfileService>(),
+                                f.GetRequiredService<ITelescopeMediator>(),
+                                f.GetRequiredService<IApplicationStatusMediator>(),
+                                f.GetRequiredService<IDomeMediator>(),
+                                f.GetRequiredService<TelescopeChooserVM>()));
 
             services.AddSingleton<EquipmentViewModel>();
             services.AddSingleton<MainViewModel>();
