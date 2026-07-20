@@ -207,6 +207,7 @@ namespace NINA.Avalonia {
                                     f.GetRequiredService<SafetyMonitorChooserVM>()));
 
             services.AddSingleton<EquipmentViewModel>();
+            services.AddSingleton<ImagingViewModel>();
             services.AddSingleton<MainViewModel>();
 
             var provider = services.BuildServiceProvider();

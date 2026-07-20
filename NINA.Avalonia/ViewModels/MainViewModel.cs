@@ -21,9 +21,10 @@ namespace NINA.Avalonia.ViewModels;
 public partial class MainViewModel : ViewModelBase {
     private readonly IProfileService profileService;
 
-    public MainViewModel(IProfileService profileService, EquipmentViewModel equipmentViewModel) {
+    public MainViewModel(IProfileService profileService, EquipmentViewModel equipmentViewModel, ImagingViewModel imagingViewModel) {
         this.profileService = profileService;
         EquipmentVM = equipmentViewModel;
+        ImagingVM = imagingViewModel;
 
         // Proves NINA.Profile is a real, working dependency now too - shows the profile
         // ProfileService.TryLoad(null) actually selected at startup, not a placeholder string.
@@ -58,6 +59,9 @@ public partial class MainViewModel : ViewModelBase {
 
     // Real equipment VM graph (Phase 1) - replaces the earlier static placeholder list.
     public EquipmentViewModel EquipmentVM { get; }
+
+    // Real capture/display pipeline (Phase 2, first slice).
+    public ImagingViewModel ImagingVM { get; }
 
     private readonly DispatcherTimer clockTimer;
 }

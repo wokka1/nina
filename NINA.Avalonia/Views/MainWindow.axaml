@@ -422,7 +422,23 @@
                 <TextBlock Margin="0,12,0,0" Opacity="0.6" Text="Sequencer - Phase 3" />
             </TabItem>
             <TabItem Header="Imaging">
-                <TextBlock Margin="0,12,0,0" Opacity="0.6" Text="Imaging / image display - Phase 2" />
+                <!-- Phase 2's first real slice: a real capture through the actual portable
+                     pipeline (CameraVM.Capture/Download -> ToImageData -> RenderImage ->
+                     Stretch -> RawPixels -> a real Avalonia bitmap), not a placeholder. Connect
+                     a camera on the Equipment tab first (the Simulator camera works with no
+                     real hardware) - Connected is bound compiled since ICameraVM declares it
+                     directly (IDeviceVM&lt;T&gt; base member), unlike the ReflectionBinding
+                     paths used for the concrete-only members on the Equipment tab's cards. -->
+                <StackPanel Margin="0,12,0,0" Spacing="8" MaxWidth="700">
+                    <Grid ColumnDefinitions="Auto,Auto,*" ColumnSpacing="8">
+                        <Button Grid.Column="0" Content="Capture" Command="{Binding ImagingVM.CaptureCommand}" IsEnabled="{Binding !ImagingVM.IsCapturing}" />
+                        <Button Grid.Column="1" Content="Cancel" Command="{Binding ImagingVM.CancelCaptureCommand}" IsEnabled="{Binding ImagingVM.IsCapturing}" />
+                        <TextBlock Grid.Column="2" Text="{Binding ImagingVM.CaptureStatus}" VerticalAlignment="Center" />
+                    </Grid>
+                    <Border BorderBrush="Gray" BorderThickness="1" MinHeight="300">
+                        <Image Source="{Binding ImagingVM.Image}" Stretch="Uniform" />
+                    </Border>
+                </StackPanel>
             </TabItem>
             <TabItem Header="Options">
                 <TextBlock Margin="0,12,0,0" Opacity="0.6" Text="Options / Profile management - Phase 5" />
