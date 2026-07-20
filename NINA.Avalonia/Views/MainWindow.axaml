@@ -3,37 +3,64 @@
         xmlns:vm="using:NINA.Avalonia.ViewModels"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        mc:Ignorable="d" d:DesignWidth="900" d:DesignHeight="550"
         x:Class="NINA.Avalonia.Views.MainWindow"
         x:DataType="vm:MainViewModel"
         Icon="/Assets/avalonia-logo.ico"
         Title="NINA.Avalonia">
 
-    <Design.DataContext>
-        <!-- This only sets the DataContext for the previewer in an IDE,
-             to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
-        <vm:MainViewModel />
-    </Design.DataContext>
+    <!-- No Design.DataContext here: MainViewModel now requires a real IProfileService via its
+         constructor (see CompositionRoot.Compose), so it can no longer be parameterlessly
+         instantiated for the XAML previewer. Runtime DataContext is set in App.axaml.cs. -->
 
     <DockPanel Margin="16">
         <StackPanel DockPanel.Dock="Top" Spacing="4" Margin="0,0,0,16">
             <TextBlock Text="{Binding StatusMessage}" FontSize="18" FontWeight="Bold" />
             <TextBlock Text="{Binding CurrentTime}" FontSize="14" Opacity="0.7" />
             <TextBlock Text="{Binding NinaCoreIntegrationTest}" FontSize="13" Opacity="0.9" Foreground="LightGreen" />
+            <TextBlock Text="{Binding ActiveProfileName, StringFormat='Active profile: {0}'}" FontSize="13" Opacity="0.9" Foreground="LightBlue" />
         </StackPanel>
 
-        <ItemsControl ItemsSource="{Binding Equipment}">
-            <ItemsControl.ItemTemplate>
-                <DataTemplate>
-                    <Border BorderBrush="Gray" BorderThickness="0,0,0,1" Padding="4">
-                        <Grid ColumnDefinitions="150,*">
-                            <TextBlock Grid.Column="0" Text="{Binding Name}" FontWeight="SemiBold" />
-                            <TextBlock Grid.Column="1" Text="{Binding Status}" />
-                        </Grid>
-                    </Border>
-                </DataTemplate>
-            </ItemsControl.ItemTemplate>
-        </ItemsControl>
+        <!-- Real navigation shell (Phase 0): one TabItem per NINA.Core.Enum.ApplicationTab entry,
+             same order as the real app. Only Equipment has real (placeholder) content today -
+             the rest get built out phase by phase per the roadmap in wokka1/nina#1. -->
+        <TabControl SelectedIndex="{Binding TabIndex}">
+            <TabItem Header="Equipment">
+                <ItemsControl ItemsSource="{Binding Equipment}" Margin="0,12,0,0">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border BorderBrush="Gray" BorderThickness="0,0,0,1" Padding="4">
+                                <Grid ColumnDefinitions="150,*">
+                                    <TextBlock Grid.Column="0" Text="{Binding Name}" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Column="1" Text="{Binding Status}" />
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </TabItem>
+            <TabItem Header="Sky Atlas">
+                <TextBlock Margin="0,12,0,0" Opacity="0.6" Text="Sky Atlas / Framing Assistant - Phase 4" />
+            </TabItem>
+            <TabItem Header="Framing Assistant">
+                <TextBlock Margin="0,12,0,0" Opacity="0.6" Text="Framing Assistant - Phase 4" />
+            </TabItem>
+            <TabItem Header="Flat Wizard">
+                <TextBlock Margin="0,12,0,0" Opacity="0.6" Text="Flat Wizard - not yet scoped" />
+            </TabItem>
+            <TabItem Header="Sequencer">
+                <TextBlock Margin="0,12,0,0" Opacity="0.6" Text="Sequencer - Phase 3" />
+            </TabItem>
+            <TabItem Header="Imaging">
+                <TextBlock Margin="0,12,0,0" Opacity="0.6" Text="Imaging / image display - Phase 2" />
+            </TabItem>
+            <TabItem Header="Options">
+                <TextBlock Margin="0,12,0,0" Opacity="0.6" Text="Options / Profile management - Phase 5" />
+            </TabItem>
+            <TabItem Header="Plugins">
+                <TextBlock Margin="0,12,0,0" Opacity="0.6" Text="Plugins - Phase 5" />
+            </TabItem>
+        </TabControl>
     </DockPanel>
 
 </Window>
