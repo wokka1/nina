@@ -279,6 +279,39 @@
                             </Grid>
                         </Border>
                     </StackPanel>
+
+                    <!-- Switch's real status surface is a whole writable/readonly switch-value
+                         grid (SwitchInfo doesn't reduce to a few scalar fields the way the other
+                         device types do) - out of scope for this minimal connect/status card,
+                         same spirit as skipping Setup Dialog buttons elsewhere. Just proves the
+                         chooser/connect/disconnect pattern here; a real switch grid is deferred. -->
+                    <StackPanel Spacing="8" Width="480" Margin="0,0,24,24">
+                        <TextBlock Text="Switch" FontSize="16" FontWeight="SemiBold" />
+                        <Grid ColumnDefinitions="*,Auto,Auto,Auto" ColumnSpacing="6">
+                            <ComboBox Grid.Column="0"
+                                      ItemsSource="{ReflectionBinding EquipmentVM.SwitchVM.DeviceChooserVM.Devices}"
+                                      SelectedItem="{ReflectionBinding EquipmentVM.SwitchVM.DeviceChooserVM.SelectedDevice}"
+                                      HorizontalAlignment="Stretch">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{ReflectionBinding Name}" />
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+                            <Button Grid.Column="1" Content="Rescan" Command="{ReflectionBinding EquipmentVM.SwitchVM.RescanDevicesCommand}" />
+                            <Button Grid.Column="2" Content="Connect" Command="{ReflectionBinding EquipmentVM.SwitchVM.ConnectCommand}" />
+                            <Button Grid.Column="3" Content="Disconnect" Command="{ReflectionBinding EquipmentVM.SwitchVM.DisconnectCommand}" />
+                        </Grid>
+
+                        <Border BorderBrush="Gray" BorderThickness="0,1,0,0" Padding="0,8,0,0">
+                            <Grid ColumnDefinitions="150,*" RowDefinitions="Auto,Auto" RowSpacing="4">
+                                <TextBlock Grid.Row="0" Grid.Column="0" Text="Connected" FontWeight="SemiBold" />
+                                <TextBlock Grid.Row="0" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.SwitchVM.SwitchInfo.Connected}" />
+                                <TextBlock Grid.Row="1" Grid.Column="0" Text="Name" FontWeight="SemiBold" />
+                                <TextBlock Grid.Row="1" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.SwitchVM.SwitchInfo.Name}" />
+                            </Grid>
+                        </Border>
+                    </StackPanel>
                 </WrapPanel>
             </TabItem>
             <TabItem Header="Sky Atlas">

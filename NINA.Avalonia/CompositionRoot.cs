@@ -22,6 +22,7 @@ using NINA.WPF.Base.ViewModel.Equipment.FilterWheel;
 using NINA.WPF.Base.ViewModel.Equipment.Focuser;
 using NINA.WPF.Base.ViewModel.Equipment.Guider;
 using NINA.WPF.Base.ViewModel.Equipment.Rotator;
+using NINA.WPF.Base.ViewModel.Equipment.Switch;
 using NINA.WPF.Base.ViewModel.Equipment.Telescope;
 
 namespace NINA.Avalonia {
@@ -76,6 +77,7 @@ namespace NINA.Avalonia {
             services.AddSingleton<IGuiderMediator, GuiderMediator>();
             services.AddSingleton<IRotatorMediator, RotatorMediator>();
             services.AddSingleton<ISafetyMonitorMediator, SafetyMonitorMediator>();
+            services.AddSingleton<ISwitchMediator, SwitchMediator>();
 
             services.AddSingleton<ISbigSdk, SbigSdk>();
 
@@ -92,6 +94,7 @@ namespace NINA.Avalonia {
             services.AddSingleton<IEquipmentProviders<IRotator>, NullEquipmentProviders<IRotator>>();
             services.AddSingleton<IEquipmentProviders<IDome>, NullEquipmentProviders<IDome>>();
             services.AddSingleton<IEquipmentProviders<IGuider>, NullEquipmentProviders<IGuider>>();
+            services.AddSingleton<IEquipmentProviders<ISwitchHub>, NullEquipmentProviders<ISwitchHub>>();
             services.AddSingleton<IApplicationResourceDictionary, NullApplicationResourceDictionary>();
             services.AddSingleton<IDeviceUpdateTimerFactory, DefaultDeviceUpateTimerFactory>();
             services.AddSingleton<IDomeSynchronization, DomeSynchronization>();
@@ -165,6 +168,13 @@ namespace NINA.Avalonia {
                              f.GetRequiredService<IGuiderMediator>(),
                              f.GetRequiredService<IApplicationStatusMediator>(),
                              f.GetRequiredService<GuiderChooserVM>()));
+
+            services.AddSingleton<SwitchChooserVM>();
+            services.AddSingleton<ISwitchVM, SwitchVM>(f =>
+                new SwitchVM(f.GetRequiredService<IProfileService>(),
+                             f.GetRequiredService<IApplicationStatusMediator>(),
+                             f.GetRequiredService<ISwitchMediator>(),
+                             f.GetRequiredService<SwitchChooserVM>()));
 
             services.AddSingleton<EquipmentViewModel>();
             services.AddSingleton<MainViewModel>();
