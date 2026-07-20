@@ -18,7 +18,9 @@ using NINA.Core.Locale;
 using NINA.Core.Model;
 using NINA.Core.Utility;
 using NINA.Core.Utility.Notification;
+#if HAS_WPF
 using NINA.Core.Utility.WindowService;
+#endif
 using NINA.Equipment.Interfaces;
 using NINA.Equipment.Interfaces.Mediator;
 using NINA.Equipment.Interfaces.ViewModel;
@@ -54,7 +56,9 @@ using System.Runtime.InteropServices;
 using System.Runtime.Loader;
 using System.Threading;
 using System.Threading.Tasks;
+#if HAS_WPF
 using System.Windows;
+#endif
 using Trinet.Core.IO.Ntfs;
 using NINA.Sequencer.Interfaces;
 
@@ -76,16 +80,22 @@ namespace NINA.Plugin {
                               INighttimeCalculator nighttimeCalculator,
                               IPlanetariumFactory planetariumFactory,
                               IImageHistoryVM imageHistoryVM,
+#if HAS_WPF
                               IDeepSkyObjectSearchVM deepSkyObjectSearchVM,
+#endif
                               IDomeMediator domeMediator,
                               IImageSaveMediator imageSaveMediator,
                               ISwitchMediator switchMediator,
                               ISafetyMonitorMediator safetyMonitorMediator,
                               IApplicationResourceDictionary resourceDictionary,
                               IApplicationMediator applicationMediator,
+#if HAS_WPF
                               IFramingAssistantVM framingAssistantVM,
+#endif
                               IPlateSolverFactory plateSolverFactory,
+#if HAS_WPF
                               IWindowServiceFactory windowServiceFactory,
+#endif
                               IDomeFollower domeFollower,
                               IPluggableBehaviorSelector<IStarDetection> starDetectionSelector,
                               IPluggableBehaviorSelector<IStarAnnotator> starAnnotatorSelector,
@@ -116,16 +126,22 @@ namespace NINA.Plugin {
             this.nighttimeCalculator = nighttimeCalculator;
             this.planetariumFactory = planetariumFactory;
             this.imageHistoryVM = imageHistoryVM;
+#if HAS_WPF
             this.deepSkyObjectSearchVM = deepSkyObjectSearchVM;
+#endif
             this.domeMediator = domeMediator;
             this.imageSaveMediator = imageSaveMediator;
             this.switchMediator = switchMediator;
             this.safetyMonitorMediator = safetyMonitorMediator;
             this.resourceDictionary = resourceDictionary;
             this.applicationMediator = applicationMediator;
+#if HAS_WPF
             this.framingAssistantVM = framingAssistantVM;
+#endif
             this.platesolverFactory = plateSolverFactory;
+#if HAS_WPF
             this.windowServiceFactory = windowServiceFactory;
+#endif
             this.domeFollower = domeFollower;
             this.starDetectionSelector = starDetectionSelector;
             this.starAnnotatorSelector = starAnnotatorSelector;
@@ -473,9 +489,11 @@ namespace NINA.Plugin {
                 var parts = new PartsImport();
                 container.ComposeParts(parts);
 
+#if HAS_WPF
                 foreach (var template in parts.DataTemplateImports) {
                     Application.Current?.Resources.MergedDictionaries.Add(template);
                 }
+#endif
 
                 var pluginItems = AssignSequenceEntity(parts.ItemImports, resourceDictionary, pluginName);
                 var pluginConditions = AssignSequenceEntity(parts.ConditionImports, resourceDictionary, pluginName);
@@ -521,7 +539,9 @@ namespace NINA.Plugin {
             container.ComposeExportedValue(nighttimeCalculator);
             container.ComposeExportedValue(planetariumFactory);
             container.ComposeExportedValue(imageHistoryVM);
+#if HAS_WPF
             container.ComposeExportedValue(deepSkyObjectSearchVM);
+#endif
             container.ComposeExportedValue(domeMediator);
             container.ComposeExportedValue(imageSaveMediator);
             container.ComposeExportedValue(switchMediator);
@@ -529,9 +549,13 @@ namespace NINA.Plugin {
             container.ComposeExportedValue(DateTimeProviders);
             container.ComposeExportedValue(safetyMonitorMediator);
             container.ComposeExportedValue(applicationMediator);
+#if HAS_WPF
             container.ComposeExportedValue(framingAssistantVM);
+#endif
             container.ComposeExportedValue(platesolverFactory);
+#if HAS_WPF
             container.ComposeExportedValue(windowServiceFactory);
+#endif
             container.ComposeExportedValue(domeFollower);
             container.ComposeExportedValue(starDetectionSelector);
             container.ComposeExportedValue(starAnnotatorSelector);
@@ -580,16 +604,22 @@ namespace NINA.Plugin {
         private readonly INighttimeCalculator nighttimeCalculator;
         private readonly IPlanetariumFactory planetariumFactory;
         private readonly IImageHistoryVM imageHistoryVM;
+#if HAS_WPF
         private readonly IDeepSkyObjectSearchVM deepSkyObjectSearchVM;
+#endif
         private readonly IDomeMediator domeMediator;
         private readonly IImageSaveMediator imageSaveMediator;
         private readonly ISwitchMediator switchMediator;
         private readonly ISafetyMonitorMediator safetyMonitorMediator;
         private readonly IApplicationResourceDictionary resourceDictionary;
         private readonly IApplicationMediator applicationMediator;
+#if HAS_WPF
         private readonly IFramingAssistantVM framingAssistantVM;
+#endif
         private readonly IPlateSolverFactory platesolverFactory;
+#if HAS_WPF
         private readonly IWindowServiceFactory windowServiceFactory;
+#endif
         private readonly IDomeFollower domeFollower;
         private readonly IPluggableBehaviorSelector<IStarDetection> starDetectionSelector;
         private readonly IPluggableBehaviorSelector<IStarAnnotator> starAnnotatorSelector;
@@ -682,10 +712,12 @@ namespace NINA.Plugin {
                             item.Description += $"{Environment.NewLine}({pluginName})";
                         }
                     }
+#if HAS_WPF
                     if (importItem.Metadata.TryGetValue("Icon", out var iconObj)) {
                         string icon = iconObj.ToString();
                         item.Icon = (System.Windows.Media.GeometryGroup)resourceDictionary[icon];
                     }
+#endif
                     if (importItem.Metadata.TryGetValue("Category", out var categoryObj)) {
                         string category = categoryObj.ToString();
                         item.Category = GrabLabel(category);
@@ -763,8 +795,10 @@ namespace NINA.Plugin {
         [ImportMany(typeof(ISequenceEntityUpgrader))]
         public IEnumerable<Lazy<ISequenceEntityUpgrader, IDictionary<string, object>>> UpgraderImports { get; private set; }
 
+#if HAS_WPF
         [ImportMany(typeof(ResourceDictionary))]
         public IEnumerable<ResourceDictionary> DataTemplateImports { get; private set; }
+#endif
 
         [ImportMany(typeof(IDockableVM))]
         public IEnumerable<IDockableVM> DockableVMImports { get; private set; }

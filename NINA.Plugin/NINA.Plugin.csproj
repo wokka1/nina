@@ -1,10 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net10.0-windows</TargetFramework>
+    <TargetFrameworks>net10.0-windows;net10.0</TargetFrameworks>
     <OutputType>Library</OutputType>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <UseWPF>true</UseWPF>
-    <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
+    <UseWPF Condition="'$(TargetFramework)'=='net10.0-windows'">true</UseWPF>
+    <DefineConstants Condition="'$(TargetFramework)'=='net10.0-windows'">$(DefineConstants);HAS_WPF</DefineConstants>
+    <ImportWindowsDesktopTargets Condition="'$(TargetFramework)'=='net10.0-windows'">true</ImportWindowsDesktopTargets>
     <Configurations>Debug;Release;SignedRelease</Configurations>
     <EnableWindowsTargeting>true</EnableWindowsTargeting>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
