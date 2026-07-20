@@ -206,6 +206,12 @@ namespace NINA.Avalonia {
                                     f.GetRequiredService<IApplicationStatusMediator>(),
                                     f.GetRequiredService<SafetyMonitorChooserVM>()));
 
+            // SequenceItemCatalog gets the DI container's own IServiceProvider injected
+            // automatically (MEDI registers that for free) - it uses it to resolve each
+            // discovered item type's constructor dependencies. See the class doc comment for
+            // the full reasoning on why this exists instead of a real MEF CompositionContainer.
+            services.AddSingleton<SequenceItemCatalog>();
+
             services.AddSingleton<EquipmentViewModel>();
             services.AddSingleton<ImagingViewModel>();
             services.AddSingleton<SequencerViewModel>();

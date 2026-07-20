@@ -425,22 +425,37 @@
                 <!-- Phase 3: a real NINA.Sequencer.Container.SequenceRootContainer
                      (multi-targeted, portable, unchanged from the WPF app's own domain model),
                      hand-populated with a couple of real Annotation items in a nested
-                     SequentialContainer - see SequencerViewModel's doc comment for why it isn't
-                     going through the real MEF item-catalog (SequencerFactory) yet.
+                     SequentialContainer as the starting tree content.
                      Move Up/Down/Remove are bound straight to IDroppable's own real
                      MoveUpCommand/MoveDownCommand/DetachCommand - not new logic, the real app's
-                     existing reorder/remove behavior. Add is new (AddAnnotationCommand), a
-                     proportionate stand-in for the real catalog's full item palette.
-                     Still deferred: per-item-type property editors (dozens of types) and real
-                     drag-and-drop gestures.
+                     existing reorder/remove behavior. The Add dropdown is real too now: it lists
+                     every SequenceItemCatalog.Entries entry, a real reflection-based discovery
+                     of the app's actual [Export(typeof(ISequenceItem))]-tagged types whose
+                     constructor dependencies this app's DI container can already satisfy - see
+                     SequenceItemCatalog's own doc comment for the full design (not a MEF
+                     CompositionContainer, a lighter real bridge to this app's own DI container).
+                     Still deferred: per-item-type property editors (dozens of types, each with
+                     its own settings) and real drag-and-drop gestures.
                      Two DataTemplates, ISequenceContainer listed first: Avalonia picks the first
                      matching template in TreeView.DataTemplates, and containers are-a
                      ISequenceItem too, so order here is what makes containers get their
                      children shown instead of falling through to the leaf-item template. -->
                 <DockPanel Margin="0,12,0,0">
                     <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="6" Margin="0,0,0,8">
-                        <Button Content="Add Annotation" Command="{Binding SequencerVM.AddAnnotationCommand}" />
-                        <Button Content="Add Wait" Command="{Binding SequencerVM.AddWaitCommand}" />
+                        <ComboBox ItemsSource="{Binding SequencerVM.Catalog.Entries}"
+                                  SelectedItem="{Binding SequencerVM.SelectedCatalogEntry}"
+                                  Width="260">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal" Spacing="4">
+                                        <TextBlock Text="{Binding Category}" Opacity="0.6" />
+                                        <TextBlock Text="-" Opacity="0.6" />
+                                        <TextBlock Text="{Binding Name}" />
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+                        <Button Content="Add" Command="{Binding SequencerVM.AddFromCatalogCommand}" />
                         <Button Content="Move Up" Command="{Binding SequencerVM.SelectedItem.MoveUpCommand}" />
                         <Button Content="Move Down" Command="{Binding SequencerVM.SelectedItem.MoveDownCommand}" />
                         <Button Content="Remove" Command="{Binding SequencerVM.SelectedItem.DetachCommand}" />
