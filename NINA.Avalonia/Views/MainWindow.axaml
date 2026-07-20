@@ -605,19 +605,35 @@
                      unchanged NINA.Profile settings objects, using the same generic
                      reflection-based PropertyEditRow built for the Sequencer's property panel
                      (see OptionsViewModel doc comment) rather than one hand-built view per
-                     category (real design work for each of the ~20 real WPF Options sub-views). -->
-                <Grid Margin="12" ColumnDefinitions="220,*">
-                    <ListBox Grid.Column="0" ItemsSource="{Binding OptionsVM.Categories}" SelectedItem="{Binding OptionsVM.SelectedCategory}" />
-                    <ItemsControl Grid.Column="1" Margin="16,0,0,0" ItemsSource="{Binding OptionsVM.SettingsProperties}">
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <Grid ColumnDefinitions="200,*" Margin="0,0,0,6">
-                                    <TextBlock Grid.Column="0" Text="{Binding Name}" FontWeight="SemiBold" VerticalAlignment="Center" />
-                                    <TextBox Grid.Column="1" Text="{Binding Value}" />
-                                </Grid>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
+                     category (real design work for each of the ~20 real WPF Options sub-views).
+                     Profile switcher up top - real IProfileService.SelectProfile(), see
+                     OptionsViewModel's doc comment for the known limitation (already-constructed
+                     equipment VMs don't get re-initialized against the new profile). -->
+                <Grid Margin="12" RowDefinitions="Auto,*">
+                    <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="8" Margin="0,0,0,12">
+                        <TextBlock Text="Profile" FontWeight="SemiBold" VerticalAlignment="Center" />
+                        <ComboBox ItemsSource="{Binding OptionsVM.Profiles}" SelectedItem="{Binding OptionsVM.SelectedProfile}" Width="220">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Name}" />
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+                        <TextBlock Text="{Binding OptionsVM.ProfileStatusMessage}" VerticalAlignment="Center" Opacity="0.7" />
+                    </StackPanel>
+                    <Grid Grid.Row="1" ColumnDefinitions="220,*">
+                        <ListBox Grid.Column="0" ItemsSource="{Binding OptionsVM.Categories}" SelectedItem="{Binding OptionsVM.SelectedCategory}" />
+                        <ItemsControl Grid.Column="1" Margin="16,0,0,0" ItemsSource="{Binding OptionsVM.SettingsProperties}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid ColumnDefinitions="200,*" Margin="0,0,0,6">
+                                        <TextBlock Grid.Column="0" Text="{Binding Name}" FontWeight="SemiBold" VerticalAlignment="Center" />
+                                        <TextBox Grid.Column="1" Text="{Binding Value}" />
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </Grid>
                 </Grid>
             </TabItem>
             <TabItem Header="Plugins">

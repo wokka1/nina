@@ -34,6 +34,9 @@ public partial class MainViewModel : ViewModelBase {
         // ProfileService.TryLoad(null) actually selected at startup, not a placeholder string.
         ActiveProfileName = profileService.ActiveProfile?.Name ?? "(no profile loaded)";
 
+        // Refreshes after a real profile switch (OptionsViewModel's profile picker, Phase 5).
+        profileService.ProfileChanged += (_, _) => ActiveProfileName = profileService.ActiveProfile?.Name ?? "(no profile loaded)";
+
         // Updates every second so the running app visibly proves it's live, not a static screenshot.
         clockTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
         clockTimer.Tick += (_, _) => CurrentTime = DateTime.Now.ToString("T");

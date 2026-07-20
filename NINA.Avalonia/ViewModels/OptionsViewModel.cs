@@ -18,6 +18,16 @@ namespace NINA.Avalonia.ViewModels;
 /// WPF app has ~20 dedicated Options sub-views, real design work for each) - same
 /// proportion-of-effort trade as the Sequencer editor: uniform simple-type editing today over
 /// polished per-category layout.
+///
+/// Also carries the deferred multi-profile picker from the Phase 0 note (real
+/// IProfileService.SelectProfile(), not reimplemented) - deliberately not a modal
+/// blocking-the-startup-thread dialog like the real WPF ProfileSelectVM (DispatcherFrame-based,
+/// no Avalonia equivalent, and not needed here since ProfileService.TryLoad(null) already
+/// handles startup without a picker). Known limitation, not chased: switching profiles here
+/// only affects IProfile-backed reads going forward (this tab, anything that reads
+/// ActiveProfile fresh) - already-constructed equipment VMs/mediators don't get re-initialized
+/// against the new profile's settings, same as the real app would need a restart for in
+/// several similar cases.
 /// </summary>
 public partial class OptionsViewModel : ViewModelBase {
     private readonly IProfileService profileService;
@@ -40,9 +50,31 @@ public partial class OptionsViewModel : ViewModelBase {
                 .Where(p => typeof(ISettings).IsAssignableFrom(p.PropertyType))
                 .Select(p => p.Name)
                 .OrderBy(n => n));
+
+        Profiles = profileService.Profiles;
+        SelectedProfile = profileService.Profiles.FirstOrDefault(p => p.Id == profileService.ActiveProfile.Id);
     }
 
     public ObservableCollection<string> Categories { get; }
+
+    public AsyncObservableCollection<ProfileMeta> Profiles { get; }
+
+    [ObservableProperty]
+    public partial ProfileMeta? SelectedProfile { get; set; }
+
+    [ObservableProperty]
+    public partial string ProfileStatusMessage { get; set; } = string.Empty;
+
+    partial void OnSelectedProfileChanged(ProfileMeta? value) {
+        if (value == null || value.Id == profileService.ActiveProfile.Id) {
+            return;
+        }
+        if (profileService.SelectProfile(value)) {
+            ProfileStatusMessage = $"Switched to profile '{value.Name}'.";
+        } else {
+            ProfileStatusMessage = $"Could not switch to '{value.Name}' - it may be in use elsewhere.";
+        }
+    }
 
     [ObservableProperty]
     public partial string? SelectedCategory { get; set; }
