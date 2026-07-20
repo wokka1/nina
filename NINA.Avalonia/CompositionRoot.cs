@@ -228,6 +228,9 @@ namespace NINA.Avalonia {
             // Phase 4 first slice - constructs its own DatabaseInteraction directly (real,
             // unchanged NINA.Astrometry catalog query code), no equipment/imaging dependencies.
             services.AddSingleton<SkyAtlasViewModel>();
+            // Phase 5 first slice - generic settings editor over IProfile's real, portable
+            // settings categories, reusing the Sequencer's PropertyEditRow.
+            services.AddSingleton<OptionsViewModel>();
             services.AddSingleton<MainViewModel>();
 
             var provider = services.BuildServiceProvider();

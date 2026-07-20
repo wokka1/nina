@@ -601,7 +601,24 @@
                 </StackPanel>
             </TabItem>
             <TabItem Header="Options">
-                <TextBlock Margin="0,12,0,0" Opacity="0.6" Text="Options / Profile management - Phase 5" />
+                <!-- Phase 5 first slice: a real settings editor over the active profile's real,
+                     unchanged NINA.Profile settings objects, using the same generic
+                     reflection-based PropertyEditRow built for the Sequencer's property panel
+                     (see OptionsViewModel doc comment) rather than one hand-built view per
+                     category (real design work for each of the ~20 real WPF Options sub-views). -->
+                <Grid Margin="12" ColumnDefinitions="220,*">
+                    <ListBox Grid.Column="0" ItemsSource="{Binding OptionsVM.Categories}" SelectedItem="{Binding OptionsVM.SelectedCategory}" />
+                    <ItemsControl Grid.Column="1" Margin="16,0,0,0" ItemsSource="{Binding OptionsVM.SettingsProperties}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid ColumnDefinitions="200,*" Margin="0,0,0,6">
+                                    <TextBlock Grid.Column="0" Text="{Binding Name}" FontWeight="SemiBold" VerticalAlignment="Center" />
+                                    <TextBox Grid.Column="1" Text="{Binding Value}" />
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </Grid>
             </TabItem>
             <TabItem Header="Plugins">
                 <TextBlock Margin="0,12,0,0" Opacity="0.6" Text="Plugins - Phase 5" />
