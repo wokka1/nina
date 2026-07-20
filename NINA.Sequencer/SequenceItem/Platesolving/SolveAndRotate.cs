@@ -19,7 +19,9 @@ using NINA.Core.Model;
 using NINA.Core.Model.Equipment;
 using NINA.Core.Utility;
 using NINA.Core.Utility.Notification;
+#if HAS_WPF
 using NINA.Core.Utility.WindowService;
+#endif
 using NINA.Equipment.Interfaces.Mediator;
 using NINA.Equipment.Model;
 using NINA.PlateSolving;
@@ -53,7 +55,9 @@ namespace NINA.Sequencer.SequenceItem.Platesolving {
         protected IFilterWheelMediator filterWheelMediator;
         protected IGuiderMediator guiderMediator;
         protected IPlateSolverFactory plateSolverFactory;
+#if HAS_WPF
         protected IWindowServiceFactory windowServiceFactory;
+#endif
         private IRotatorMediator rotatorMediator;
         public PlateSolvingStatusVM PlateSolveStatusVM { get; } = new PlateSolvingStatusVM();
 
@@ -64,15 +68,20 @@ namespace NINA.Sequencer.SequenceItem.Platesolving {
                                IRotatorMediator rotatorMediator,
                                IFilterWheelMediator filterWheelMediator,
                                IGuiderMediator guiderMediator,
-                               IPlateSolverFactory plateSolverFactory,
-                               IWindowServiceFactory windowServiceFactory) {
+                               IPlateSolverFactory plateSolverFactory
+#if HAS_WPF
+                               , IWindowServiceFactory windowServiceFactory
+#endif
+                               ) {
             this.profileService = profileService;
             this.telescopeMediator = telescopeMediator;
             this.imagingMediator = imagingMediator;
             this.filterWheelMediator = filterWheelMediator;
             this.guiderMediator = guiderMediator;
             this.plateSolverFactory = plateSolverFactory;
+#if HAS_WPF
             this.windowServiceFactory = windowServiceFactory;
+#endif
             this.rotatorMediator = rotatorMediator;
         }
 
@@ -82,8 +91,11 @@ namespace NINA.Sequencer.SequenceItem.Platesolving {
                                                                 cloneMe.rotatorMediator,
                                                                 cloneMe.filterWheelMediator,
                                                                 cloneMe.guiderMediator,
-                                                                cloneMe.plateSolverFactory,
-                                                                cloneMe.windowServiceFactory) {
+                                                                cloneMe.plateSolverFactory
+#if HAS_WPF
+                                                                , cloneMe.windowServiceFactory
+#endif
+                                                                ) {
             CopyMetaData(cloneMe);
         }
 
@@ -113,9 +125,13 @@ namespace NINA.Sequencer.SequenceItem.Platesolving {
 
         public override async Task Execute(IProgress<ApplicationStatus> progress, CancellationToken token) {
             PositionAngleExpression.Evaluate();
+#if HAS_WPF
             var service = windowServiceFactory.Create();
+#endif
             progress = PlateSolveStatusVM.CreateLinkedProgress(progress);
+#if HAS_WPF
             service.Show(PlateSolveStatusVM, Loc.Instance["Lbl_SequenceItem_Platesolving_SolveAndRotate_Name"], System.Windows.ResizeMode.CanResize, System.Windows.WindowStyle.ToolWindow);
+#endif
 
             bool stoppedGuiding = false;
             try {
@@ -184,7 +200,9 @@ namespace NINA.Sequencer.SequenceItem.Platesolving {
                     }
                 }
 
+#if HAS_WPF
                 service.DelayedClose(TimeSpan.FromSeconds(10));
+#endif
             }
         }
 

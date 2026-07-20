@@ -89,7 +89,11 @@ namespace NINA.Sequencer.SequenceItem.Imaging {
             this.Add(loopCondition);
             this.Add(ditherAfterExposures);
 
+#if HAS_WPF
             WeakEventManager<SwitchFilter, PropertyChangedEventArgs>.AddHandler(switchFilter, nameof(switchFilter.PropertyChanged), SwitchFilter_PropertyChanged);
+#else
+            switchFilter.PropertyChanged += SwitchFilter_PropertyChanged;
+#endif
 
             IsExpanded = false;
 

@@ -34,7 +34,9 @@ namespace NINA.Sequencer.SequenceItem.Expressions {
 
         [ImportingConstructor]
         public ResetVariableToDate(IList<IDateTimeProvider> dateTimeProviders) {
+#if HAS_WPF
             Icon = Icon;
+#endif
             Expr = new Expression("", Parent);
             DateTime = new SystemDateTime();
             DateTimeProviders = dateTimeProviders;

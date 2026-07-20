@@ -19,7 +19,9 @@ using System.Windows.Input;
 using NINA.Astrometry;
 using NINA.Astrometry.Interfaces;
 using NINA.Core.Model;
+#if HAS_WPF
 using NINA.Core.Utility.WindowService;
+#endif
 using NINA.Sequencer.Container;
 
 namespace NINA.ViewModel.Interfaces {
@@ -36,7 +38,9 @@ namespace NINA.ViewModel.Interfaces {
         ICommand SaveTargetSetCommand { get; }
         ICommand BuildSequenceCommand { get; }
         ISimpleDSOContainer SelectedTarget { get; set; }
+#if HAS_WPF
         IWindowServiceFactory WindowServiceFactory { get; set; }
+#endif
         NINA.Sequencer.ISequencer Sequencer { get; }
 
         Task Initialize();

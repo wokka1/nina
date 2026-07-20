@@ -31,8 +31,10 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+#if HAS_WPF
 using System.Windows;
 using System.Windows.Data;
+#endif
 
 namespace NINA.Sequencer {
 
@@ -60,6 +62,7 @@ namespace NINA.Sequencer {
             Container = new ObservableCollection<ISequenceContainer>(container);
             Upgraders = new ObservableCollection<ISequenceEntityUpgrader>(upgraders);
 
+#if HAS_WPF
             var entityOptions = new PluginOptionsAccessor(profileService, Guid.Parse("E7C2BE8E-479B-4DBA-A0B0-D513B77F9A54"));
             var allEntities = new List<SidebarEntity>();
             var sidebarItems = new List<SidebarEntity>();
@@ -105,6 +108,7 @@ namespace NINA.Sequencer {
             ItemsView = CollectionViewSource.GetDefaultView(allEntities);
 
             profileService.ProfileChanged += ProfileService_ProfileChanged;
+#endif
         }
 
         private void ProfileService_ProfileChanged(object sender, EventArgs e) {
@@ -126,7 +130,9 @@ namespace NINA.Sequencer {
             get => viewFilter;
             set {
                 viewFilter = value;
+#if HAS_WPF
                 ItemsView.Refresh();
+#endif
             }
         }
         private bool settingsMode;
@@ -135,17 +141,21 @@ namespace NINA.Sequencer {
             set {
                 settingsMode = value;
                 RaisePropertyChanged();
+#if HAS_WPF
                 ItemsView.Refresh();
                 InstructionsView.Refresh();
                 ConditionsView.Refresh();
                 TriggersView.Refresh();
+#endif
             }
         }
 
+#if HAS_WPF
         public ICollectionView ItemsView { get; }
         public ICollectionView InstructionsView { get; }
         public ICollectionView ConditionsView { get; }
         public ICollectionView TriggersView { get; }
+#endif
 
         public T GetContainer<T>() where T : ISequenceContainer {
             return (T)(Container.FirstOrDefault(x => x.GetType() == typeof(T))?.Clone() ?? default(T));

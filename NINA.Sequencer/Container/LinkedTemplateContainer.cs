@@ -34,7 +34,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+#if HAS_WPF
 using System.Windows.Media;
+#endif
 
 namespace NINA.Sequencer.Container {
 
@@ -65,7 +67,9 @@ namespace NINA.Sequencer.Container {
             Name = Loc.Instance["Lbl_SequenceContainer_LinkedTemplateContainer_Name"];
             Description = Loc.Instance["Lbl_SequenceContainer_LinkedTemplateContainer_Description"];
             Category = Loc.Instance["Lbl_SequenceCategory_Container"];
+#if HAS_WPF
             Icon = TryGetDefaultIcon();
+#endif
             BeginEditTemplateCommand = new GalaSoft.MvvmLight.Command.RelayCommand(BeginEditTemplate, () => CanEditTemplate && !IsEditing);
             CancelEditTemplateCommand = new GalaSoft.MvvmLight.Command.RelayCommand(CancelEditTemplate, () => IsEditing);
             SaveTemplateCommand = new AsyncCommand<bool>(SaveTemplate, (object o) => CanSaveTemplate);
@@ -110,7 +114,9 @@ namespace NINA.Sequencer.Container {
                 RaisePropertyChanged(nameof(LinkStatusText));
                 RaisePropertyChanged(nameof(CanEditTemplate));
                 RaisePropertyChanged(nameof(CanSaveTemplate));
+#if HAS_WPF
                 CommandManager.InvalidateRequerySuggested();
+#endif
             }
         }
 
@@ -123,7 +129,9 @@ namespace NINA.Sequencer.Container {
                 RaisePropertyChanged(nameof(HeaderText));
                 RaisePropertyChanged(nameof(CanEditTemplate));
                 RaisePropertyChanged(nameof(CanSaveTemplate));
+#if HAS_WPF
                 CommandManager.InvalidateRequerySuggested();
+#endif
             }
         }
 
@@ -199,6 +207,7 @@ namespace NINA.Sequencer.Container {
 
         public bool CanAcceptSequenceItemPlacement => false;
 
+#if HAS_WPF
         private static GeometryGroup TryGetDefaultIcon() {
             Application application = Application.Current;
             if (application?.Dispatcher.CheckAccess() == true && application.Resources.Contains(LinkedTemplateIconResourceKey)) {
@@ -207,6 +216,7 @@ namespace NINA.Sequencer.Container {
 
             return null;
         }
+#endif
 
         private void UpdateReferenceFromTemplate(TemplatedSequenceContainer template) {
             TemplateReference = template.Reference?.Clone() ?? TemplateReference;
@@ -314,7 +324,9 @@ namespace NINA.Sequencer.Container {
 
         public override object Clone() {
             LinkedTemplateContainer clone = new LinkedTemplateContainer(templateLinkResolver) {
+#if HAS_WPF
                 Icon = Icon,
+#endif
                 Name = Name,
                 Category = Category,
                 Description = Description,
@@ -487,13 +499,21 @@ namespace NINA.Sequencer.Container {
 
         private void ObserveMaterializedTarget(IDeepSkyObjectContainer deepSkyObjectContainer) {
             if (observedMaterializedTarget != null) {
+#if HAS_WPF
                 WeakEventManager<InputTarget, EventArgs>.RemoveHandler(observedMaterializedTarget, nameof(InputTarget.CoordinatesChanged), MaterializedTarget_OnCoordinatesChanged);
+#else
+                observedMaterializedTarget.CoordinatesChanged -= MaterializedTarget_OnCoordinatesChanged;
+#endif
                 observedMaterializedTarget = null;
             }
 
             observedMaterializedTarget = deepSkyObjectContainer?.Target;
             if (observedMaterializedTarget != null) {
+#if HAS_WPF
                 WeakEventManager<InputTarget, EventArgs>.AddHandler(observedMaterializedTarget, nameof(InputTarget.CoordinatesChanged), MaterializedTarget_OnCoordinatesChanged);
+#else
+                observedMaterializedTarget.CoordinatesChanged += MaterializedTarget_OnCoordinatesChanged;
+#endif
             }
         }
 

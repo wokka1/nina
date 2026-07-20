@@ -22,8 +22,10 @@ using System.Text;
 using System.Text.RegularExpressions;
 using NINA.Core.Utility;
 using System.Diagnostics;
+#if HAS_WPF
 using System.Windows.Controls;
 using System.Windows.Data;
+#endif
 using System.Collections.Concurrent;
 using NINA.Core.Utility.Notification;
 using NINA.Sequencer.SequenceItem.Expressions;
@@ -59,14 +61,18 @@ namespace NINA.Sequencer.Logic {
         [ImportingConstructor]
         public UserSymbol() {
             Name = Name;
+#if HAS_WPF
             Icon = Icon;
+#endif
         }
 
         public UserSymbol(UserSymbol copyMe) : this() {
             if (copyMe != null) {
                 CopyMetaData(copyMe);
                 Name = copyMe.Name;
+#if HAS_WPF
                 Icon = copyMe.Icon;
+#endif
                 Identifier = copyMe.Identifier;
                 if (copyMe.Expr != null) {
                     Expr = new Expression(copyMe.Expr.Definition, this);
@@ -167,7 +173,11 @@ namespace NINA.Sequencer.Logic {
                 dict[id] = this;
                 return id;
             }
+#if HAS_WPF
             Notification.ShowWarning(Loc.Instance["LblConstantVariable"] + " " + id + " " + Loc.Instance["LblAlreadyDefined"], TimeSpan.FromSeconds(5));
+#else
+            Notification.ShowWarning(Loc.Instance["LblConstantVariable"] + " " + id + " " + Loc.Instance["LblAlreadyDefined"]);
+#endif
             return "";
         }
 
@@ -273,6 +283,7 @@ namespace NINA.Sequencer.Logic {
                 ", " + label + "Consumers=" + sym.Consumers.Count;
         }
 
+#if HAS_WPF
         public static void ShowSymbols(object sender) {
             TextBox tb = (TextBox)sender;
             BindingExpression be = tb.GetBindingExpression(TextBox.TextProperty);
@@ -338,6 +349,7 @@ namespace NINA.Sequencer.Logic {
 
             tb.ToolTip = sb.ToString();
         }
+#endif
 
         public static void SymbolDirty(UserSymbol sym) {
             if (Debugging) {

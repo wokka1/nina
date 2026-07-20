@@ -21,7 +21,9 @@ namespace NINA.Sequencer.Utility {
             var attributes = entity.GetType().GetCustomAttributes(false).OfType<ExportMetadataAttribute>();
             entity.Description = GrabLabel(attributes.FirstOrDefault(x => x.Name == "Description")?.Value?.ToString() ?? "");
             entity.Category = GrabLabel(attributes.FirstOrDefault(x => x.Name == "Category")?.Value?.ToString() ?? "");
+#if HAS_WPF
             entity.Icon = (System.Windows.Media.GeometryGroup)resourceDictionary[(attributes.FirstOrDefault(x => x.Name == "Icon")?.Value?.ToString() ?? "")];
+#endif
             return entity;
         }
         public static ISequenceItem AddMetaData(this ISequenceItem entity, IApplicationResourceDictionary resourceDictionary) {
@@ -29,7 +31,9 @@ namespace NINA.Sequencer.Utility {
             entity.Name = GrabLabel(attributes.FirstOrDefault(x => x.Name == "Name")?.Value?.ToString() ?? "");
             entity.Description = GrabLabel(attributes.FirstOrDefault(x => x.Name == "Description")?.Value?.ToString() ?? "");
             entity.Category = GrabLabel(attributes.FirstOrDefault(x => x.Name == "Category")?.Value?.ToString() ?? "");
+#if HAS_WPF
             entity.Icon = (System.Windows.Media.GeometryGroup)resourceDictionary[(attributes.FirstOrDefault(x => x.Name == "Icon")?.Value?.ToString() ?? "")];
+#endif
             return entity;
         }
         public static ISequenceCondition AddMetaData(this ISequenceCondition entity, IApplicationResourceDictionary resourceDictionary) {
@@ -37,7 +41,9 @@ namespace NINA.Sequencer.Utility {
             entity.Name = GrabLabel(attributes.FirstOrDefault(x => x.Name == "Name")?.Value?.ToString() ?? "");
             entity.Description = GrabLabel(attributes.FirstOrDefault(x => x.Name == "Description")?.Value?.ToString() ?? "");
             entity.Category = GrabLabel(attributes.FirstOrDefault(x => x.Name == "Category")?.Value?.ToString() ?? "");
+#if HAS_WPF
             entity.Icon = (System.Windows.Media.GeometryGroup)resourceDictionary[(attributes.FirstOrDefault(x => x.Name == "Icon")?.Value?.ToString() ?? "")];
+#endif
             return entity;
         }
         public static ISequenceTrigger AddMetaData(this ISequenceTrigger entity, IApplicationResourceDictionary resourceDictionary) {
@@ -45,7 +51,9 @@ namespace NINA.Sequencer.Utility {
             entity.Name = GrabLabel(attributes.FirstOrDefault(x => x.Name == "Name")?.Value?.ToString() ?? "");
             entity.Description = GrabLabel(attributes.FirstOrDefault(x => x.Name == "Description")?.Value?.ToString() ?? "");
             entity.Category = GrabLabel(attributes.FirstOrDefault(x => x.Name == "Category")?.Value?.ToString() ?? "");
+#if HAS_WPF
             entity.Icon = (System.Windows.Media.GeometryGroup)resourceDictionary[(attributes.FirstOrDefault(x => x.Name == "Icon")?.Value?.ToString() ?? "")];
+#endif
             return entity;
         }
         private static string GrabLabel(string label) {

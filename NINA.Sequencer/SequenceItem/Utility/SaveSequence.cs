@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using Newtonsoft.Json;
 using NINA.Core.Locale;
 using NINA.Core.Model;
+using NINA.Core.Utility;
 using NINA.Sequencer.Interfaces.Mediator;
 using NINA.Sequencer.Utility;
 using NINA.Sequencer.Validations;
@@ -64,6 +65,7 @@ namespace NINA.Sequencer.SequenceItem.Utility {
 
         [RelayCommand]
         private void OpenDialog() {
+#if HAS_WPF
             Microsoft.Win32.SaveFileDialog dialog = new Microsoft.Win32.SaveFileDialog();
             dialog.Title = Loc.Instance["Lbl_SequenceItem_Utility_SaveSequence_Name"];
             dialog.FileName = "";
@@ -73,6 +75,10 @@ namespace NINA.Sequencer.SequenceItem.Utility {
             if (dialog.ShowDialog() == true) {
                 FilePath = dialog.FileName;
             }
+#else
+            // No portable file-picker host yet; browsing for a save path is Phase 3 UI territory.
+            Logger.Info("SaveSequence OpenDialog invoked (no portable file picker available)");
+#endif
         }
 
         public override string ToString() {

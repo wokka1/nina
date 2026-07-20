@@ -20,7 +20,9 @@ using NINA.Sequencer.Utility.DateTimeProvider;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+#if HAS_WPF
 using System.Windows;
+#endif
 
 namespace NINA.Sequencer {
 
@@ -28,10 +30,12 @@ namespace NINA.Sequencer {
         IList<ISequenceCondition> Conditions { get; }
         IList<ISequenceContainer> Container { get; }
         IList<ISequenceItem> Items { get; }
+#if HAS_WPF
         ICollectionView ItemsView { get; }
         ICollectionView InstructionsView { get; }
         ICollectionView ConditionsView { get; }
         ICollectionView TriggersView { get; }
+#endif
         IList<ISequenceTrigger> Triggers { get; }
         IList<IDateTimeProvider> DateTimeProviders { get; }
         IList<ISequenceEntityUpgrader> Upgraders { get; }

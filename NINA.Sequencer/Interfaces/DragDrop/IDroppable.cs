@@ -43,7 +43,9 @@ namespace NINA.Sequencer.DragDrop {
         void MoveDown();
     }
 
+#if HAS_WPF
     public interface IDroppableSourceProvider {
         IDroppable GetDropSource(ModifierKeys modifiers);
     }
+#endif
 }

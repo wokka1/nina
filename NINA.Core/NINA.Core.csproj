@@ -109,7 +109,6 @@
     <Compile Remove="Utility\DataPipes.cs" />
     <Compile Remove="Utility\DeferredContent.cs" />
     <Compile Remove="Utility\DialogCloser.cs" />
-    <Compile Remove="Utility\EnumBindingSourceExtension.cs" />
     <Compile Remove="Utility\Extensions\WPFExtensions.cs" />
     <Compile Remove="Utility\InvokeProcess.cs" />
     <Compile Remove="Utility\Notification\CustomNotification.cs" />

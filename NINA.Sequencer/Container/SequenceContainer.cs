@@ -32,8 +32,10 @@ using System.Runtime.Serialization;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+#if HAS_WPF
 using System.Windows;
 using System.Windows.Data;
+#endif
 using System.Windows.Input;
 using System.Diagnostics;
 

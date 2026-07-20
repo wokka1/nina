@@ -48,7 +48,9 @@ using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+#if HAS_WPF
 using System.Windows.Documents;
+#endif
 using System.Windows.Input;
 using static NINA.Sequencer.Logic.Symbol;
 

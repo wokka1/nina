@@ -21,7 +21,9 @@ using NINA.Sequencer.Utility;
 using NINA.Sequencer.Validations;
 using NINA.Astrometry;
 using NINA.Equipment.Interfaces.Mediator;
+#if HAS_WPF
 using NINA.Core.Utility.WindowService;
+#endif
 using NINA.ViewModel;
 using System;
 using System.Collections.Generic;
@@ -59,7 +61,9 @@ namespace NINA.Sequencer.SequenceItem.Platesolving {
         protected IDomeMediator domeMediator;
         protected IDomeFollower domeFollower;
         protected IPlateSolverFactory plateSolverFactory;
+#if HAS_WPF
         protected IWindowServiceFactory windowServiceFactory;
+#endif
         public PlateSolvingStatusVM PlateSolveStatusVM { get; } = new PlateSolvingStatusVM();
 
         [ImportingConstructor]
@@ -70,8 +74,11 @@ namespace NINA.Sequencer.SequenceItem.Platesolving {
                       IGuiderMediator guiderMediator,
                       IDomeMediator domeMediator,
                       IDomeFollower domeFollower,
-                      IPlateSolverFactory plateSolverFactory,
-                      IWindowServiceFactory windowServiceFactory) :base() {
+                      IPlateSolverFactory plateSolverFactory
+#if HAS_WPF
+                      , IWindowServiceFactory windowServiceFactory
+#endif
+                      ) :base() {
             this.profileService = profileService;
             this.telescopeMediator = telescopeMediator;
             this.imagingMediator = imagingMediator;
@@ -80,7 +87,9 @@ namespace NINA.Sequencer.SequenceItem.Platesolving {
             this.domeMediator = domeMediator;
             this.domeFollower = domeFollower;
             this.plateSolverFactory = plateSolverFactory;
+#if HAS_WPF
             this.windowServiceFactory = windowServiceFactory;
+#endif
             Coordinates = new InputCoordinates();
         }
 
@@ -91,8 +100,11 @@ namespace NINA.Sequencer.SequenceItem.Platesolving {
                                               cloneMe.guiderMediator,
                                               cloneMe.domeMediator,
                                               cloneMe.domeFollower,
-                                              cloneMe.plateSolverFactory,
-                                              cloneMe.windowServiceFactory) {
+                                              cloneMe.plateSolverFactory
+#if HAS_WPF
+                                              , cloneMe.windowServiceFactory
+#endif
+                                              ) {
             CopyMetaData(cloneMe);
         }
 
@@ -164,9 +176,13 @@ namespace NINA.Sequencer.SequenceItem.Platesolving {
         }
 
         public override async Task Execute(IProgress<ApplicationStatus> progress, CancellationToken token) {
+#if HAS_WPF
             var service = windowServiceFactory.Create();
+#endif
             progress = PlateSolveStatusVM.CreateLinkedProgress(progress);
+#if HAS_WPF
             service.Show(PlateSolveStatusVM, Loc.Instance["Lbl_SequenceItem_Platesolving_Center_Name"], System.Windows.ResizeMode.CanResize, System.Windows.WindowStyle.ToolWindow);
+#endif
             try {
                 var stoppedGuiding = await guiderMediator.StopGuiding(token);
                 var result = await DoCenter(progress, token);
@@ -177,7 +193,9 @@ namespace NINA.Sequencer.SequenceItem.Platesolving {
                     throw new SequenceEntityFailedException(Loc.Instance["LblPlatesolveFailed"]);
                 }
             } finally {
+#if HAS_WPF
                 service.DelayedClose(TimeSpan.FromSeconds(10));
+#endif
             }
         }
 

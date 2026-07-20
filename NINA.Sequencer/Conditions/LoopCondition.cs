@@ -21,7 +21,9 @@ using System.ComponentModel.Composition;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+#if HAS_WPF
 using System.Windows.Media;
+#endif
 using NINA.Sequencer.Generators;
 using NINA.Sequencer.Validations;
 using NINA.Sequencer.Logic;

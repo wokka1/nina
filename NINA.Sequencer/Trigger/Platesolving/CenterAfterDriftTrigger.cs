@@ -20,7 +20,9 @@ using NINA.Core.Locale;
 using NINA.Core.Model;
 using NINA.Core.Utility;
 using NINA.Core.Utility.Notification;
+#if HAS_WPF
 using NINA.Core.Utility.WindowService;
+#endif
 using NINA.Equipment.Interfaces;
 using NINA.Equipment.Interfaces.Mediator;
 using NINA.Image.Interfaces;
@@ -149,8 +151,12 @@ namespace NINA.Sequencer.Trigger.Platesolving {
         }
 
         public override async Task Execute(ISequenceContainer context, IProgress<ApplicationStatus> progress, CancellationToken token) {
-            var centerSequenceItem = new Center(profileService, telescopeMediator, imagingMediator, filterWheelMediator, guiderMediator, 
-                domeMediator, domeFollower, new PlateSolverFactoryProxy(), new WindowServiceFactory()) {
+            var centerSequenceItem = new Center(profileService, telescopeMediator, imagingMediator, filterWheelMediator, guiderMediator,
+                domeMediator, domeFollower, new PlateSolverFactoryProxy()
+#if HAS_WPF
+                , new WindowServiceFactory()
+#endif
+                ) {
                 Coordinates = Coordinates
             };
             await centerSequenceItem.Execute(progress, token);

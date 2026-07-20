@@ -43,7 +43,9 @@ namespace NINA.Sequencer.Container {
 
         public override object Clone() {
             var clone = new SequentialContainer() {
+#if HAS_WPF
                 Icon = Icon,
+#endif
                 Name = Name,
                 Category = Category,
                 Description = Description,

@@ -181,12 +181,17 @@ namespace NINA.Sequencer.Trigger.SafetyMonitor {
         }
 
         private async Task ConfigureTriggerRunner() {
+#if HAS_WPF
             var dispatcher = System.Windows.Application.Current?.Dispatcher;
             if (dispatcher != null && !dispatcher.CheckAccess()) {
                 await dispatcher.InvokeAsync(ConfigureTriggerRunnerCore, System.Windows.Threading.DispatcherPriority.Normal);
             } else {
                 ConfigureTriggerRunnerCore();
             }
+#else
+            ConfigureTriggerRunnerCore();
+            await Task.CompletedTask;
+#endif
         }
 
         private void ConfigureTriggerRunnerCore() {

@@ -16,7 +16,9 @@ using NINA.Core.Enum;
 using NINA.Sequencer.DragDrop;
 using NINA.Sequencer.Logic;
 using System;
+#if HAS_WPF
 using System.Windows.Media;
+#endif
 
 namespace NINA.Sequencer {
 
@@ -28,7 +30,9 @@ namespace NINA.Sequencer {
         /// </summary>
         string Description { get; set; }
 
+#if HAS_WPF
         GeometryGroup Icon { get; set; }
+#endif
         string Category { get; set; }
 
         ISymbolBroker SymbolBroker { get; set; }

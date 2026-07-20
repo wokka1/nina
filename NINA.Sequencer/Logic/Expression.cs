@@ -11,7 +11,9 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text;
+#if HAS_WPF
 using System.Windows.Media;
+#endif
 using static NINA.Sequencer.Logic.UserSymbol;
 
 namespace NINA.Sequencer.Logic {
@@ -248,7 +250,9 @@ namespace NINA.Sequencer.Logic {
                     RaisePropertyChanged(nameof(IsAnnotated));
                     RaisePropertyChanged(nameof(Error));
                     RaisePropertyChanged(nameof(StringValue));
+#if HAS_WPF
                     RaisePropertyChanged(nameof(InfoButtonColor));
+#endif
                 }
             }
         }
@@ -277,6 +281,7 @@ namespace NINA.Sequencer.Logic {
         } = false;
         public bool GlobalVolatile { get; set; } = false;
         public bool HasError => !string.IsNullOrEmpty(Error);
+#if HAS_WPF
         public SolidColorBrush InfoButtonColor {
             get {
                 if (Error == null) return new SolidColorBrush(Colors.White);
@@ -285,6 +290,7 @@ namespace NINA.Sequencer.Logic {
                     new SolidColorBrush(Colors.Red);
             }
         }
+#endif
 
         public bool IsAnnotated {
             get => IsExpression || ForceAnnotated || Error != null;

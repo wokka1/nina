@@ -15,7 +15,9 @@
 using Newtonsoft.Json;
 using NINA.Core.Locale;
 using NINA.Core.Model;
+#if HAS_WPF
 using NINA.Core.MyMessageBox;
+#endif
 using NINA.Core.Utility;
 using NINA.Profile;
 using NINA.Profile.Interfaces;
@@ -27,7 +29,9 @@ using System.ComponentModel;
 using System.ComponentModel.Composition;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
+#if HAS_WPF
 using System.Windows;
+#endif
 
 namespace NINA.Sequencer {
 

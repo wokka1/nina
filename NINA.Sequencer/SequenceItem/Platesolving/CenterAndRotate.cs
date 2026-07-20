@@ -22,7 +22,9 @@ using NINA.Sequencer.Validations;
 using NINA.Core.Utility;
 using NINA.Astrometry;
 using NINA.Equipment.Interfaces.Mediator;
+#if HAS_WPF
 using NINA.Core.Utility.WindowService;
+#endif
 using NINA.ViewModel;
 using System;
 using System.Collections.Generic;
@@ -60,16 +62,22 @@ namespace NINA.Sequencer.SequenceItem.Platesolving {
                                IGuiderMediator guiderMediator,
                                IDomeMediator domeMediator,
                                IDomeFollower domeFollower,
-                               IPlateSolverFactory plateSolverFactory,
-                               IWindowServiceFactory windowServiceFactory) : base(profileService,
+                               IPlateSolverFactory plateSolverFactory
+#if HAS_WPF
+                               , IWindowServiceFactory windowServiceFactory
+#endif
+                               ) : base(profileService,
                                                                         telescopeMediator,
                                                                         imagingMediator,
                                                                         filterWheelMediator,
                                                                         guiderMediator,
                                                                         domeMediator,
                                                                         domeFollower,
-                                                                        plateSolverFactory,
-                                                                        windowServiceFactory) {
+                                                                        plateSolverFactory
+#if HAS_WPF
+                                                                        , windowServiceFactory
+#endif
+                                                                        ) {
             this.rotatorMediator = rotatorMediator;
             this.UsesRotation = true;
         }
@@ -82,8 +90,11 @@ namespace NINA.Sequencer.SequenceItem.Platesolving {
                                                                 cloneMe.guiderMediator,
                                                                 cloneMe.domeMediator,
                                                                 cloneMe.domeFollower,
-                                                                cloneMe.plateSolverFactory,
-                                                                cloneMe.windowServiceFactory) {
+                                                                cloneMe.plateSolverFactory
+#if HAS_WPF
+                                                                , cloneMe.windowServiceFactory
+#endif
+                                                                ) {
             CopyMetaData(cloneMe);
         }
 
@@ -107,9 +118,13 @@ namespace NINA.Sequencer.SequenceItem.Platesolving {
                 Notification.ShowError(Loc.Instance["LblTelescopeParkedWarning"]);
                 throw new SequenceEntityFailedException(Loc.Instance["LblTelescopeParkedWarning"]);
             }
+#if HAS_WPF
             var service = windowServiceFactory.Create();
+#endif
             progress = PlateSolveStatusVM.CreateLinkedProgress(progress);
+#if HAS_WPF
             service.Show(PlateSolveStatusVM, Loc.Instance["Lbl_SequenceItem_Platesolving_CenterAndRotate_Name"], System.Windows.ResizeMode.CanResize, System.Windows.WindowStyle.ToolWindow);
+#endif
 
             bool stoppedGuiding = false;
             try {
@@ -200,7 +215,9 @@ namespace NINA.Sequencer.SequenceItem.Platesolving {
                     }
                 }
 
+#if HAS_WPF
                 service.DelayedClose(TimeSpan.FromSeconds(10));
+#endif
             }
         }
 

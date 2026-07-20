@@ -17,7 +17,9 @@ using NINA.Core.Model;
 using NINA.Profile.Interfaces;
 using NINA.Sequencer.Validations;
 using NINA.Equipment.Interfaces.Mediator;
+#if HAS_WPF
 using NINA.Core.Utility.WindowService;
+#endif
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
@@ -74,12 +76,16 @@ namespace NINA.Sequencer.SequenceItem.Autofocus {
             }
         }
 
+#if HAS_WPF
         public IWindowServiceFactory WindowServiceFactory { get; set; } = new WindowServiceFactory();
+#endif
 
         public override async Task Execute(IProgress<ApplicationStatus> progress, CancellationToken token) {
             var autoFocus = this.autoFocusVMFactory.Create();
+#if HAS_WPF
             var service = WindowServiceFactory.Create();
             service.Show(autoFocus, Loc.Instance["LblAutoFocus"], System.Windows.ResizeMode.CanResize, System.Windows.WindowStyle.ToolWindow);
+#endif
             try {
                 FilterInfo filter = null;
                 var selectedFilter = filterWheelMediator.GetInfo()?.SelectedFilter;
@@ -96,7 +102,9 @@ namespace NINA.Sequencer.SequenceItem.Autofocus {
                     history.AppendAutoFocusPoint(report);
                 }
             } finally {
+#if HAS_WPF
                 service.DelayedClose(TimeSpan.FromSeconds(10));
+#endif
             }
         }
 

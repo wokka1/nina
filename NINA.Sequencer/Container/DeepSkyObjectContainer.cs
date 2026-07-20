@@ -56,7 +56,9 @@ namespace NINA.Sequencer.Container {
     [JsonObject(MemberSerialization.OptIn)]
     public class DeepSkyObjectContainer : SequenceContainer, IDeepSkyObjectContainer {
         private readonly IProfileService profileService;
+#if HAS_WPF
         private readonly IFramingAssistantVM framingAssistantVM;
+#endif
         private readonly IPlanetariumFactory planetariumFactory;
         private readonly ICameraMediator cameraMediator;
         private readonly IFilterWheelMediator filterWheelMediator;
@@ -72,7 +74,9 @@ namespace NINA.Sequencer.Container {
         public DeepSkyObjectContainer(
                 IProfileService profileService,
                 INighttimeCalculator nighttimeCalculator,
+#if HAS_WPF
                 IFramingAssistantVM framingAssistantVM,
+#endif
                 IApplicationMediator applicationMediator,
                 IPlanetariumFactory planetariumFactory,
                 ICameraMediator cameraMediator,
@@ -81,7 +85,9 @@ namespace NINA.Sequencer.Container {
             this.profileService = profileService;
             this.nighttimeCalculator = nighttimeCalculator;
             this.applicationMediator = applicationMediator;
+#if HAS_WPF
             this.framingAssistantVM = framingAssistantVM;
+#endif
             this.planetariumFactory = planetariumFactory;
             this.cameraMediator = cameraMediator;
             this.filterWheelMediator = filterWheelMediator;
@@ -94,9 +100,15 @@ namespace NINA.Sequencer.Container {
             DropTargetCommand = new GalaSoft.MvvmLight.Command.RelayCommand<object>(DropTarget);
             DeleteExposureInfoCommand = new GalaSoft.MvvmLight.Command.RelayCommand<ExposureInfo>(DeleteExposureInfo);
 
+#if HAS_WPF
             WeakEventManager<IProfileService, EventArgs>.AddHandler(profileService, nameof(profileService.LocationChanged), ProfileService_LocationChanged);
             WeakEventManager<IProfileService, EventArgs>.AddHandler(profileService, nameof(profileService.HorizonChanged), ProfileService_HorizonChanged);
             WeakEventManager<INighttimeCalculator, EventArgs>.AddHandler(nighttimeCalculator, nameof(nighttimeCalculator.OnReferenceDayChanged), NighttimeCalculator_OnReferenceDayChanged);
+#else
+            profileService.LocationChanged += ProfileService_LocationChanged;
+            profileService.HorizonChanged += ProfileService_HorizonChanged;
+            nighttimeCalculator.OnReferenceDayChanged += NighttimeCalculator_OnReferenceDayChanged;
+#endif
         }
 
         private void SendCoordinatesToFraming() {
@@ -152,11 +164,19 @@ namespace NINA.Sequencer.Container {
             set {
                 if (ReferenceEquals(target, value)) return;
                 if (target != null) {
+#if HAS_WPF
                     WeakEventManager<InputTarget, EventArgs>.RemoveHandler(target, nameof(InputTarget.CoordinatesChanged), Target_OnCoordinatesChanged);
+#else
+                    target.CoordinatesChanged -= Target_OnCoordinatesChanged;
+#endif
                 }
                 target = value;
                 if (target != null) {
+#if HAS_WPF
                     WeakEventManager<InputTarget, EventArgs>.AddHandler(target, nameof(InputTarget.CoordinatesChanged), Target_OnCoordinatesChanged);
+#else
+                    target.CoordinatesChanged += Target_OnCoordinatesChanged;
+#endif
                 }
                 RaisePropertyChanged();
             }
@@ -182,8 +202,14 @@ namespace NINA.Sequencer.Container {
         }
 
         public override object Clone() {
-            var clone = new DeepSkyObjectContainer(profileService, nighttimeCalculator, framingAssistantVM, applicationMediator, planetariumFactory, cameraMediator, filterWheelMediator, symbolBroker) {
+            var clone = new DeepSkyObjectContainer(profileService, nighttimeCalculator,
+#if HAS_WPF
+                framingAssistantVM,
+#endif
+                applicationMediator, planetariumFactory, cameraMediator, filterWheelMediator, symbolBroker) {
+#if HAS_WPF
                 Icon = Icon,
+#endif
                 Name = Name,
                 Category = Category,
                 Description = Description,
@@ -224,7 +250,11 @@ namespace NINA.Sequencer.Container {
                 var dso = new DeepSkyObject(Target.DeepSkyObject.Name, Target.DeepSkyObject.Coordinates, profileService.ActiveProfile.AstrometrySettings.Horizon);
                 dso.RotationPositionAngle = Target.PositionAngle;
                 applicationMediator.ChangeTab(ApplicationTab.FRAMINGASSISTANT);
+#if HAS_WPF
                 return await framingAssistantVM.SetCoordinates(dso);
+#else
+                return await Task.FromResult(false);
+#endif
             }
             return false;
         }

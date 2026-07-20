@@ -22,13 +22,17 @@ namespace NINA.Sequencer.SequenceItem.Expressions {
         [ImportingConstructor]
         public Variable() : base() {
             Name = Name;
+#if HAS_WPF
             Icon = Icon;
+#endif
         }
         public Variable(Variable copyMe) : base(copyMe) {
             if (copyMe != null) {
                 CopyMetaData(copyMe);
                 Name = copyMe.Name;
+#if HAS_WPF
                 Icon = copyMe.Icon;
+#endif
             }
         }
 

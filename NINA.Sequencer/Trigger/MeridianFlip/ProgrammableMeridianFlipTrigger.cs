@@ -19,7 +19,9 @@ using NINA.Core.Locale;
 using NINA.Core.Model;
 using NINA.Core.Utility;
 using NINA.Core.Utility.Notification;
+#if HAS_WPF
 using NINA.Core.Utility.WindowService;
+#endif
 using NINA.Equipment.Interfaces;
 using NINA.Equipment.Interfaces.Mediator;
 using NINA.PlateSolving.Interfaces;
@@ -70,7 +72,9 @@ namespace NINA.Sequencer.Trigger.MeridianFlip {
         private readonly IImageHistoryVM history;
         private readonly IAutoFocusVMFactory autoFocusVMFactory;
         private readonly IPlateSolverFactory plateSolverFactory;
+#if HAS_WPF
         private readonly IWindowServiceFactory windowServiceFactory;
+#endif
         private bool isExpanded = true;
         private bool shouldSeedDefaults = true;
         private ProgrammableMeridianFlipStage activeStage = ProgrammableMeridianFlipStage.None;
@@ -93,7 +97,9 @@ namespace NINA.Sequencer.Trigger.MeridianFlip {
             IImageHistoryVM history,
             IAutoFocusVMFactory autoFocusVMFactory,
             IPlateSolverFactory plateSolverFactory,
+#if HAS_WPF
             IWindowServiceFactory windowServiceFactory,
+#endif
             IApplicationResourceDictionary resourceDictionary)
             : base(profileService, cameraMediator, telescopeMediator, focuserMediator, applicationStatusMediator, meridianFlipVMFactory, safetyMonitorMediator) {
             this.guiderMediator = guiderMediator;
@@ -104,7 +110,9 @@ namespace NINA.Sequencer.Trigger.MeridianFlip {
             this.history = history;
             this.autoFocusVMFactory = autoFocusVMFactory;
             this.plateSolverFactory = plateSolverFactory;
+#if HAS_WPF
             this.windowServiceFactory = windowServiceFactory;
+#endif
             this.resourceDictionary = resourceDictionary;
 
             BeforeFlipActions = CreateActionContainer("Lbl_SequenceTrigger_ProgrammableMeridianFlipTrigger_BeforeFlipActions_Description");
@@ -128,7 +136,9 @@ namespace NINA.Sequencer.Trigger.MeridianFlip {
                 cloneMe.history,
                 cloneMe.autoFocusVMFactory,
                 cloneMe.plateSolverFactory,
+#if HAS_WPF
                 cloneMe.windowServiceFactory,
+#endif
                 cloneMe.resourceDictionary) {
             CopyMetaData(cloneMe);
             BeforeFlipActions = (SequentialContainer)cloneMe.BeforeFlipActions.Clone();
@@ -362,7 +372,11 @@ namespace NINA.Sequencer.Trigger.MeridianFlip {
         }
 
         private Center CreateDefaultCenterItem() {
-            return new Center(profileService, telescopeMediator, imagingMediator, filterWheelMediator, guiderMediator, domeMediator, domeFollower, plateSolverFactory, windowServiceFactory).AddMetaData(resourceDictionary) as Center;
+            return new Center(profileService, telescopeMediator, imagingMediator, filterWheelMediator, guiderMediator, domeMediator, domeFollower, plateSolverFactory
+#if HAS_WPF
+                , windowServiceFactory
+#endif
+                ).AddMetaData(resourceDictionary) as Center;
         }
 
         private void AttachActionContainersToContext(ISequenceContainer parent) {

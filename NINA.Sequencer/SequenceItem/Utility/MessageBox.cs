@@ -16,9 +16,13 @@ using GalaSoft.MvvmLight.Command;
 using Newtonsoft.Json;
 using NINA.Core.Locale;
 using NINA.Core.Model;
+#if HAS_WPF
 using NINA.Core.MyMessageBox;
+#endif
 using NINA.Core.Utility;
+#if HAS_WPF
 using NINA.Core.Utility.WindowService;
+#endif
 using NINA.Sequencer.Interfaces.Mediator;
 using NINA.Sequencer.Logic;
 using NINA.Sequencer.Utility;
@@ -40,14 +44,24 @@ namespace NINA.Sequencer.SequenceItem.Utility {
     [Export(typeof(ISequenceItem))]
     [JsonObject(MemberSerialization.OptIn)]
     public class MessageBox : SequenceItem {
+#if HAS_WPF
         private IWindowServiceFactory windowServiceFactory;
 
         [ImportingConstructor]
         public MessageBox(IWindowServiceFactory windowServiceFactory) {
             this.windowServiceFactory = windowServiceFactory;
         }
+#else
+        [ImportingConstructor]
+        public MessageBox() {
+        }
+#endif
 
-        private MessageBox(MessageBox cloneMe) : this(cloneMe.windowServiceFactory) {
+        private MessageBox(MessageBox cloneMe) : this(
+#if HAS_WPF
+            cloneMe.windowServiceFactory
+#endif
+            ) {
             CopyMetaData(cloneMe);
         }
 
@@ -64,6 +78,7 @@ namespace NINA.Sequencer.SequenceItem.Utility {
             // Expand expressions in the text before displaying
             string expandedText = ExpressionExpander.Expand(Text, SymbolBroker, this);
 
+#if HAS_WPF
             var service = windowServiceFactory.Create();
             var msgBoxResult = new MessageBoxResult(expandedText);
 
@@ -77,6 +92,11 @@ namespace NINA.Sequencer.SequenceItem.Utility {
                 var root = ItemUtility.GetRootContainer(this.Parent);
                 root?.Interrupt();
             }
+#else
+            // No portable dialog host exists yet to block on user input; log the message and continue.
+            Logger.Info($"MessageBox sequence item reached (no portable dialog host available): {expandedText}");
+            await Task.CompletedTask;
+#endif
         }
 
         public override string ToString() {

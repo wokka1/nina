@@ -15,7 +15,9 @@
 using Newtonsoft.Json;
 using NINA.Core.Locale;
 using NINA.Core.Model;
+#if HAS_WPF
 using NINA.Core.MyMessageBox;
+#endif
 using NINA.Core.Utility;
 using NINA.Core.Utility.Extensions;
 using NINA.Sequencer.Container.ExecutionStrategy;
@@ -31,7 +33,9 @@ using System.Runtime.Serialization;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+#if HAS_WPF
 using System.Windows;
+#endif
 using System.Windows.Input;
 
 namespace NINA.Sequencer.Container {
@@ -55,15 +59,21 @@ namespace NINA.Sequencer.Container {
 
         public override ICommand ResetProgressCommand => new GalaSoft.MvvmLight.Command.RelayCommand<object>(
             (o) => {
+#if HAS_WPF
                 if (MyMessageBox.Show(Loc.Instance["Lbl_SequenceContainer_SequenceRootContainer_ResetPrompt"], Loc.Instance["Lbl_SequenceContainer_SequenceRootContainer_ResetPromptCaption"], System.Windows.MessageBoxButton.YesNo, System.Windows.MessageBoxResult.No) == System.Windows.MessageBoxResult.Yes) {
                     base.ResetProgressCommand.Execute(o);
                 }
+#else
+                base.ResetProgressCommand.Execute(o);
+#endif
             }
         );
 
         public override ICommand DetachCommand => new GalaSoft.MvvmLight.Command.RelayCommand<object>(
             (o) => {
+#if HAS_WPF
                 if (MyMessageBox.Show(Loc.Instance["Lbl_SequenceContainer_SequenceRootContainer_ClearPrompt"], Loc.Instance["Lbl_SequenceContainer_SequenceRootContainer_ClearCaption"], System.Windows.MessageBoxButton.YesNo, System.Windows.MessageBoxResult.No) == System.Windows.MessageBoxResult.Yes) {
+#endif
                     foreach (var trigger in GetTriggersSnapshot()) {
                         trigger.Detach();
                     }
@@ -73,7 +83,9 @@ namespace NINA.Sequencer.Container {
                     ClearContainer(Items[2] as ISequenceContainer);
                     UserSymbol.ClearUserSymbols();
                     GC.Collect(2);
+#if HAS_WPF
                 }
+#endif
             }
         );
 
@@ -167,7 +179,9 @@ namespace NINA.Sequencer.Container {
 
         public override object Clone() {
             return new SequenceRootContainer() {
+#if HAS_WPF
                 Icon = Icon,
+#endif
                 Name = Name,
                 Category = Category,
                 Description = Description,

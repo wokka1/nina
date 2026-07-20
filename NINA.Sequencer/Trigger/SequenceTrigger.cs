@@ -27,7 +27,9 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
+#if HAS_WPF
 using System.Windows.Media;
+#endif
 using NINA.Sequencer.Utility;
 using NINA.Sequencer.Logic;
 
@@ -45,7 +47,9 @@ namespace NINA.Sequencer.Trigger {
         }
 
         protected void CopyMetaData(SequenceTrigger cloneMe) {
+#if HAS_WPF
             Icon = cloneMe.Icon;
+#endif
             Name = cloneMe.Name;
             Category = cloneMe.Category;
             Description = cloneMe.Description;
@@ -67,7 +71,9 @@ namespace NINA.Sequencer.Trigger {
         public virtual bool AllowMultiplePerSet => false;
 
         public string Description { get; set; }
+#if HAS_WPF
         public GeometryGroup Icon { get; set; }
+#endif
         public string Category { get; set; }
 
         private bool showMenu;

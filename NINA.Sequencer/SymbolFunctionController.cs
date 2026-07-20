@@ -10,8 +10,10 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+#if HAS_WPF
 using System.Windows;
 using System.Windows.Data;
+#endif
 
 namespace NINA.Sequencer {
     public partial class SymbolFunctionController : BaseINPC {
@@ -20,12 +22,14 @@ namespace NINA.Sequencer {
             ProfileService = profileService;
 
             dataSymbolFunctions = new ObservableCollection<SymbolFunction>(SymbolBroker.GetFunctions());
+#if HAS_WPF
             symbolFunctionsView = new CollectionViewSource { Source = DataSymbolFunctions };
             symbolFunctionsView.GroupDescriptions.Add(new PropertyGroupDescription(nameof(SymbolFunction.Category)));
             symbolFunctionsView.SortDescriptions.Add(new SortDescription(nameof(SymbolFunction.Category), ListSortDirection.Ascending));
             symbolFunctionsView.SortDescriptions.Add(new SortDescription(nameof(SymbolFunction.Key), ListSortDirection.Ascending));
 
             SymbolFunctionsView.Filter += new Predicate<object>(ApplyViewFilter);
+#endif
 
             _cts = new CancellationTokenSource();
             _refreshInterval = TimeSpan.FromSeconds(60);
@@ -33,12 +37,14 @@ namespace NINA.Sequencer {
 
         }
 
+#if HAS_WPF
         private bool ApplyViewFilter(object obj) {
             return (obj as SymbolFunction).Key.IndexOf(ViewFilter, StringComparison.OrdinalIgnoreCase) >= 0;
         }
 
         private CollectionViewSource symbolFunctionsView;
         public ICollectionView SymbolFunctionsView => symbolFunctionsView.View;
+#endif
         public ISymbolBroker SymbolBroker { get; }
         public IProfileService ProfileService { get; }
 
@@ -49,7 +55,9 @@ namespace NINA.Sequencer {
         private string viewFilter = string.Empty;
 
         partial void OnViewFilterChanged(string value) {
+#if HAS_WPF
             SymbolFunctionsView.Refresh();
+#endif
         }
 
 
@@ -79,6 +87,7 @@ namespace NINA.Sequencer {
         private async Task RefreshOnceAsync(CancellationToken token) {
             var latest = await Task.Run(() => SymbolBroker.GetFunctions(), token).ConfigureAwait(false);
 
+#if HAS_WPF
             // Switch to UI thread to update bindings & view
             var dispatcher = Application.Current?.Dispatcher;
             if (dispatcher is null || dispatcher.CheckAccess()) {
@@ -89,6 +98,9 @@ namespace NINA.Sequencer {
                     System.Windows.Threading.DispatcherPriority.DataBind,
                     token);
             }
+#else
+            ApplySymbolFunctions(latest);
+#endif
         }
 
         private void ApplySymbolFunctions(IReadOnlyCollection<SymbolFunction> latest) {

@@ -68,7 +68,11 @@ namespace NINA.Sequencer.SequenceItem.FilterWheel {
             this.profileService = profileservice;
             this.filterWheelMediator = filterWheelMediator;
 
+#if HAS_WPF
             WeakEventManager<IProfileService, EventArgs>.AddHandler(profileService, nameof(profileService.ProfileChanged), ProfileService_ProfileChanged);
+#else
+            profileService.ProfileChanged += ProfileService_ProfileChanged;
+#endif
         }
 
         private void SetupFilter(string filterString) {

@@ -26,8 +26,10 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+#if HAS_WPF
 using System.Windows;
 using System.Windows.Data;
+#endif
 using System.Windows.Input;
 using NINA.Core.Utility.Notification;
 using NINA.Core.Locale;
@@ -55,10 +57,12 @@ namespace NINA.Sequencer {
 
         public IList<TemplatedSequenceContainer> Templates { get; }
 
+#if HAS_WPF
         private CollectionViewSource templatesView;
         private CollectionViewSource templatesMenuView;
         public ICollectionView TemplatesView => templatesView.View;
         public ICollectionView TemplatesMenuView => templatesMenuView.View;
+#endif
 
         private string viewFilter = string.Empty;
 
@@ -66,7 +70,9 @@ namespace NINA.Sequencer {
             get => viewFilter;
             set {
                 viewFilter = value;
+#if HAS_WPF
                 TemplatesView.Refresh();
+#endif
             }
         }
 
@@ -104,6 +110,7 @@ namespace NINA.Sequencer {
 
             templateLinkResolver?.UpdateTemplates(Templates.ToList(), false, SaveLinkedTemplate);
 
+#if HAS_WPF
             templatesView = new CollectionViewSource { Source = Templates };
             TemplatesView.GroupDescriptions.Add(new PropertyGroupDescription("GroupTranslated"));
             TemplatesView.SortDescriptions.Add(new SortDescription("GroupTranslated", ListSortDirection.Ascending));
@@ -112,6 +119,7 @@ namespace NINA.Sequencer {
 
             templatesMenuView = new CollectionViewSource { Source = Templates };
             TemplatesMenuView.SortDescriptions.Add(new SortDescription("Container.Name", ListSortDirection.Ascending));
+#endif
 
             LoadUserTemplates().ContinueWith(t => {
                 sequenceTemplateFolderWatcher = new FileSystemWatcher(profileService.ActiveProfile.SequenceSettings.SequencerTemplatesFolder, "*" + TemplateFileExtension);
@@ -126,9 +134,11 @@ namespace NINA.Sequencer {
             });
         }
 
+#if HAS_WPF
         private bool ApplyViewFilter(object obj) {
             return (obj as TemplatedSequenceContainer).Container.Name.IndexOf(ViewFilter, StringComparison.OrdinalIgnoreCase) >= 0;
         }
+#endif
 
         private async void SequenceTemplateFolderWatcher_Changed(object sender, FileSystemEventArgs e) {
             try {
@@ -183,7 +193,11 @@ namespace NINA.Sequencer {
                         }
 
                         foreach (var template in Templates.Where(t => t.Group != DefaultTemplatesGroup).ToList()) {
+#if HAS_WPF
                             await Application.Current.Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Normal, new Action(() => Templates.Remove(template)));
+#else
+                            Templates.Remove(template);
+#endif
                         }
                         TemplatesLoadingProgress = 0;
                         TemplatesLoadingTotalCount = 1;
@@ -208,6 +222,7 @@ namespace NINA.Sequencer {
                             TemplatesLoadingProgress++;
                         }
 
+#if HAS_WPF
                         await Application.Current.Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Normal, new Action(() => {
                             try {
                                 TemplatesView.Refresh();
@@ -216,6 +231,7 @@ namespace NINA.Sequencer {
                                 Logger.Error(ex);
                             }
                         }));
+#endif
                     } catch (Exception ex) {
                         Logger.Error(ex);
                         Notification.ShowError(Loc.Instance["Lbl_SequenceTemplateController_LoadUserTemplatesFailed"]);
@@ -324,7 +340,11 @@ namespace NINA.Sequencer {
         }
     }
 
-    public class TemplatedSequenceContainer : IDroppable, IDroppableSourceProvider {
+    public class TemplatedSequenceContainer : IDroppable
+#if HAS_WPF
+        , IDroppableSourceProvider
+#endif
+    {
 
         public TemplatedSequenceContainer(IProfileService profileService, string group, ISequenceContainer container)
             : this(profileService, group, container, null, null) {
@@ -395,6 +415,7 @@ namespace NINA.Sequencer {
             return linkedTemplateContainer;
         }
 
+#if HAS_WPF
         public IDroppable GetDropSource(ModifierKeys modifiers) {
             if ((modifiers & ModifierKeys.Control) == ModifierKeys.Control) {
                 return CreateLinkedContainer();
@@ -402,6 +423,7 @@ namespace NINA.Sequencer {
 
             return this;
         }
+#endif
 
         public override string ToString() {
             return this.Container.Name;

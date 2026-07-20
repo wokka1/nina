@@ -23,7 +23,9 @@ namespace NINA.Sequencer.SequenceItem.Expressions {
 
         [ImportingConstructor]
         public ResetVariable() {
+#if HAS_WPF
             Icon = Icon;
+#endif
             Expr = new Expression("", Parent);
         }
 

@@ -44,6 +44,7 @@ namespace NINA.Sequencer.SequenceItem.Utility {
         [ImportingConstructor]
         public ExternalScript(ISymbolBroker symbolBroker) {
             OpenDialogCommand = new GalaSoft.MvvmLight.Command.RelayCommand<object>((object o) => {
+#if HAS_WPF
                 Microsoft.Win32.OpenFileDialog dialog = new Microsoft.Win32.OpenFileDialog();
                 dialog.Title = Loc.Instance["Lbl_SequenceItem_Utility_ExternalScript_Name"];
                 dialog.FileName = "";
@@ -53,6 +54,10 @@ namespace NINA.Sequencer.SequenceItem.Utility {
                 if (dialog.ShowDialog() == true) {
                     Script = "\"" + dialog.FileName + "\"";
                 }
+#else
+                // No portable file-picker host yet; browsing for a script path is Phase 3 UI territory.
+                Logger.Info("ExternalScript OpenDialogCommand invoked (no portable file picker available)");
+#endif
             });
             _symbolBroker = symbolBroker;
             _ninaProvider = (_symbolBroker as ISymbolBrokerProviderApi)?.GetInternalProvider("NINA");

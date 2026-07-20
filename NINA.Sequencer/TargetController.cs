@@ -25,8 +25,10 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+#if HAS_WPF
 using System.Windows;
 using System.Windows.Data;
+#endif
 using System.Windows.Input;
 using NINA.Core.Utility.Notification;
 using NINA.Core.Locale;
@@ -46,10 +48,12 @@ namespace NINA.Sequencer {
 
         public IList<TargetSequenceContainer> Targets { get; }
 
+#if HAS_WPF
         private CollectionViewSource targetsView;
         private CollectionViewSource targetsMenuView;
         public ICollectionView TargetsView => targetsView.View;
         public ICollectionView TargetsMenuView => targetsMenuView.View;
+#endif
 
         private string viewFilter = string.Empty;
         private ISequenceSettings activeSequenceSettings;
@@ -58,7 +62,9 @@ namespace NINA.Sequencer {
             get => viewFilter;
             set {
                 viewFilter = value;
+#if HAS_WPF
                 TargetsView.Refresh();
+#endif
             }
         }
 
@@ -89,15 +95,19 @@ namespace NINA.Sequencer {
             this.profileService = profileService;
 
             Targets = new List<TargetSequenceContainer>();
-            
+
+#if HAS_WPF
             targetsView = new CollectionViewSource { Source = Targets };
             targetsView.GroupDescriptions.Add(new PropertyGroupDescription(nameof(TargetSequenceContainer.Grouping)));
             TargetsView.SortDescriptions.Add(new SortDescription(nameof(TargetSequenceContainer.Weight), ListSortDirection.Ascending));
             TargetsView.Filter += new Predicate<object>(ApplyViewFilter);
+#endif
             SortByRelevance = true;
 
+#if HAS_WPF
             targetsMenuView = new CollectionViewSource { Source = Targets };
             TargetsMenuView.SortDescriptions.Add(new SortDescription(nameof(TargetSequenceContainer.Name), ListSortDirection.Ascending));
+#endif
 
             LoadTargets().ContinueWith(t => {
                 sequenceTargetsFolderWatcher = new FileSystemWatcher(profileService.ActiveProfile.SequenceSettings.SequencerTargetsFolder, "*" + TargetsFileExtension);
@@ -115,6 +125,7 @@ namespace NINA.Sequencer {
 
         [RelayCommand]
         private void ToggleSort() {
+#if HAS_WPF
             if (SortByRelevance) {
                 TargetsView.SortDescriptions.RemoveAt(0);
                 TargetsView.SortDescriptions.Add(new SortDescription(nameof(TargetSequenceContainer.Weight), ListSortDirection.Ascending));
@@ -122,13 +133,14 @@ namespace NINA.Sequencer {
                 TargetsView.SortDescriptions.RemoveAt(0);
                 TargetsView.SortDescriptions.Add(new SortDescription(nameof(TargetSequenceContainer.Name), ListSortDirection.Ascending));
             }
+#endif
         }
 
-
-
+#if HAS_WPF
         private bool ApplyViewFilter(object obj) {
             return (obj as TargetSequenceContainer).Name.IndexOf(ViewFilter, StringComparison.OrdinalIgnoreCase) >= 0;
         }
+#endif
 
         private async void SequenceTargetsFolderWatcher_Changed(object sender, FileSystemEventArgs e) {
             try {
@@ -190,7 +202,11 @@ namespace NINA.Sequencer {
                     }
 
                     foreach (var target in Targets.ToList()) {
+#if HAS_WPF
                         await Application.Current.Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Normal, new Action(() => Targets.Remove(target)));
+#else
+                        Targets.Remove(target);
+#endif
                     }
 
                     TargetsLoadingProgress = 0;
@@ -228,6 +244,7 @@ namespace NINA.Sequencer {
         }
 
         private async Task RefreshFilters() {
+#if HAS_WPF
             await Application.Current.Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Normal, new Action(() => {
                 try {
                     TargetsView.Refresh(); TargetsMenuView.Refresh();
@@ -235,6 +252,9 @@ namespace NINA.Sequencer {
                     Logger.Error(ex);
                 }
             }));
+#else
+            await Task.CompletedTask;
+#endif
         }
 
         public void DeleteTarget(TargetSequenceContainer targetSequenceContainer) {

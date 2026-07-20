@@ -9,7 +9,9 @@ using NINA.Core.Enum;
 using NINA.Core.Utility;
 using NINA.Sequencer.Conditions;
 using NINA.Sequencer.Utility;
+#if HAS_WPF
 using System.Windows.Controls;
+#endif
 using NINA.Core.Model;
 using NINA.Sequencer.Generators;
 using NINA.Sequencer.Logic;

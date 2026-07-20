@@ -1,10 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net10.0-windows</TargetFramework>
+    <TargetFrameworks>net10.0-windows;net10.0</TargetFrameworks>
     <OutputType>Library</OutputType>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <UseWPF>true</UseWPF>
-    <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
+    <UseWPF Condition="'$(TargetFramework)'=='net10.0-windows'">true</UseWPF>
+    <DefineConstants Condition="'$(TargetFramework)'=='net10.0-windows'">$(DefineConstants);HAS_WPF</DefineConstants>
+    <ImportWindowsDesktopTargets Condition="'$(TargetFramework)'=='net10.0-windows'">true</ImportWindowsDesktopTargets>
     <Configurations>Debug;Release;SignedRelease</Configurations>
     <EnableWindowsTargeting>true</EnableWindowsTargeting>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
@@ -29,6 +30,26 @@
   <ItemGroup>
     <Compile Remove="Logic\ValConverter.cs" />
   </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)'=='net10.0'">
+    <!-- Pure WPF UI: XAML code-behind, ResourceDictionaries, attached behaviors, value converters, DataTemplateSelectors -->
+    <Compile Remove="View\**" />
+    <EmbeddedResource Remove="View\**" />
+    <None Remove="View\**" />
+    <Page Remove="View\**" />
+    <Compile Remove="Behaviors\**" />
+    <EmbeddedResource Remove="Behaviors\**" />
+    <None Remove="Behaviors\**" />
+    <Page Remove="Behaviors\**" />
+    <Compile Remove="**\Datatemplates.xaml.cs" />
+    <Compile Remove="**\DataTemplates.xaml.cs" />
+    <Compile Remove="Logic\CoordinatesControl.xaml.cs" />
+    <Compile Remove="Logic\ExprComboControl.xaml.cs" />
+    <Compile Remove="Logic\ExprControl.xaml.cs" />
+    <Compile Remove="Logic\ExprControlVariable.xaml.cs" />
+    <Compile Remove="Logic\ExprConverter.cs" />
+    <Compile Remove="Logic\ExprStepperControl.xaml.cs" />
+    <Compile Remove="Logic\ExprStringControl.xaml.cs" />
+  </ItemGroup>
   <ItemGroup>
     <Compile Include="..\CommonAssemblyInfo.cs">
       <Link>Properties\CommonAssemblyInfo.cs</Link>
@@ -51,7 +72,7 @@
     <ProjectReference Include="..\NINA.Image\NINA.Image.csproj" />
     <ProjectReference Include="..\NINA.Platesolving\NINA.PlateSolving.csproj" />
     <ProjectReference Include="..\NINA.Profile\NINA.Profile.csproj" />
-    <ProjectReference Include="..\NINA.CustomControlLibrary\NINA.CustomControlLibrary.csproj" />
+    <ProjectReference Include="..\NINA.CustomControlLibrary\NINA.CustomControlLibrary.csproj" Condition="'$(TargetFramework)'=='net10.0-windows'" />
     <ProjectReference Include="..\NINA.Sequencer.Generators\NINA.Sequencer.Generators.csproj" OutputItemType="Analyzer" />
     <ProjectReference Include="..\NINA.WPF.Base\NINA.WPF.Base.csproj" />
   </ItemGroup>

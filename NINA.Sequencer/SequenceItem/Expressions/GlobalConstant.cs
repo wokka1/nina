@@ -15,14 +15,18 @@ namespace NINA.Sequencer.SequenceItem.Expressions {
         [ImportingConstructor]
         public GlobalConstant() : base() {
             Name = Name;
+#if HAS_WPF
             Icon = Icon;
+#endif
         }
 
         public GlobalConstant(GlobalConstant copyMe) : base() {
             if (copyMe != null) {
                 CopyMetaData(copyMe);
                 Name = copyMe.Name;
+#if HAS_WPF
                 Icon = copyMe.Icon;
+#endif
             }
         }
 

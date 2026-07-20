@@ -38,7 +38,9 @@ using Newtonsoft.Json.Serialization;
 using NINA.Sequencer.Container.ExecutionStrategy;
 using NINA.Sequencer.Serialization;
 using NINA.Sequencer.Validations;
+#if HAS_WPF
 using NINA.Core.MyMessageBox;
+#endif
 using NINA.Core.Locale;
 using NINA.Sequencer.SequenceItem;
 
@@ -101,6 +103,7 @@ namespace NINA.Sequencer {
             var issues = Validate(MainContainer).Distinct();
 
             if (issues.Any()) {
+#if HAS_WPF
                 var builder = new StringBuilder();
                 builder.AppendLine(Loc.Instance["LblPreSequenceChecklist"]).AppendLine();
 
@@ -121,6 +124,7 @@ namespace NINA.Sequencer {
                 if (diag == System.Windows.MessageBoxResult.Cancel) {
                     return false;
                 }
+#endif
             }
             return true;
         }

@@ -22,7 +22,9 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
+#if HAS_WPF
 using System.Windows.Media;
+#endif
 using NINA.Sequencer.Utility;
 using NINA.Core.Locale;
 using NINA.Core.Utility.Notification;
@@ -43,7 +45,9 @@ namespace NINA.Sequencer.SequenceItem {
         }
 
         protected void CopyMetaData(SequenceItem cloneMe) {
+#if HAS_WPF
             Icon = cloneMe.Icon;
+#endif
             Name = cloneMe.Name;
             Category = cloneMe.Category;
             Description = cloneMe.Description;
@@ -60,7 +64,9 @@ namespace NINA.Sequencer.SequenceItem {
         public string Category { get; set; }
         public string Description { get; set; }
         public virtual ICommand DetachCommand => new GalaSoft.MvvmLight.Command.RelayCommand(Detach);
+#if HAS_WPF
         public GeometryGroup Icon { get; set; }
+#endif
         public ICommand MoveDownCommand => new GalaSoft.MvvmLight.Command.RelayCommand(MoveDown);
         public ICommand MoveUpCommand => new GalaSoft.MvvmLight.Command.RelayCommand(MoveUp);
         public ICommand DisableEnableCommand => new GalaSoft.MvvmLight.Command.RelayCommand(() => {
