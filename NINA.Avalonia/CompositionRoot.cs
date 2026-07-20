@@ -15,6 +15,7 @@ using NINA.Image.Interfaces;
 using NINA.Profile;
 using NINA.Profile.Interfaces;
 using NINA.WPF.Base.Interfaces.Mediator;
+using NINA.WPF.Base.Interfaces.ViewModel;
 using NINA.WPF.Base.Mediator;
 using NINA.WPF.Base.ViewModel.Equipment.Camera;
 using NINA.WPF.Base.ViewModel.Equipment.Dome;
@@ -83,6 +84,8 @@ namespace NINA.Avalonia {
             services.AddSingleton<ISwitchMediator, SwitchMediator>();
             services.AddSingleton<IFlatDeviceMediator, FlatDeviceMediator>();
             services.AddSingleton<IWeatherDataMediator, WeatherDataMediator>();
+            services.AddSingleton<IImagingMediator, ImagingMediator>();
+            services.AddSingleton<IImageSaveMediator, ImageSaveMediator>();
 
             services.AddSingleton<ISbigSdk, SbigSdk>();
 
@@ -107,6 +110,13 @@ namespace NINA.Avalonia {
             services.AddSingleton<IDeviceUpdateTimerFactory, DefaultDeviceUpateTimerFactory>();
             services.AddSingleton<IDomeSynchronization, DomeSynchronization>();
             services.AddSingleton<IDomeFollower, DomeFollower>();
+
+            // Real interface (NINA.WPF.Base, portable), minimal-but-real implementation - the
+            // concrete ImageHistoryVM lives in the main NINA exe project, not a library, same
+            // situation as ImagingVM. See MinimalImageHistoryVM's own doc comment: this exists
+            // specifically to unlock TakeExposure and similar items in SequenceItemCatalog, not
+            // to provide a real image-history feature yet.
+            services.AddSingleton<IImageHistoryVM, MinimalImageHistoryVM>();
 
             services.AddSingleton<IImageDataFactory, ImageDataFactory>();
             services.AddSingleton<IExposureDataFactory, ExposureDataFactory>();
