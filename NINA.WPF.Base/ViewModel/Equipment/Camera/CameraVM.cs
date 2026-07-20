@@ -1,7 +1,7 @@
 #region "copyright"
 
 /*
-    Copyright © 2016 - 2026 Stefan Berg <isbeorn86+NINA@googlemail.com> and the N.I.N.A. contributors
+    Copyright ï¿½ 2016 - 2026 Stefan Berg <isbeorn86+NINA@googlemail.com> and the N.I.N.A. contributors
 
     This file is part of N.I.N.A. - Nighttime Imaging 'N' Astronomy.
 
@@ -19,7 +19,9 @@ using Dasync.Collections;
 using NINA.Core.Enum;
 using NINA.Core.Locale;
 using NINA.Core.Model;
+#if HAS_WPF
 using NINA.Core.MyMessageBox;
+#endif
 using NINA.Core.Utility;
 using NINA.Core.Utility.Extensions;
 using NINA.Core.Utility.Notification;
@@ -51,7 +53,9 @@ namespace NINA.WPF.Base.ViewModel.Equipment.Camera {
                         IApplicationStatusMediator applicationStatusMediator,
                         IDeviceChooserVM cameraChooserVM) : base(profileService) {
             Title = Loc.Instance["LblCamera"];
+#if HAS_WPF
             ImageGeometry = (System.Windows.Media.GeometryGroup)System.Windows.Application.Current.Resources["CameraSVG"];
+#endif
             HasSettings = true;
 
             DeviceChooserVM = cameraChooserVM;
@@ -632,10 +636,14 @@ namespace NINA.WPF.Base.ViewModel.Equipment.Camera {
         private CancellationTokenSource _cancelConnectCameraSource;
 
         private async Task<bool> DisconnectDiag() {
+#if HAS_WPF
             var diag = MyMessageBox.Show(Loc.Instance["LblDisconnectCamera"], "", System.Windows.MessageBoxButton.OKCancel, System.Windows.MessageBoxResult.Cancel);
             if (diag == System.Windows.MessageBoxResult.OK) {
                 await Disconnect();
             }
+#else
+            await Disconnect();
+#endif
             return true;
         }
 

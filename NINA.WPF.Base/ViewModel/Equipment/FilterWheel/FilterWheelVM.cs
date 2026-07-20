@@ -1,7 +1,7 @@
 #region "copyright"
 
 /*
-    Copyright © 2016 - 2026 Stefan Berg <isbeorn86+NINA@googlemail.com> and the N.I.N.A. contributors
+    Copyright ï¿½ 2016 - 2026 Stefan Berg <isbeorn86+NINA@googlemail.com> and the N.I.N.A. contributors
 
     This file is part of N.I.N.A. - Nighttime Imaging 'N' Astronomy.
 
@@ -15,7 +15,9 @@
 using NINA.Core.Locale;
 using NINA.Core.Model;
 using NINA.Core.Model.Equipment;
+#if HAS_WPF
 using NINA.Core.MyMessageBox;
+#endif
 using NINA.Core.Utility;
 using NINA.Core.Utility.Extensions;
 using NINA.Core.Utility.Notification;
@@ -47,7 +49,9 @@ namespace NINA.WPF.Base.ViewModel.Equipment.FilterWheel {
                              IDeviceChooserVM filterWheelChooserVM,
                              IApplicationStatusMediator applicationStatusMediator) : base(profileService) {
             Title = Loc.Instance["LblFilterWheel"];
+#if HAS_WPF
             ImageGeometry = (System.Windows.Media.GeometryGroup)System.Windows.Application.Current.Resources["FWSVG"];
+#endif
             HasSettings = true;
 
             DeviceChooserVM = filterWheelChooserVM;
@@ -353,10 +357,14 @@ namespace NINA.WPF.Base.ViewModel.Equipment.FilterWheel {
         private CancellationTokenSource _cancelChooseFilterWheelSource;
 
         private async Task<bool> DisconnectFW() {
+#if HAS_WPF
             var diag = MyMessageBox.Show(Loc.Instance["LblDisconnectFilterWheel"], "", System.Windows.MessageBoxButton.OKCancel, System.Windows.MessageBoxResult.Cancel);
             if (diag == System.Windows.MessageBoxResult.OK) {
                 await Disconnect();
             }
+#else
+            await Disconnect();
+#endif
             return true;
         }
 

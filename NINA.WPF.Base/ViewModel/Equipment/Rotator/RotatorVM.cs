@@ -1,7 +1,7 @@
 #region "copyright"
 
 /*
-    Copyright © 2016 - 2026 Stefan Berg <isbeorn86+NINA@googlemail.com> and the N.I.N.A. contributors
+    Copyright ï¿½ 2016 - 2026 Stefan Berg <isbeorn86+NINA@googlemail.com> and the N.I.N.A. contributors
 
     This file is part of N.I.N.A. - Nighttime Imaging 'N' Astronomy.
 
@@ -26,7 +26,9 @@ using NINA.Astrometry;
 using NINA.WPF.Base.Interfaces.Mediator;
 using NINA.Core.Model;
 using NINA.Core.Locale;
+#if HAS_WPF
 using NINA.Core.MyMessageBox;
+#endif
 using NINA.Equipment.Interfaces.ViewModel;
 using NINA.Equipment.Equipment;
 using NINA.Equipment.Interfaces;
@@ -44,7 +46,9 @@ namespace NINA.WPF.Base.ViewModel.Equipment.Rotator {
                          IApplicationResourceDictionary resourceDictionary,
                          IApplicationStatusMediator applicationStatusMediator) : base(profileService) {
             Title = Loc.Instance["LblRotator"];
+#if HAS_WPF
             ImageGeometry = (System.Windows.Media.GeometryGroup)resourceDictionary["RotatorSVG"];
+#endif
             HasSettings = true;
 
             this.rotatorMediator = rotatorMediator;
@@ -112,7 +116,7 @@ namespace NINA.WPF.Base.ViewModel.Equipment.Rotator {
         public void Sync(float skyAngle) {
             try {
                 if (RotatorInfo.Connected) {
-                    Logger.Info($"Syncing Rotator to Sky Angle {skyAngle}°");
+                    Logger.Info($"Syncing Rotator to Sky Angle {skyAngle}ï¿½");
                     var from = Rotator.Position;
                     Rotator.Sync(skyAngle);
                     RotatorInfo.Position = Rotator.Position;
@@ -148,7 +152,7 @@ namespace NINA.WPF.Base.ViewModel.Equipment.Rotator {
                         }
                     );
 
-                    Logger.Debug($"Move rotator to {adjustedTargetPosition}°");
+                    Logger.Debug($"Move rotator to {adjustedTargetPosition}ï¿½");
                     var anyCTS = CancellationTokenSource.CreateLinkedTokenSource(_moveCts.Token, ct);
                     using (anyCTS.Token.Register(() => Rotator?.Halt())) {
                         await Rotator.MoveAbsolute(adjustedTargetPosition, anyCTS.Token);
@@ -202,7 +206,7 @@ namespace NINA.WPF.Base.ViewModel.Equipment.Rotator {
                         }
                     );
 
-                    Logger.Debug($"Move rotator mechanical to {adjustedTargetPosition}°");
+                    Logger.Debug($"Move rotator mechanical to {adjustedTargetPosition}ï¿½");
                     var anyCTS = CancellationTokenSource.CreateLinkedTokenSource(_moveCts.Token, ct);
                     using (anyCTS.Token.Register(() => Rotator?.Halt())) {
                         await Rotator.MoveAbsoluteMechanical(adjustedTargetPosition, anyCTS.Token);
@@ -473,10 +477,14 @@ namespace NINA.WPF.Base.ViewModel.Equipment.Rotator {
         }
 
         private async Task<bool> DisconnectDiag() {
+#if HAS_WPF
             var diag = MyMessageBox.Show(Loc.Instance["LblDisconnectRotator"], "", System.Windows.MessageBoxButton.OKCancel, System.Windows.MessageBoxResult.Cancel);
             if (diag == System.Windows.MessageBoxResult.OK) {
                 await Disconnect();
             }
+#else
+            await Disconnect();
+#endif
             return true;
         }
 

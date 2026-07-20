@@ -133,7 +133,9 @@ namespace NINA.WPF.Base.Mediator {
                     new ImageSavedEventArgs() {
                         MetaData = preparedData.RawImageData.MetaData,
                         PathToImage = new Uri(path),
+#if HAS_WPF
                         Image = preparedData.Image,
+#endif
                         FileType = profileService.ActiveProfile.ImageFileSettings.FileType,
                         Statistics = stats,
                         StarDetectionAnalysis = preparedData.RawImageData.StarDetectionAnalysis,

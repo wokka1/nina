@@ -23,7 +23,9 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+#if HAS_WPF
 using System.Windows.Media.Imaging;
+#endif
 using NINA.Image.Interfaces;
 using NINA.WPF.Base.Interfaces.ViewModel;
 
@@ -93,7 +95,9 @@ namespace NINA.WPF.Base.Interfaces.Mediator {
 
     public class ImageSavedEventArgs : EventArgs {
         public ImageMetaData MetaData { get; set; }
+#if HAS_WPF
         public BitmapSource Image { get; set; }
+#endif
         public IImageStatistics Statistics { get; set; }
         public IStarDetectionAnalysis StarDetectionAnalysis { get; set; }
         public Uri PathToImage { get; set; }

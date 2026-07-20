@@ -13,7 +13,9 @@
 #endregion "copyright"
 
 using NINA.Core.Utility;
+#if HAS_WPF
 using NINA.Core.Utility.WindowService;
+#endif
 using System.Threading.Tasks;
 using System.Windows.Input;
 
@@ -30,7 +32,9 @@ namespace NINA.WPF.Base.Interfaces.ViewModel {
         string UpdateAvailableText { get; set; }
         ICommand UpdateCommand { get; set; }
         bool UpdateReady { get; set; }
+#if HAS_WPF
         IWindowServiceFactory WindowServiceFactory { get; set; }
+#endif
 
         Task<bool> CheckUpdate();
     }

@@ -1,7 +1,7 @@
 #region "copyright"
 
 /*
-    Copyright © 2016 - 2026 Stefan Berg <isbeorn86+NINA@googlemail.com> and the N.I.N.A. contributors
+    Copyright ï¿½ 2016 - 2026 Stefan Berg <isbeorn86+NINA@googlemail.com> and the N.I.N.A. contributors
 
     This file is part of N.I.N.A. - Nighttime Imaging 'N' Astronomy.
 
@@ -22,7 +22,9 @@ using System.ComponentModel;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
+#if HAS_WPF
 using System.Windows.Threading;
+#endif
 using NINA.Equipment.Equipment.MyGuider.PHD2;
 using NINA.Core.Utility.Notification;
 using NINA.Core.Enum;
@@ -48,7 +50,9 @@ namespace NINA.WPF.Base.ViewModel.Equipment.Guider {
                         IApplicationStatusMediator applicationStatusMediator,
                         IDeviceChooserVM deviceChooser) : base(profileService) {
             Title = Loc.Instance["LblGuider"];
+#if HAS_WPF
             ImageGeometry = (System.Windows.Media.GeometryGroup)System.Windows.Application.Current.Resources["GuiderSVG"];
+#endif
             HasSettings = true;
 
             this.guiderMediator = guiderMediator;
@@ -200,7 +204,9 @@ namespace NINA.WPF.Base.ViewModel.Equipment.Guider {
             }
         }
 
+#if HAS_WPF
         private static Dispatcher Dispatcher = Dispatcher.CurrentDispatcher;
+#endif
 
         private void ResetGraphValues() {
             GuideStepsHistory.Clear();

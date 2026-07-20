@@ -1,7 +1,7 @@
 #region "copyright"
 
 /*
-    Copyright © 2016 - 2026 Stefan Berg <isbeorn86+NINA@googlemail.com> and the N.I.N.A. contributors
+    Copyright ï¿½ 2016 - 2026 Stefan Berg <isbeorn86+NINA@googlemail.com> and the N.I.N.A. contributors
 
     This file is part of N.I.N.A. - Nighttime Imaging 'N' Astronomy.
 
@@ -16,7 +16,9 @@ using NINA.Core.Utility;
 using NINA.Profile.Interfaces;
 using System;
 using System.Windows.Input;
+#if HAS_WPF
 using System.Windows.Media;
+#endif
 using System.Collections.Generic;
 using NINA.Core.Locale;
 using NINA.Equipment.Interfaces.ViewModel;
@@ -32,10 +34,12 @@ namespace NINA.WPF.Base.ViewModel {
             this.HasSettings = false;
             SettingsVisible = false;
 
+#if HAS_WPF
             // Default image when nothing is set
             if (System.Windows.Application.Current != null) {
                 ImageGeometry = (System.Windows.Media.GeometryGroup)System.Windows.Application.Current.Resources["PuzzlePieceSVG"];
             }
+#endif
             IsVisible = true;
 
             HideCommand = new RelayCommand(Hide);
@@ -61,8 +65,10 @@ namespace NINA.WPF.Base.ViewModel {
         [ObservableProperty]
         protected bool isVisible;
 
+#if HAS_WPF
         [ObservableProperty]
         private GeometryGroup imageGeometry;
+#endif
 
         [ObservableProperty]
         protected bool hasSettings;

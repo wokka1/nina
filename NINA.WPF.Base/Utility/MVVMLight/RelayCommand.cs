@@ -136,7 +136,9 @@ namespace GalaSoft.MvvmLight.Command
                     }
                     while (canExecuteChanged != handler2);
 
+#if HAS_WPF
                     CommandManager.RequerySuggested += value;
+#endif
                 }
             }
 
@@ -156,7 +158,9 @@ namespace GalaSoft.MvvmLight.Command
                     }
                     while (canExecuteChanged != handler2);
 
+#if HAS_WPF
                     CommandManager.RequerySuggested -= value;
+#endif
                 }
             }
         }
@@ -194,7 +198,11 @@ namespace GalaSoft.MvvmLight.Command
                 handler(this, EventArgs.Empty);
             }
 #else
+#if HAS_WPF
             CommandManager.InvalidateRequerySuggested();
+#else
+            _requerySuggestedLocal?.Invoke(this, EventArgs.Empty);
+#endif
 #endif
         }
 

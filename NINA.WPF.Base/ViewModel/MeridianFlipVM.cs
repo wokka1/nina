@@ -1,7 +1,7 @@
 #region "copyright"
 
 /*
-    Copyright © 2016 - 2026 Stefan Berg <isbeorn86+NINA@googlemail.com> and the N.I.N.A. contributors
+    Copyright ï¿½ 2016 - 2026 Stefan Berg <isbeorn86+NINA@googlemail.com> and the N.I.N.A. contributors
 
     This file is part of N.I.N.A. - Nighttime Imaging 'N' Astronomy.
 
@@ -18,7 +18,9 @@ using NINA.Core.Model;
 using NINA.Core.Model.Equipment;
 using NINA.Core.Utility;
 using NINA.Core.Utility.Notification;
+#if HAS_WPF
 using NINA.Core.Utility.WindowService;
+#endif
 using NINA.Equipment.Equipment.MyGuider;
 using NINA.Equipment.Interfaces;
 using NINA.Equipment.Interfaces.Mediator;
@@ -231,8 +233,10 @@ namespace NINA.WPF.Base.ViewModel {
             Logger.Info($"Meridian Flip - Running Autofocus");
             var autoFocus = this.autoFocusVMFactory.Create();
             progress.Report(new ApplicationStatus { Status = Loc.Instance["LblAutoFocus"] });
+#if HAS_WPF
             var service = WindowServiceFactory.Create();
             service.Show(autoFocus, Loc.Instance["LblAutoFocus"], System.Windows.ResizeMode.CanResize, System.Windows.WindowStyle.ToolWindow);
+#endif
             try {
                 FilterInfo filter = null;
                 var selectedFilter = filterWheelMediator.GetInfo()?.SelectedFilter;
@@ -243,7 +247,9 @@ namespace NINA.WPF.Base.ViewModel {
                 var report = await autoFocus.StartAutoFocus(filter, token, progress);
                 history.AppendAutoFocusPoint(report);
             } finally {
+#if HAS_WPF
                 service.DelayedClose(TimeSpan.FromSeconds(10));
+#endif
             }
 
             return true;
@@ -350,6 +356,7 @@ namespace NINA.WPF.Base.ViewModel {
             return result;
         }
 
+#if HAS_WPF
         private IWindowServiceFactory windowServiceFactory;
 
         public IWindowServiceFactory WindowServiceFactory {
@@ -361,6 +368,7 @@ namespace NINA.WPF.Base.ViewModel {
             }
             set => windowServiceFactory = value;
         }
+#endif
 
         /// <summary>
         /// Checks if auto meridian flip should be considered and executes it
@@ -376,7 +384,9 @@ namespace NINA.WPF.Base.ViewModel {
         /// <param name="timeToFlip">Remaining time to actually flip the scope</param>
         /// <returns></returns>
         public async Task<bool> MeridianFlip(Coordinates targetCoordinates, TimeSpan timeToFlip, CancellationToken cancellationToken = default) {
+#if HAS_WPF
             var service = WindowServiceFactory.Create();
+#endif
             this.internalCancellationToken?.Dispose();
             this.internalCancellationToken = new CancellationTokenSource();
             this._progress = new Progress<ApplicationStatus>(p => Status = p);
@@ -385,13 +395,17 @@ namespace NINA.WPF.Base.ViewModel {
 
             var flip = DoMeridianFlip(targetCoordinates, timeToFlip, cancellationToken);
 
+#if HAS_WPF
             var serviceTask = service.ShowDialog(this, Loc.Instance["LblMeridianFlipInit"], System.Windows.ResizeMode.NoResize, System.Windows.WindowStyle.None, CancelCommand);
+#endif
             var flipResult = await flip;
 
             await telescopeMediator.RaiseAfterMeridianFlip(new AfterMeridianFlipEventArgs(flipResult, targetCoordinates));
 
+#if HAS_WPF
             await service.Close();
             await serviceTask;
+#endif
             return flipResult;
         }
     }

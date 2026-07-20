@@ -1,7 +1,7 @@
 #region "copyright"
 
 /*
-    Copyright © 2016 - 2026 Stefan Berg <isbeorn86+NINA@googlemail.com> and the N.I.N.A. contributors
+    Copyright ï¿½ 2016 - 2026 Stefan Berg <isbeorn86+NINA@googlemail.com> and the N.I.N.A. contributors
 
     This file is part of N.I.N.A. - Nighttime Imaging 'N' Astronomy.
 
@@ -27,7 +27,9 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
+#if HAS_WPF
 using System.Windows.Navigation;
+#endif
 using NINA.Core.Model;
 using NINA.Core.Model.Equipment;
 using NINA.Image.ImageAnalysis;
@@ -398,6 +400,7 @@ namespace NINA.WPF.Base.ViewModel.AutoFocus {
                 return new MeasureAndError() { Measure = 100 * imageStatistics.StDev / imageStatistics.Mean, Stdev = 0.01 };
             }
 
+#if HAS_WPF
             System.Windows.Media.PixelFormat pixelFormat;
 
             if (imageProperties.IsBayered && profileService.ActiveProfile.ImageSettings.DebayerImage) {
@@ -405,6 +408,7 @@ namespace NINA.WPF.Base.ViewModel.AutoFocus {
             } else {
                 pixelFormat = System.Windows.Media.PixelFormats.Gray16;
             }
+#endif
 
             if (profileService.ActiveProfile.FocuserSettings.AutoFocusMethod == AFMethodEnum.STARHFR) {
                 var analysisParams = new StarDetectionParams() {
@@ -430,20 +434,27 @@ namespace NINA.WPF.Base.ViewModel.AutoFocus {
                 }
 
                 var starDetection = starDetectionSelector.GetBehavior();
+#if HAS_WPF
                 var analysisResult = await starDetection.Detect(image, pixelFormat, analysisParams, progress, token);
+#else
+                var analysisResult = await starDetection.DetectPortable(image, analysisParams, progress, token);
+#endif
                 image.UpdateAnalysis(analysisParams, analysisResult);
 
+#if HAS_WPF
                 if (profileService.ActiveProfile.ImageSettings.AnnotateImage) {
                     token.ThrowIfCancellationRequested();
                     var starAnnotator = starAnnotatorSelector.GetBehavior();
                     var annotatedImage = await starAnnotator.GetAnnotatedImage(analysisParams, analysisResult, image.Image, token: token);
                     imagingMediator.SetImage(annotatedImage);
                 }
+#endif
 
                 Logger.Debug($"Current Focus: Position: {_focusPosition}, HFR: {analysisResult.AverageHFR}");
                 var stdev = double.IsNaN(analysisResult.HFRStdDev) ? 0 : analysisResult.HFRStdDev;
                 return new MeasureAndError() { Measure = analysisResult.AverageHFR, Stdev = stdev };
             } else {
+#if HAS_WPF
                 var analysis = new ContrastDetection();
                 var analysisParams = new ContrastDetectionParams() {
                     Sensitivity = profileService.ActiveProfile.ImageSettings.StarSensitivity,
@@ -459,6 +470,9 @@ namespace NINA.WPF.Base.ViewModel.AutoFocus {
                 var stdev = double.IsNaN(analysisResult.ContrastStdev) ? 0 : analysisResult.ContrastStdev;
                 MeasureAndError ContrastMeasurement = new MeasureAndError() { Measure = analysisResult.AverageContrast, Stdev = stdev };
                 return ContrastMeasurement;
+#else
+                throw new NotSupportedException("Contrast-detection autofocus is not supported outside of the WPF application yet.");
+#endif
             }
         }
 
@@ -676,7 +690,7 @@ namespace NINA.WPF.Base.ViewModel.AutoFocus {
         private async Task<bool> ValidateCalculatedFocusPosition(DataPoint focusPoint, FilterInfo filter, CancellationToken token, IProgress<ApplicationStatus> progress, double initialHFR) {
             var rSquaredThreshold = profileService.ActiveProfile.FocuserSettings.RSquaredThreshold;
             if (profileService.ActiveProfile.FocuserSettings.AutoFocusMethod == AFMethodEnum.STARHFR) {
-                // Evaluate R² for Fittings to be above threshold
+                // Evaluate Rï¿½ for Fittings to be above threshold
 
                 if (rSquaredThreshold > 0) {
                     var hyperbolicBad = HyperbolicFitting.RSquared < rSquaredThreshold;
@@ -686,19 +700,19 @@ namespace NINA.WPF.Base.ViewModel.AutoFocus {
                     var fitting = profileService.ActiveProfile.FocuserSettings.AutoFocusCurveFitting;
 
                     if ((fitting == AFCurveFittingEnum.HYPERBOLIC || fitting == AFCurveFittingEnum.TRENDHYPERBOLIC) && hyperbolicBad) {
-                        Logger.Error($"Auto Focus Failed! R² (Coefficient of determination) for Hyperbolic Fitting is below threshold. {Math.Round(HyperbolicFitting.RSquared, 2)} / {rSquaredThreshold}");
+                        Logger.Error($"Auto Focus Failed! Rï¿½ (Coefficient of determination) for Hyperbolic Fitting is below threshold. {Math.Round(HyperbolicFitting.RSquared, 2)} / {rSquaredThreshold}");
                         Notification.ShowError(string.Format(Loc.Instance["LblAutoFocusCurveCorrelationCoefficientLow"], Math.Round(HyperbolicFitting.RSquared, 2), rSquaredThreshold));
                         return false;
                     }
 
                     if ((fitting == AFCurveFittingEnum.PARABOLIC || fitting == AFCurveFittingEnum.TRENDPARABOLIC) && quadraticBad) {
-                        Logger.Error($"Auto Focus Failed! R² (Coefficient of determination) for Parabolic Fitting is below threshold. {Math.Round(QuadraticFitting.RSquared, 2)} / {rSquaredThreshold}");
+                        Logger.Error($"Auto Focus Failed! Rï¿½ (Coefficient of determination) for Parabolic Fitting is below threshold. {Math.Round(QuadraticFitting.RSquared, 2)} / {rSquaredThreshold}");
                         Notification.ShowError(string.Format(Loc.Instance["LblAutoFocusCurveCorrelationCoefficientLow"], Math.Round(QuadraticFitting.RSquared, 2), rSquaredThreshold));
                         return false;
                     }
 
                     if ((fitting == AFCurveFittingEnum.TRENDLINES || fitting == AFCurveFittingEnum.TRENDHYPERBOLIC || fitting == AFCurveFittingEnum.TRENDPARABOLIC) && trendlineBad) {
-                        Logger.Error($"Auto Focus Failed! R² (Coefficient of determination) for Trendline Fitting is below threshold. Left: {Math.Round(TrendlineFitting.LeftTrend.RSquared, 2)} / {rSquaredThreshold}; Right: {Math.Round(TrendlineFitting.RightTrend.RSquared, 2)} / {rSquaredThreshold}");
+                        Logger.Error($"Auto Focus Failed! Rï¿½ (Coefficient of determination) for Trendline Fitting is below threshold. Left: {Math.Round(TrendlineFitting.LeftTrend.RSquared, 2)} / {rSquaredThreshold}; Right: {Math.Round(TrendlineFitting.RightTrend.RSquared, 2)} / {rSquaredThreshold}");
                         Notification.ShowError(string.Format(Loc.Instance["LblAutoFocusCurveCorrelationCoefficientLow"], Math.Round(TrendlineFitting.LeftTrend.RSquared, 2), Math.Round(TrendlineFitting.RightTrend.RSquared, 2), rSquaredThreshold));
                         return false;
                     }

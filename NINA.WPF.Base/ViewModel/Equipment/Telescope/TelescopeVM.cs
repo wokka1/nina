@@ -18,7 +18,9 @@ using NINA.Astrometry;
 using NINA.Equipment.Interfaces.Mediator;
 using NINA.Core.Utility.Notification;
 using NINA.Profile.Interfaces;
+#if HAS_WPF
 using NINA.Core.Utility.WindowService;
+#endif
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -30,7 +32,9 @@ using NINA.Core.Enum;
 using NINA.WPF.Base.Interfaces.Mediator;
 using NINA.Core.Model;
 using NINA.Core.Locale;
+#if HAS_WPF
 using NINA.Core.MyMessageBox;
+#endif
 using NINA.Equipment.Interfaces;
 using NINA.Equipment.Interfaces.ViewModel;
 using NINA.Equipment.Equipment;
@@ -56,7 +60,9 @@ namespace NINA.WPF.Base.ViewModel.Equipment.Telescope {
             this.domeMediator = domeMediator;
             this.DeviceChooserVM = deviceChooserVM;
             Title = Loc.Instance["LblMount"];
+#if HAS_WPF
             ImageGeometry = (System.Windows.Media.GeometryGroup)System.Windows.Application.Current.Resources["TelescopeSVG"];
+#endif
 
             progress = new Progress<ApplicationStatus>(p => {
                 p.Source = this.Title;
@@ -368,7 +374,9 @@ namespace NINA.WPF.Base.ViewModel.Equipment.Telescope {
         }
         public IDeviceChooserVM DeviceChooserVM { get; set; }
 
+#if HAS_WPF
         public IWindowService WindowService { get; set; } = new WindowService();
+#endif
 
         private readonly SemaphoreSlim ss = new SemaphoreSlim(1, 1);
 
@@ -424,6 +432,7 @@ namespace NINA.WPF.Base.ViewModel.Equipment.Telescope {
 
                                 TelescopeLocationSyncDirection syncMode = profileService.ActiveProfile.TelescopeSettings.TelescopeLocationSyncDirection;
                                 if (profileService.ActiveProfile.TelescopeSettings.TelescopeLocationSyncDirection == TelescopeLocationSyncDirection.PROMPT) {
+#if HAS_WPF
                                     var syncVM = new TelescopeLatLongSyncVM(
                                         profileService.ActiveProfile.AstrometrySettings.Latitude,
                                         profileService.ActiveProfile.AstrometrySettings.Longitude,
@@ -435,6 +444,7 @@ namespace NINA.WPF.Base.ViewModel.Equipment.Telescope {
                                     await WindowService.ShowDialog(syncVM, Loc.Instance["LblSyncLatLong"], System.Windows.ResizeMode.NoResize, System.Windows.WindowStyle.ToolWindow);
 
                                     syncMode = syncVM.Mode;
+#endif
                                 }
 
                                 if (syncMode == TelescopeLocationSyncDirection.TOAPPLICATION) {
@@ -721,10 +731,14 @@ namespace NINA.WPF.Base.ViewModel.Equipment.Telescope {
         }
 
         private async Task<bool> DisconnectTelescope() {
+#if HAS_WPF
             var diag = MyMessageBox.Show(Loc.Instance["LblDisconnectMount"], "", System.Windows.MessageBoxButton.OKCancel, System.Windows.MessageBoxResult.Cancel);
             if (diag == System.Windows.MessageBoxResult.OK) {
                 await Disconnect();
             }
+#else
+            await Disconnect();
+#endif
             return true;
         }
 

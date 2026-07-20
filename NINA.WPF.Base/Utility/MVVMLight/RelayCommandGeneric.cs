@@ -110,6 +110,7 @@ namespace GalaSoft.MvvmLight.Command
         /// </summary>
         public event EventHandler CanExecuteChanged;
 #else
+        private EventHandler _requerySuggestedLocal;
 
         /// <summary>
         /// Occurs when changes occur that affect whether the command should execute.
@@ -117,13 +118,19 @@ namespace GalaSoft.MvvmLight.Command
         public event EventHandler CanExecuteChanged {
             add {
                 if (_canExecute != null) {
+                    _requerySuggestedLocal += value;
+#if HAS_WPF
                     CommandManager.RequerySuggested += value;
+#endif
                 }
             }
 
             remove {
                 if (_canExecute != null) {
+                    _requerySuggestedLocal -= value;
+#if HAS_WPF
                     CommandManager.RequerySuggested -= value;
+#endif
                 }
             }
         }
@@ -161,7 +168,11 @@ namespace GalaSoft.MvvmLight.Command
                 handler(this, EventArgs.Empty);
             }
 #else
+#if HAS_WPF
             CommandManager.InvalidateRequerySuggested();
+#else
+            _requerySuggestedLocal?.Invoke(this, EventArgs.Empty);
+#endif
 #endif
         }
 

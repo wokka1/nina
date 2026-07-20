@@ -45,7 +45,9 @@ namespace NINA.WPF.Base.ViewModel.Equipment.Switch {
                         ISwitchMediator switchMediator,
                         IDeviceChooserVM deviceChooserVM) : base(profileService) {
             Title = Loc.Instance["LblSwitch"];
+#if HAS_WPF
             ImageGeometry = (System.Windows.Media.GeometryGroup)System.Windows.Application.Current.Resources["SwitchesSVG"];
+#endif
             HasSettings = true;
             DeviceChooserVM = deviceChooserVM;
             writableSwitches = new AsyncObservableCollection<IWritableSwitch>();

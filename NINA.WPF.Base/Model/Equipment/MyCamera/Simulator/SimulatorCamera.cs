@@ -1,7 +1,7 @@
 #region "copyright"
 
 /*
-    Copyright © 2016 - 2026 Stefan Berg <isbeorn86+NINA@googlemail.com> and the N.I.N.A. contributors
+    Copyright ï¿½ 2016 - 2026 Stefan Berg <isbeorn86+NINA@googlemail.com> and the N.I.N.A. contributors
 
     This file is part of N.I.N.A. - Nighttime Imaging 'N' Astronomy.
 
@@ -20,7 +20,9 @@ using NINA.Astrometry;
 using NINA.Core.Enum;
 using NINA.Core.Model.Equipment;
 using NINA.Core.Utility;
+#if HAS_WPF
 using NINA.Core.Utility.WindowService;
+#endif
 using NINA.Equipment.Equipment.MyTelescope;
 using NINA.Equipment.Interfaces;
 using NINA.Equipment.Interfaces.Mediator;
@@ -30,7 +32,9 @@ using NINA.Image.ImageData;
 using NINA.Image.Interfaces;
 
 using NINA.Profile.Interfaces;
+#if HAS_WPF
 using NINA.WPF.Base.SkySurvey;
+#endif
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -38,7 +42,9 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
+#if HAS_WPF
 using System.Windows.Media.Media3D;
+#endif
 
 namespace NINA.WPF.Base.Model.Equipment.MyCamera.Simulator {
 
@@ -428,6 +434,7 @@ namespace NINA.WPF.Base.Model.Equipment.MyCamera.Simulator {
                     throw new Exception("No Image source set in Simulator!");
 
                 case CameraType.SKYSURVEY:
+#if HAS_WPF
                     if (!telescopeInfo.Connected) {
                         throw new Exception("Telescope is not connected to get reference coordinates for Simulator Camera Image");
                     }
@@ -443,7 +450,7 @@ namespace NINA.WPF.Base.Model.Equipment.MyCamera.Simulator {
                         coordinates = new TopocentricCoordinates(
                             azimuth: altAz.Azimuth + Angle.ByDegree(Settings.SkySurveySettings.AzShift / 60d / 60d),
                             altitude: altAz.Altitude + Angle.ByDegree(Settings.SkySurveySettings.AltShift / 60d / 60d),
-                            latitude: altAz.Latitude, 
+                            latitude: altAz.Latitude,
                             longitude: altAz.Longitude,
                             elevation: altAz.Elevation
                             ).Transform(Epoch.J2000);
@@ -466,6 +473,11 @@ namespace NINA.WPF.Base.Model.Equipment.MyCamera.Simulator {
                     profileService.ActiveProfile.TelescopeSettings.FocalLength = (int)focalLength;
 
                     return data;
+#else
+                    // Sky survey backed simulator images rely on the WPF-only NINA.WPF.Base.SkySurvey
+                    // providers (BitmapSource-based). Not ported to a portable image pipeline yet.
+                    throw new NotSupportedException("Sky survey simulator camera images are not supported outside of the WPF application yet.");
+#endif
 
                 case CameraType.DIRECTORY:
                     if (files == null || files.Length == 0) {
@@ -494,7 +506,9 @@ namespace NINA.WPF.Base.Model.Equipment.MyCamera.Simulator {
             throw new NotSupportedException();
         }
 
+#if HAS_WPF
         private Dictionary<string, SkySurveyImage> ImageCache = new Dictionary<string, SkySurveyImage>();
+#endif
 
         private IProfileService profileService;
         private ITelescopeMediator telescopeMediator;
@@ -504,6 +518,7 @@ namespace NINA.WPF.Base.Model.Equipment.MyCamera.Simulator {
         public void SetBinning(short x, short y) {
         }
 
+#if HAS_WPF
         private IWindowService windowService;
 
         public IWindowService WindowService {
@@ -515,12 +530,16 @@ namespace NINA.WPF.Base.Model.Equipment.MyCamera.Simulator {
             }
             set => windowService = value;
         }
+#endif
 
         public void SetupDialog() {
+#if HAS_WPF
             WindowService.Show(this, "Simulator Setup", System.Windows.ResizeMode.NoResize, System.Windows.WindowStyle.ToolWindow);
+#endif
         }
 
         private async Task<bool> LoadImageDialog() {
+#if HAS_WPF
             Microsoft.Win32.OpenFileDialog dialog = new Microsoft.Win32.OpenFileDialog();
             dialog.Title = "Load Image";
             dialog.FileName = "Image";
@@ -533,6 +552,10 @@ namespace NINA.WPF.Base.Model.Equipment.MyCamera.Simulator {
                 return true;
             }
             return false;
+#else
+            await Task.CompletedTask;
+            return false;
+#endif
         }
 
         private async Task LoadImage(string path) {
@@ -555,6 +578,7 @@ namespace NINA.WPF.Base.Model.Equipment.MyCamera.Simulator {
             if (string.IsNullOrWhiteSpace(settings.DirectorySettings.DirectoryPath)) {
                 settings.DirectorySettings.DirectoryPath = Path.GetDirectoryName(profileService.ActiveProfile.ImageFileSettings.FilePath);
             }
+#if HAS_WPF
             OpenFolderDialog dialog = new OpenFolderDialog();
             dialog.Title = "Load Image Directory";
             if(Directory.Exists(settings.DirectorySettings.DirectoryPath)) {
@@ -567,6 +591,9 @@ namespace NINA.WPF.Base.Model.Equipment.MyCamera.Simulator {
                 return true;
             }
             return false;
+#else
+            return false;
+#endif
         }
 
         private ushort[] ExtractROI(ushort[] fullImage, int fullImageWidth) {

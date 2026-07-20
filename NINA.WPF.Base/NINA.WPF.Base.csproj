@@ -1,10 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net10.0-windows</TargetFramework>
+    <TargetFrameworks>net10.0-windows;net10.0</TargetFrameworks>
     <OutputType>Library</OutputType>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <UseWPF>true</UseWPF>
-    <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
+    <UseWPF Condition="'$(TargetFramework)'=='net10.0-windows'">true</UseWPF>
+    <DefineConstants Condition="'$(TargetFramework)'=='net10.0-windows'">$(DefineConstants);HAS_WPF</DefineConstants>
+    <ImportWindowsDesktopTargets Condition="'$(TargetFramework)'=='net10.0-windows'">true</ImportWindowsDesktopTargets>
     <Configurations>Debug;Release;SignedRelease</Configurations>
     <EnableWindowsTargeting>true</EnableWindowsTargeting>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
@@ -49,18 +50,18 @@
     <ProjectReference Include="..\NINA.MGEN\NINA.MGEN.csproj" />
     <ProjectReference Include="..\NINA.Platesolving\NINA.PlateSolving.csproj" />
     <ProjectReference Include="..\NINA.Profile\NINA.Profile.csproj" />
-    <ProjectReference Include="..\NINA.CustomControlLibrary\NINA.CustomControlLibrary.csproj" />
+    <ProjectReference Include="..\NINA.CustomControlLibrary\NINA.CustomControlLibrary.csproj" Condition="'$(TargetFramework)'=='net10.0-windows'" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="AsyncEnumerator" Version="4.0.2" />
     <PackageReference Include="CsvHelper" Version="33.1.0" />
-    <PackageReference Include="DotNetProjects.Extended.Wpf.Toolkit" Version="5.0.129" />
-    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.3650.58" />
-    <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.135" />
+    <PackageReference Include="DotNetProjects.Extended.Wpf.Toolkit" Version="5.0.129" Condition="'$(TargetFramework)'=='net10.0-windows'" />
+    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.3650.58" Condition="'$(TargetFramework)'=='net10.0-windows'" />
+    <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.135" Condition="'$(TargetFramework)'=='net10.0-windows'" />
     <PackageReference Include="Nito.Mvvm.Async" Version="1.0.0-pre-04" />
     <PackageReference Include="OxyPlot.Contrib" Version="2.1.2" />
-    <PackageReference Include="OxyPlot.Contrib.Wpf" Version="2.1.2" />
-    <PackageReference Include="OxyPlot.Wpf" Version="2.2.0" />
+    <PackageReference Include="OxyPlot.Contrib.Wpf" Version="2.1.2" Condition="'$(TargetFramework)'=='net10.0-windows'" />
+    <PackageReference Include="OxyPlot.Wpf" Version="2.2.0" Condition="'$(TargetFramework)'=='net10.0-windows'" />
     <PackageReference Include="System.Data.SqlClient" Version="4.9.0" />
   </ItemGroup>
   <ItemGroup>
@@ -83,4 +84,62 @@
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
     <Exec IgnoreExitCode="true" Command="  if exist &quot;$(SolutionDir)Accord.Imaging\bin\SignedRelease\netstandard2.0\Accord.Imaging.dll&quot; echo F | xcopy &quot;$(SolutionDir)Accord.Imaging\bin\SignedRelease\netstandard2.0\Accord.Imaging.dll&quot; &quot;$(ProjectDir)bin\SignedRelease\Accord.Imaging\bin\SignedRelease\netstandard2.0\Accord.Imaging.dll&quot; /h/i/c/k/e/r/y   &#xD;&#xA;  if exist &quot;$(SolutionDir)OxyPlot.Contrib.Wpf\bin\SignedRelease\netcoreapp3.1\OxyPlot.Contrib.Wpf.dll&quot; echo F | xcopy &quot;$(SolutionDir)OxyPlot.Contrib.Wpf\bin\SignedRelease\netcoreapp3.1\OxyPlot.Contrib.Wpf.dll&quot; &quot;$(ProjectDir)bin\SignedRelease\OxyPlot.Contrib.Wpf\bin\SignedRelease\netcoreapp3.1\OxyPlot.Contrib.Wpf.dll&quot; /h/i/c/k/e/r/y &#xD;&#xA;&#xD;&#xA;  if $(Configuration) == SignedRelease signtool sign /t http://timestamp.sectigo.com /i Sectigo /v /a /fd SHA256 $(TargetPath)" />
   </Target>
+  <ItemGroup Condition="'$(TargetFramework)'=='net10.0'">
+    <!-- References NINA.CustomControlLibrary's IAutoCompleteItem, which is not yet portable -
+         deep-sky search autocomplete is Phase 4 (SkyAtlas/FramingAssistant) territory, not
+         needed for the equipment VMs this multi-target pass is really after. Revisit then. -->
+    <Compile Remove="Interfaces\ViewModel\IDeepSkyObjectSearchVM.cs" />
+
+    <!-- WPF attached behaviors (Microsoft.Xaml.Behaviors.Wpf) - pure UI plumbing, no portable logic. -->
+    <Compile Remove="Behaviors\BrowserBehavior.cs" />
+    <Compile Remove="Behaviors\BubbleScrollEvent.cs" />
+    <Compile Remove="Behaviors\DragCommandBehavior.cs" />
+    <Compile Remove="Behaviors\MouseCommandBehavior.cs" />
+    <Compile Remove="Behaviors\MouseFollowBehavior.cs" />
+    <Compile Remove="Behaviors\MouseWheelCommandBehavior.cs" />
+
+    <!-- XAML code-behind - UserControl/Window partial classes, no portable logic. -->
+    <Compile Remove="View\AltitudeChart.xaml.cs" />
+    <Compile Remove="View\Browser.xaml.cs" />
+    <Compile Remove="View\BrowserPopupButton.xaml.cs" />
+    <Compile Remove="View\ImageView.xaml.cs" />
+    <Compile Remove="View\PopupButton.xaml.cs" />
+    <Compile Remove="InputBox\InputBox.xaml.cs" />
+    <Compile Remove="Model\Equipment\MySafetyMonitor\Simulator\SafetyMonitorSimulatorSetup.xaml.cs" />
+    <Compile Remove="Model\Equipment\MyCamera\Simulator\SetupView.xaml.cs" />
+
+    <!-- FramingAssistant / SkyAtlas image-survey subsystem - same Phase 4 territory as
+         IDeepSkyObjectSearchVM.cs above. These are WPF BitmapSource image-compositing
+         providers and the sky-map annotation renderer for the framing assistant; there is
+         no separable portable logic left once the WPF bitmap pipeline is removed, and
+         building a portable replacement rendering pipeline is out of scope for this pass.
+         Revisit alongside IDeepSkyObjectSearchVM.cs in Phase 4. -->
+    <Compile Remove="Interfaces\ViewModel\IFramingAssistantVM.cs" />
+    <Compile Remove="Interfaces\ViewModel\ISkyMapAnnotator.cs" />
+    <Compile Remove="Model\FramingAssistant\FramingDSO.cs" />
+    <Compile Remove="Model\FramingAssistant\FrameLineMatrix2.cs" />
+    <Compile Remove="Model\FramingAssistant\FramingConstellation.cs" />
+    <Compile Remove="Model\FramingAssistant\FramingConstellationBoundary.cs" />
+    <Compile Remove="SkySurvey\CacheSkySurvey.cs" />
+    <Compile Remove="SkySurvey\CacheSkySurveyImageFactory.cs" />
+    <Compile Remove="SkySurvey\ESOSkySurvey.cs" />
+    <Compile Remove="SkySurvey\FileSkySurvey.cs" />
+    <Compile Remove="SkySurvey\Hips2FitsSurvey.cs" />
+    <Compile Remove="SkySurvey\ISkySurvey.cs" />
+    <Compile Remove="SkySurvey\MosaicSkySurvey.cs" />
+    <Compile Remove="SkySurvey\NASASkySurvey.cs" />
+    <Compile Remove="SkySurvey\SkyAtlasSkySurvey.cs" />
+    <Compile Remove="SkySurvey\SkyMapAnnotator.cs" />
+    <Compile Remove="SkySurvey\SkyServerSkySurvey.cs" />
+    <Compile Remove="SkySurvey\SkySurveyFactory.cs" />
+    <Compile Remove="SkySurvey\StsciSkySurvey.cs" />
+
+    <!-- Pure WPF utility classes (DataTemplateSelector, ResourceDictionary subclass, and a
+         Dispatcher-bound progress factory / IDispatcher backing) - no separable portable logic,
+         not referenced from anywhere outside XAML. -->
+    <Compile Remove="Utility\GenericTemplateSelector.cs" />
+    <Compile Remove="Utility\ProgressFactory.cs" />
+    <Compile Remove="Utility\SharedResourceDictionary.cs" />
+    <Compile Remove="Utility\WpfDispatcher.cs" />
+  </ItemGroup>
 </Project>

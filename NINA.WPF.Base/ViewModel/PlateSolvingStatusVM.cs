@@ -1,7 +1,7 @@
 #region "copyright"
 
 /*
-    Copyright © 2016 - 2026 Stefan Berg <isbeorn86+NINA@googlemail.com> and the N.I.N.A. contributors
+    Copyright ï¿½ 2016 - 2026 Stefan Berg <isbeorn86+NINA@googlemail.com> and the N.I.N.A. contributors
 
     This file is part of N.I.N.A. - Nighttime Imaging 'N' Astronomy.
 
@@ -20,7 +20,9 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+#if HAS_WPF
 using System.Windows.Media.Imaging;
+#endif
 using NINA.Core.Locale;
 using NINA.Core.Model;
 
@@ -31,9 +33,11 @@ namespace NINA.WPF.Base.ViewModel {
         public PlateSolvingStatusVM() {
             PlateSolveHistory = new AsyncObservableCollection<PlateSolveResult>();
             Progress = new Progress<PlateSolveProgress>(x => {
+#if HAS_WPF
                 if (x.Thumbnail != null) {
                     Thumbnail = x.Thumbnail;
                 }
+#endif
                 if (x.PlateSolveResult != null) {
                     PlateSolveResult = x.PlateSolveResult;
                 }
@@ -86,6 +90,7 @@ namespace NINA.WPF.Base.ViewModel {
         }
 
 
+#if HAS_WPF
         private BitmapSource thumbnail;
 
         public BitmapSource Thumbnail {
@@ -95,5 +100,6 @@ namespace NINA.WPF.Base.ViewModel {
                 RaisePropertyChanged();
             }
         }
+#endif
     }
 }

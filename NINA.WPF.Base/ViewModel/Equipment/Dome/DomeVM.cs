@@ -29,7 +29,9 @@ using NINA.Equipment.Equipment.MySafetyMonitor;
 using NINA.Core.Locale;
 using NINA.WPF.Base.Interfaces.Mediator;
 using NINA.Core.Model;
+#if HAS_WPF
 using NINA.Core.MyMessageBox;
+#endif
 using NINA.Equipment.Interfaces.ViewModel;
 using NINA.Equipment.Interfaces;
 using NINA.Equipment.Equipment;
@@ -53,7 +55,9 @@ namespace NINA.WPF.Base.ViewModel.Equipment.Dome {
                       IApplicationResourceDictionary resourceDictionary,
                       IDeviceUpdateTimerFactory deviceUpdateTimerFactory) : base(profileService) {
             Title = Loc.Instance["LblDome"];
+#if HAS_WPF
             ImageGeometry = (System.Windows.Media.GeometryGroup)resourceDictionary["ObservatorySVG"];
+#endif
 
             this.domeMediator = domeMediator;
             this.domeMediator.RegisterHandler(this);
@@ -335,10 +339,14 @@ namespace NINA.WPF.Base.ViewModel.Equipment.Dome {
         }
 
         private async Task<bool> DisconnectDiag() {
+#if HAS_WPF
             var diag = MyMessageBox.Show(Loc.Instance["LblDomeDisconnect"], "", System.Windows.MessageBoxButton.OKCancel, System.Windows.MessageBoxResult.Cancel);
             if (diag == System.Windows.MessageBoxResult.OK) {
                 await Disconnect();
             }
+#else
+            await Disconnect();
+#endif
             return true;
         }
 

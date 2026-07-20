@@ -13,7 +13,9 @@
 #endregion "copyright"
 
 using NINA.Core.Utility;
+#if HAS_WPF
 using NINA.Core.Utility.WindowService;
+#endif
 using NINA.Equipment.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -54,6 +56,7 @@ namespace NINA.WPF.Base.Model.Equipment.MySafetyMonitor.Simulator {
             Connected = false;
         }
 
+#if HAS_WPF
         private IWindowService windowService;
 
         public IWindowService WindowService {
@@ -65,9 +68,12 @@ namespace NINA.WPF.Base.Model.Equipment.MySafetyMonitor.Simulator {
             }
             set => windowService = value;
         }
+#endif
 
         public void SetupDialog() {
+#if HAS_WPF
             WindowService.Show(this, "Simulator Setup", System.Windows.ResizeMode.NoResize, System.Windows.WindowStyle.ToolWindow);
+#endif
         }
 
         public IList<string> SupportedActions => new List<string>();

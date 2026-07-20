@@ -14,7 +14,9 @@
 
 using NINA.Astrometry;
 using NINA.Core.Model;
+#if HAS_WPF
 using NINA.Core.Utility.WindowService;
+#endif
 using NINA.WPF.Base.ViewModel;
 using System;
 using System.Threading;
@@ -28,7 +30,9 @@ namespace NINA.WPF.Base.Interfaces.ViewModel {
         TimeSpan RemainingTime { get; set; }
         ApplicationStatus Status { get; set; }
         AutomatedWorkflow Steps { get; set; }
+#if HAS_WPF
         IWindowServiceFactory WindowServiceFactory { get; set; }
+#endif
 
         Task<bool> MeridianFlip(Coordinates targetCoordinates, TimeSpan timeToFlip, CancellationToken cancellationToken = default);
     }

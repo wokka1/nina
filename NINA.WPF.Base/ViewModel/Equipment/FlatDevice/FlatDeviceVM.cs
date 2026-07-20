@@ -1,7 +1,7 @@
 #region "copyright"
 
 /*
-    Copyright © 2016 - 2026 Stefan Berg <isbeorn86+NINA@googlemail.com> and the N.I.N.A. contributors
+    Copyright ï¿½ 2016 - 2026 Stefan Berg <isbeorn86+NINA@googlemail.com> and the N.I.N.A. contributors
 
     This file is part of N.I.N.A. - Nighttime Imaging 'N' Astronomy.
 
@@ -16,7 +16,9 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using NINA.Core.Locale;
 using NINA.Core.Model;
+#if HAS_WPF
 using NINA.Core.MyMessageBox;
+#endif
 using NINA.Core.Utility;
 using NINA.Core.Utility.Extensions;
 using NINA.Core.Utility.Notification;
@@ -53,10 +55,15 @@ namespace NINA.WPF.Base.ViewModel.Equipment.FlatDevice {
                             IFlatDeviceMediator flatDeviceMediator,
                             IApplicationStatusMediator applicationStatusMediator,
                             ICameraMediator cameraMediator,
-                            IDeviceChooserVM flatDeviceChooserVm,
-                            IImageGeometryProvider imageGeometryProvider) : base(profileService) {
+                            IDeviceChooserVM flatDeviceChooserVm
+#if HAS_WPF
+                            , IImageGeometryProvider imageGeometryProvider
+#endif
+                            ) : base(profileService) {
             Title = Loc.Instance["LblFlatDevice"];
+#if HAS_WPF
             ImageGeometry = imageGeometryProvider.GetImageGeometry("LightBulbSVG");
+#endif
             HasSettings = true;
 
             this.applicationStatusMediator = applicationStatusMediator;
@@ -295,11 +302,15 @@ namespace NINA.WPF.Base.ViewModel.Equipment.FlatDevice {
         }
 
         private async Task<bool> DisconnectFlatDeviceDialog() {
+#if HAS_WPF
             var dialog = MyMessageBox.Show(Loc.Instance["LblFlatDeviceDisconnectQuestion"],
                 "", System.Windows.MessageBoxButton.OKCancel, System.Windows.MessageBoxResult.Cancel);
             if (dialog == System.Windows.MessageBoxResult.OK) {
                 await Disconnect();
             }
+#else
+            await Disconnect();
+#endif
             return true;
         }
 

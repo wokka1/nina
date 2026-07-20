@@ -1,7 +1,7 @@
 #region "copyright"
 
 /*
-    Copyright © 2016 - 2026 Stefan Berg <isbeorn86+NINA@googlemail.com> and the N.I.N.A. contributors
+    Copyright ï¿½ 2016 - 2026 Stefan Berg <isbeorn86+NINA@googlemail.com> and the N.I.N.A. contributors
 
     This file is part of N.I.N.A. - Nighttime Imaging 'N' Astronomy.
 
@@ -26,7 +26,9 @@ using NINA.Core.Locale;
 using NINA.Core.Enum;
 using NINA.WPF.Base.Interfaces.Mediator;
 using NINA.Core.Model;
+#if HAS_WPF
 using NINA.Core.MyMessageBox;
+#endif
 using NINA.Equipment.Interfaces;
 using NINA.Equipment.Interfaces.ViewModel;
 using NINA.Equipment.Equipment;
@@ -48,10 +50,15 @@ namespace NINA.WPF.Base.ViewModel.Equipment.Focuser {
         public FocuserVM(IProfileService profileService,
                          IFocuserMediator focuserMediator,
                          IApplicationStatusMediator applicationStatusMediator,
-                         IDeviceChooserVM focuserChooserVm,
-                         IImageGeometryProvider imageGeometryProvider) : base(profileService) {
+                         IDeviceChooserVM focuserChooserVm
+#if HAS_WPF
+                         , IImageGeometryProvider imageGeometryProvider
+#endif
+                         ) : base(profileService) {
             Title = Loc.Instance["LblFocuser"];
+#if HAS_WPF
             ImageGeometry = imageGeometryProvider.GetImageGeometry("FocusSVG");
+#endif
             HasSettings = true;
 
             this.focuserMediator = focuserMediator;
@@ -150,11 +157,11 @@ namespace NINA.WPF.Base.ViewModel.Equipment.Focuser {
                 if (lastFocusedTemperature == -1000) {
                     delta = 0;
                     deltaInt = 0;
-                    Logger.Info($"Moving Focuser By Temperature - Slope {slope} * ( DeltaT ) °C (relative mode) - lastTemperature initialized to {temperature}");
+                    Logger.Info($"Moving Focuser By Temperature - Slope {slope} * ( DeltaT ) ï¿½C (relative mode) - lastTemperature initialized to {temperature}");
                 } else {
                     delta = lastRoundoff + (temperature - lastFocusedTemperature) * slope;
                     deltaInt = (int)Math.Round(delta);
-                    Logger.Info($"Moving Focuser By Temperature - LastRoundoff {lastRoundoff} + Slope {slope} * ( Temperature {temperature} - PrevTemperature {lastFocusedTemperature} ) °C (relative mode) = Delta {delta} / DeltaInt {deltaInt}");
+                    Logger.Info($"Moving Focuser By Temperature - LastRoundoff {lastRoundoff} + Slope {slope} * ( Temperature {temperature} - PrevTemperature {lastFocusedTemperature} ) ï¿½C (relative mode) = Delta {delta} / DeltaInt {deltaInt}");
                 }
                 int pos = Position;
                 var result = await MoveFocuserInternal(pos + deltaInt, ct);
@@ -422,10 +429,14 @@ namespace NINA.WPF.Base.ViewModel.Equipment.Focuser {
         public int Position => Focuser?.Position ?? 0;
 
         private async Task<bool> DisconnectDiag() {
+#if HAS_WPF
             var diag = MyMessageBox.Show(Loc.Instance["LblDisconnectFocuser"], "", System.Windows.MessageBoxButton.OKCancel, System.Windows.MessageBoxResult.Cancel);
             if (diag == System.Windows.MessageBoxResult.OK) {
                 await Disconnect();
             }
+#else
+            await Disconnect();
+#endif
             return true;
         }
 
