@@ -117,6 +117,38 @@
                             </Grid>
                         </Border>
                     </StackPanel>
+
+                    <StackPanel Spacing="8" Width="480" Margin="0,0,24,24">
+                        <TextBlock Text="Filter Wheel" FontSize="16" FontWeight="SemiBold" />
+                        <Grid ColumnDefinitions="*,Auto,Auto,Auto" ColumnSpacing="6">
+                            <ComboBox Grid.Column="0"
+                                      ItemsSource="{ReflectionBinding EquipmentVM.FilterWheelVM.DeviceChooserVM.Devices}"
+                                      SelectedItem="{ReflectionBinding EquipmentVM.FilterWheelVM.DeviceChooserVM.SelectedDevice}"
+                                      HorizontalAlignment="Stretch">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{ReflectionBinding Name}" />
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+                            <Button Grid.Column="1" Content="Rescan" Command="{ReflectionBinding EquipmentVM.FilterWheelVM.RescanDevicesCommand}" />
+                            <Button Grid.Column="2" Content="Connect" Command="{ReflectionBinding EquipmentVM.FilterWheelVM.ConnectCommand}" />
+                            <Button Grid.Column="3" Content="Disconnect" Command="{ReflectionBinding EquipmentVM.FilterWheelVM.DisconnectCommand}" />
+                        </Grid>
+
+                        <Border BorderBrush="Gray" BorderThickness="0,1,0,0" Padding="0,8,0,0">
+                            <Grid ColumnDefinitions="150,*" RowDefinitions="Auto,Auto,Auto,Auto" RowSpacing="4">
+                                <TextBlock Grid.Row="0" Grid.Column="0" Text="Connected" FontWeight="SemiBold" />
+                                <TextBlock Grid.Row="0" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.FilterWheelVM.FilterWheelInfo.Connected}" />
+                                <TextBlock Grid.Row="1" Grid.Column="0" Text="Name" FontWeight="SemiBold" />
+                                <TextBlock Grid.Row="1" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.FilterWheelVM.FilterWheelInfo.Name}" />
+                                <TextBlock Grid.Row="2" Grid.Column="0" Text="Selected Filter" FontWeight="SemiBold" />
+                                <TextBlock Grid.Row="2" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.FilterWheelVM.FilterWheelInfo.SelectedFilter.Name}" />
+                                <TextBlock Grid.Row="3" Grid.Column="0" Text="Moving" FontWeight="SemiBold" />
+                                <TextBlock Grid.Row="3" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.FilterWheelVM.FilterWheelInfo.IsMoving}" />
+                            </Grid>
+                        </Border>
+                    </StackPanel>
                 </WrapPanel>
             </TabItem>
             <TabItem Header="Sky Atlas">

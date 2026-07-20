@@ -16,6 +16,7 @@ using NINA.Profile.Interfaces;
 using NINA.WPF.Base.Interfaces.Mediator;
 using NINA.WPF.Base.Mediator;
 using NINA.WPF.Base.ViewModel.Equipment.Camera;
+using NINA.WPF.Base.ViewModel.Equipment.FilterWheel;
 using NINA.WPF.Base.ViewModel.Equipment.Telescope;
 
 namespace NINA.Avalonia {
@@ -66,6 +67,8 @@ namespace NINA.Avalonia {
             services.AddSingleton<ITelescopeMediator, TelescopeMediator>();
             services.AddSingleton<IApplicationStatusMediator, ApplicationStatusMediator>();
             services.AddSingleton<IDomeMediator, DomeMediator>();
+            services.AddSingleton<IFocuserMediator, FocuserMediator>();
+            services.AddSingleton<IGuiderMediator, GuiderMediator>();
 
             services.AddSingleton<ISbigSdk, SbigSdk>();
 
@@ -77,6 +80,7 @@ namespace NINA.Avalonia {
                 f => new DefaultBehaviorSelector<IStarAnnotator>(new PortableStarAnnotator()));
             services.AddSingleton<IEquipmentProviders<ICamera>, NullEquipmentProviders<ICamera>>();
             services.AddSingleton<IEquipmentProviders<ITelescope>, NullEquipmentProviders<ITelescope>>();
+            services.AddSingleton<IEquipmentProviders<IFilterWheel>, NullEquipmentProviders<IFilterWheel>>();
 
             services.AddSingleton<IImageDataFactory, ImageDataFactory>();
             services.AddSingleton<IExposureDataFactory, ExposureDataFactory>();
@@ -103,6 +107,15 @@ namespace NINA.Avalonia {
                                 f.GetRequiredService<IApplicationStatusMediator>(),
                                 f.GetRequiredService<IDomeMediator>(),
                                 f.GetRequiredService<TelescopeChooserVM>()));
+
+            services.AddSingleton<FilterWheelChooserVM>();
+            services.AddSingleton<IFilterWheelVM, FilterWheelVM>(f =>
+                new FilterWheelVM(f.GetRequiredService<IProfileService>(),
+                                  f.GetRequiredService<IFilterWheelMediator>(),
+                                  f.GetRequiredService<IFocuserMediator>(),
+                                  f.GetRequiredService<IGuiderMediator>(),
+                                  f.GetRequiredService<FilterWheelChooserVM>(),
+                                  f.GetRequiredService<IApplicationStatusMediator>()));
 
             services.AddSingleton<EquipmentViewModel>();
             services.AddSingleton<MainViewModel>();
