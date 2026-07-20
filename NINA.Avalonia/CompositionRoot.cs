@@ -2,9 +2,20 @@ using System;
 using Microsoft.Extensions.DependencyInjection;
 using NINA.Avalonia.Utility;
 using NINA.Avalonia.ViewModels;
+using NINA.Core.Interfaces;
 using NINA.Core.Utility;
+using NINA.Equipment.Interfaces;
+using NINA.Equipment.Interfaces.Mediator;
+using NINA.Equipment.Interfaces.ViewModel;
+using NINA.Equipment.SDK.CameraSDKs.SBIGSDK;
+using NINA.Image.ImageAnalysis;
+using NINA.Image.ImageData;
+using NINA.Image.Interfaces;
 using NINA.Profile;
 using NINA.Profile.Interfaces;
+using NINA.WPF.Base.Interfaces.Mediator;
+using NINA.WPF.Base.Mediator;
+using NINA.WPF.Base.ViewModel.Equipment.Camera;
 
 namespace NINA.Avalonia {
 
@@ -20,6 +31,15 @@ namespace NINA.Avalonia {
     /// Avalonia has no equivalent ordering constraint - Program.Main already controls startup
     /// order directly, so ProfileService is just constructed as a plain object, no XAML trick
     /// needed.
+    ///
+    /// Phase 1 additions (Camera, the first equipment type): registers the *real* NINA.WPF.Base
+    /// CameraVM/CameraChooserVM - not a duplicate/rewritten Avalonia-only class, following the
+    /// decision to multi-target NINA.WPF.Base rather than fork its ViewModels. Two dependencies
+    /// of the real construction graph (IEquipmentProviders&lt;T&gt; and
+    /// IPluggableBehaviorSelector&lt;T&gt;) have real implementations that only exist in the
+    /// main WPF host app project (plugin loading, not yet ported) - stood in with the minimal
+    /// NullEquipmentProviders/DefaultBehaviorSelector stubs instead of pulling in the whole
+    /// plugin subsystem prematurely. Both are explicitly deferred to Phase 5 in the roadmap.
     /// </summary>
     internal static class CompositionRoot {
 
@@ -38,6 +58,42 @@ namespace NINA.Avalonia {
             var services = new ServiceCollection();
             services.AddSingleton<ProjectVersion>(f => new ProjectVersion(CoreUtil.Version));
             services.AddSingleton<IProfileService>(f => profileService);
+
+            // Mediators - real NINA.WPF.Base.Mediator implementations, unchanged.
+            services.AddSingleton<ICameraMediator, CameraMediator>();
+            services.AddSingleton<IFilterWheelMediator, FilterWheelMediator>();
+            services.AddSingleton<ITelescopeMediator, TelescopeMediator>();
+            services.AddSingleton<IApplicationStatusMediator, ApplicationStatusMediator>();
+
+            services.AddSingleton<ISbigSdk, SbigSdk>();
+
+            // Plugin-shaped dependencies stood in with fixed-default, no-plugin stubs - see
+            // class doc comments on both for why. Real plugin loading is Phase 5.
+            services.AddSingleton<IPluggableBehaviorSelector<IStarDetection>>(
+                f => new DefaultBehaviorSelector<IStarDetection>(new StarDetection()));
+            services.AddSingleton<IPluggableBehaviorSelector<IStarAnnotator>>(
+                f => new DefaultBehaviorSelector<IStarAnnotator>(new PortableStarAnnotator()));
+            services.AddSingleton<IEquipmentProviders<ICamera>, NullEquipmentProviders<ICamera>>();
+
+            services.AddSingleton<IImageDataFactory, ImageDataFactory>();
+            services.AddSingleton<IExposureDataFactory, ExposureDataFactory>();
+
+            // Real NINA.WPF.Base.ViewModel.Equipment.Camera classes - the whole point of
+            // multi-targeting NINA.WPF.Base was to reuse these as-is, not rewrite them.
+            // CameraVM's last constructor parameter is typed IDeviceChooserVM, not
+            // CameraChooserVM - MEDI's automatic constructor injection only matches exactly
+            // registered service types, so an explicit factory lambda is needed here (matches
+            // the real app's own IoCBindings.cs, which does the same thing for this exact
+            // registration rather than relying on automatic resolution).
+            services.AddSingleton<CameraChooserVM>();
+            services.AddSingleton<ICameraVM, CameraVM>(f =>
+                new CameraVM(f.GetRequiredService<IProfileService>(),
+                             f.GetRequiredService<ICameraMediator>(),
+                             f.GetRequiredService<IFilterWheelMediator>(),
+                             f.GetRequiredService<IApplicationStatusMediator>(),
+                             f.GetRequiredService<CameraChooserVM>()));
+
+            services.AddSingleton<EquipmentViewModel>();
             services.AddSingleton<MainViewModel>();
 
             var provider = services.BuildServiceProvider();

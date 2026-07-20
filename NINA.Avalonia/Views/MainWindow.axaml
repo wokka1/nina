@@ -22,22 +22,56 @@
         </StackPanel>
 
         <!-- Real navigation shell (Phase 0): one TabItem per NINA.Core.Enum.ApplicationTab entry,
-             same order as the real app. Only Equipment has real (placeholder) content today -
-             the rest get built out phase by phase per the roadmap in wokka1/nina#1. -->
+             same order as the real app. Equipment now has a real Camera panel (Phase 1, the
+             first of 11 device types) - the rest get built out phase by phase per the roadmap
+             in wokka1/nina#1. -->
         <TabControl SelectedIndex="{Binding TabIndex}">
             <TabItem Header="Equipment">
-                <ItemsControl ItemsSource="{Binding Equipment}" Margin="0,12,0,0">
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <Border BorderBrush="Gray" BorderThickness="0,0,0,1" Padding="4">
-                                <Grid ColumnDefinitions="150,*">
-                                    <TextBlock Grid.Column="0" Text="{Binding Name}" FontWeight="SemiBold" />
-                                    <TextBlock Grid.Column="1" Text="{Binding Status}" />
-                                </Grid>
-                            </Border>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
+                <!-- Camera - Phase 1's first proven device pattern. Real NINA.WPF.Base.CameraVM/
+                     CameraChooserVM underneath (see CompositionRoot.Compose), not a rewrite.
+                     ICameraVM/IDeviceChooserVM (interfaces, deliberately kept for testability
+                     same as the real app) don't declare ConnectCommand/DisconnectCommand/
+                     RescanDevicesCommand/CameraInfo - those are real members of the concrete
+                     CameraVM class only. Avalonia's default compiled bindings type-check
+                     strictly against the declared (interface) property type and can't see them,
+                     so this panel uses {ReflectionBinding} (runtime/reflection-based, resolves
+                     against the actual CameraVM instance) for just these paths instead of
+                     weakening EquipmentViewModel.CameraVM's type to the concrete class - the
+                     rest of the window keeps ordinary compiled {Binding}.
+                     No Setup Dialog button yet, same reasoning (SetupDialogCommand lives on the
+                     concrete DeviceChooserVM&lt;T&gt; base) - small, deliberately deferred
+                     follow-up, not needed to prove connect/disconnect/status today. -->
+                <StackPanel Margin="0,12,0,0" Spacing="8" MaxWidth="500" HorizontalAlignment="Left">
+                    <TextBlock Text="Camera" FontSize="16" FontWeight="SemiBold" />
+                    <Grid ColumnDefinitions="*,Auto,Auto,Auto" ColumnSpacing="6">
+                        <ComboBox Grid.Column="0"
+                                  ItemsSource="{Binding EquipmentVM.CameraVM.DeviceChooserVM.Devices}"
+                                  SelectedItem="{Binding EquipmentVM.CameraVM.DeviceChooserVM.SelectedDevice}"
+                                  HorizontalAlignment="Stretch">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Name}" />
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+                        <Button Grid.Column="1" Content="Rescan" Command="{ReflectionBinding EquipmentVM.CameraVM.RescanDevicesCommand}" />
+                        <Button Grid.Column="2" Content="Connect" Command="{ReflectionBinding EquipmentVM.CameraVM.ConnectCommand}" />
+                        <Button Grid.Column="3" Content="Disconnect" Command="{ReflectionBinding EquipmentVM.CameraVM.DisconnectCommand}" />
+                    </Grid>
+
+                    <Border BorderBrush="Gray" BorderThickness="0,1,0,0" Padding="0,8,0,0">
+                        <Grid ColumnDefinitions="150,*" RowDefinitions="Auto,Auto,Auto,Auto" RowSpacing="4">
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Connected" FontWeight="SemiBold" />
+                            <TextBlock Grid.Row="0" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.CameraVM.CameraInfo.Connected}" />
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Name" FontWeight="SemiBold" />
+                            <TextBlock Grid.Row="1" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.CameraVM.CameraInfo.Name}" />
+                            <TextBlock Grid.Row="2" Grid.Column="0" Text="Temperature" FontWeight="SemiBold" />
+                            <TextBlock Grid.Row="2" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.CameraVM.CameraInfo.Temperature, StringFormat='{}{0:0.0} °C'}" />
+                            <TextBlock Grid.Row="3" Grid.Column="0" Text="Cooler" FontWeight="SemiBold" />
+                            <TextBlock Grid.Row="3" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.CameraVM.CameraInfo.CoolerOn, StringFormat='On: {0}'}" />
+                        </Grid>
+                    </Border>
+                </StackPanel>
             </TabItem>
             <TabItem Header="Sky Atlas">
                 <TextBlock Margin="0,12,0,0" Opacity="0.6" Text="Sky Atlas / Framing Assistant - Phase 4" />

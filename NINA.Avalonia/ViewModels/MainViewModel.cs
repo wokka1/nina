@@ -1,5 +1,4 @@
 using System;
-using System.Collections.ObjectModel;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using NINA.Core.Enum;
@@ -22,8 +21,9 @@ namespace NINA.Avalonia.ViewModels;
 public partial class MainViewModel : ViewModelBase {
     private readonly IProfileService profileService;
 
-    public MainViewModel(IProfileService profileService) {
+    public MainViewModel(IProfileService profileService, EquipmentViewModel equipmentViewModel) {
         this.profileService = profileService;
+        EquipmentVM = equipmentViewModel;
 
         // Proves NINA.Profile is a real, working dependency now too - shows the profile
         // ProfileService.TryLoad(null) actually selected at startup, not a placeholder string.
@@ -56,15 +56,8 @@ public partial class MainViewModel : ViewModelBase {
     [ObservableProperty]
     public partial int TabIndex { get; set; } = (int)ApplicationTab.EQUIPMENT;
 
-    public ObservableCollection<EquipmentStatus> Equipment { get; } = new() {
-        new EquipmentStatus("Camera", "Not Connected"),
-        new EquipmentStatus("Mount", "Not Connected"),
-        new EquipmentStatus("Filter Wheel", "Not Connected"),
-        new EquipmentStatus("Focuser", "Not Connected"),
-        new EquipmentStatus("Guider", "Not Connected"),
-    };
+    // Real equipment VM graph (Phase 1) - replaces the earlier static placeholder list.
+    public EquipmentViewModel EquipmentVM { get; }
 
     private readonly DispatcherTimer clockTimer;
 }
-
-public record EquipmentStatus(string Name, string Status);
