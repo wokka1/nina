@@ -17,6 +17,7 @@ using NINA.WPF.Base.Interfaces.Mediator;
 using NINA.WPF.Base.Mediator;
 using NINA.WPF.Base.ViewModel.Equipment.Camera;
 using NINA.WPF.Base.ViewModel.Equipment.FilterWheel;
+using NINA.WPF.Base.ViewModel.Equipment.Focuser;
 using NINA.WPF.Base.ViewModel.Equipment.Telescope;
 
 namespace NINA.Avalonia {
@@ -81,6 +82,7 @@ namespace NINA.Avalonia {
             services.AddSingleton<IEquipmentProviders<ICamera>, NullEquipmentProviders<ICamera>>();
             services.AddSingleton<IEquipmentProviders<ITelescope>, NullEquipmentProviders<ITelescope>>();
             services.AddSingleton<IEquipmentProviders<IFilterWheel>, NullEquipmentProviders<IFilterWheel>>();
+            services.AddSingleton<IEquipmentProviders<IFocuser>, NullEquipmentProviders<IFocuser>>();
 
             services.AddSingleton<IImageDataFactory, ImageDataFactory>();
             services.AddSingleton<IExposureDataFactory, ExposureDataFactory>();
@@ -116,6 +118,13 @@ namespace NINA.Avalonia {
                                   f.GetRequiredService<IGuiderMediator>(),
                                   f.GetRequiredService<FilterWheelChooserVM>(),
                                   f.GetRequiredService<IApplicationStatusMediator>()));
+
+            services.AddSingleton<FocuserChooserVM>();
+            services.AddSingleton<IFocuserVM, FocuserVM>(f =>
+                new FocuserVM(f.GetRequiredService<IProfileService>(),
+                              f.GetRequiredService<IFocuserMediator>(),
+                              f.GetRequiredService<IApplicationStatusMediator>(),
+                              f.GetRequiredService<FocuserChooserVM>()));
 
             services.AddSingleton<EquipmentViewModel>();
             services.AddSingleton<MainViewModel>();
