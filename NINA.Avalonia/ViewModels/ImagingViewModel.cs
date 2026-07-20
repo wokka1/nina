@@ -1,4 +1,5 @@
 using System;
+using System.Collections.ObjectModel;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Media.Imaging;
@@ -7,24 +8,26 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using NINA.Avalonia.Utility;
 using NINA.Core.Model;
+using NINA.Core.Model.Equipment;
 using NINA.Equipment.Interfaces.ViewModel;
 using NINA.Equipment.Model;
 
 namespace NINA.Avalonia.ViewModels;
 
 /// <summary>
-/// Phase 2's first real slice: drives an actual capture through the real, already-portable
-/// pipeline (ICameraVM.Capture/Download -> IExposureData.ToImageData -> IImageData.RenderImage
-/// -> IRenderedImage.Stretch -> RawPixels -> a real displayable bitmap via
-/// PortableImageBufferConverter) and shows the result. Fresh ViewModel code, not reused from
+/// Phase 2's real capture-to-screen pipeline: ICameraVM.Capture/Download -> IExposureData.
+/// ToImageData -> IImageData.RenderImage -> IRenderedImage.Stretch -> RawPixels -> a real
+/// displayable bitmap via PortableImageBufferConverter. Fresh ViewModel code, not reused from
 /// NINA/ViewModel/ImagingVM.cs - that file lives in the main WPF exe project, not a library, so
 /// it can't be multi-targeted/referenced the way the equipment VMs were (see project memory for
 /// the full reasoning). The underlying pixel pipeline this calls into IS the real, shared,
 /// portable code - only this orchestration layer is new.
 ///
-/// Deliberately minimal: one fixed 1-second test exposure via CaptureSequence's own
-/// parameter-less-constructor defaults, no exposure time/binning/gain controls yet - proving
-/// the pixel-to-screen pipeline works at all is the milestone here, not a full imaging tab.
+/// Exposure time/binning/gain are real, user-settable now (not the fixed 1s test exposure from
+/// the first slice) - sourced from the connected camera's own CameraInfo.BinningModes/Gains via
+/// GetDeviceInfo(), refreshed whenever the camera connects (IDeviceVM's Connected event) since
+/// those lists are camera-specific and only known once a real device is attached. Still no star-
+/// detection overlay or histogram/statistics display yet - that's the next slice.
 /// </summary>
 public partial class ImagingViewModel : ViewModelBase {
     private readonly ICameraVM cameraVM;
@@ -32,6 +35,34 @@ public partial class ImagingViewModel : ViewModelBase {
 
     public ImagingViewModel(ICameraVM cameraVM) {
         this.cameraVM = cameraVM;
+        cameraVM.Connected += OnCameraConnected;
+        RefreshCameraSettings();
+    }
+
+    private Task OnCameraConnected(object sender, EventArgs e) {
+        Dispatcher.UIThread.Post(RefreshCameraSettings);
+        return Task.CompletedTask;
+    }
+
+    private void RefreshCameraSettings() {
+        var info = cameraVM.GetDeviceInfo();
+        if (info == null) {
+            return;
+        }
+
+        AvailableBinningModes.Clear();
+        if (info.BinningModes != null) {
+            foreach (var mode in info.BinningModes) {
+                AvailableBinningModes.Add(mode);
+            }
+        }
+        SelectedBinning ??= AvailableBinningModes.Count > 0 ? AvailableBinningModes[0] : new BinningMode(1, 1);
+
+        GainMin = info.GainMin;
+        GainMax = info.GainMax;
+        if (Gain < GainMin || Gain > GainMax) {
+            Gain = info.DefaultGain >= 0 ? info.DefaultGain : GainMin;
+        }
     }
 
     [ObservableProperty]
@@ -42,6 +73,23 @@ public partial class ImagingViewModel : ViewModelBase {
 
     [ObservableProperty]
     public partial bool IsCapturing { get; set; }
+
+    [ObservableProperty]
+    public partial double ExposureTime { get; set; } = 1.0;
+
+    public ObservableCollection<BinningMode> AvailableBinningModes { get; } = new();
+
+    [ObservableProperty]
+    public partial BinningMode? SelectedBinning { get; set; }
+
+    [ObservableProperty]
+    public partial int Gain { get; set; } = -1;
+
+    [ObservableProperty]
+    public partial int GainMin { get; set; } = -1;
+
+    [ObservableProperty]
+    public partial int GainMax { get; set; } = -1;
 
     [RelayCommand]
     private async Task Capture() {
@@ -60,7 +108,13 @@ public partial class ImagingViewModel : ViewModelBase {
                 }
             });
 
-            await cameraVM.Capture(new CaptureSequence(), captureCts.Token, progress);
+            var sequence = new CaptureSequence {
+                ExposureTime = ExposureTime,
+                Binning = SelectedBinning ?? new BinningMode(1, 1),
+                Gain = Gain,
+            };
+
+            await cameraVM.Capture(sequence, captureCts.Token, progress);
 
             CaptureStatus = "Downloading...";
             var exposureData = await cameraVM.Download(captureCts.Token);

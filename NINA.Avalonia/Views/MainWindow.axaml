@@ -430,6 +430,24 @@
                      directly (IDeviceVM&lt;T&gt; base member), unlike the ReflectionBinding
                      paths used for the concrete-only members on the Equipment tab's cards. -->
                 <StackPanel Margin="0,12,0,0" Spacing="8" MaxWidth="700">
+                    <!-- Exposure/binning/gain sourced from the connected camera's own
+                         CameraInfo.BinningModes/Gains (ImagingViewModel.RefreshCameraSettings,
+                         run on the Connected event) - not hardcoded, reflects whatever the real
+                         device actually reports. -->
+                    <Grid ColumnDefinitions="Auto,Auto,Auto,Auto,Auto,Auto" ColumnSpacing="6">
+                        <TextBlock Grid.Column="0" Text="Exposure (s)" VerticalAlignment="Center" />
+                        <NumericUpDown Grid.Column="1" Value="{Binding ImagingVM.ExposureTime}" Minimum="0.001" Increment="0.5" Width="110" FormatString="0.###" />
+                        <TextBlock Grid.Column="2" Text="Binning" VerticalAlignment="Center" Margin="12,0,0,0" />
+                        <ComboBox Grid.Column="3" ItemsSource="{Binding ImagingVM.AvailableBinningModes}" SelectedItem="{Binding ImagingVM.SelectedBinning}" Width="90">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Name}" />
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+                        <TextBlock Grid.Column="4" Text="Gain" VerticalAlignment="Center" Margin="12,0,0,0" />
+                        <NumericUpDown Grid.Column="5" Value="{Binding ImagingVM.Gain}" Minimum="{Binding ImagingVM.GainMin}" Maximum="{Binding ImagingVM.GainMax}" Width="100" />
+                    </Grid>
                     <Grid ColumnDefinitions="Auto,Auto,*" ColumnSpacing="8">
                         <Button Grid.Column="0" Content="Capture" Command="{Binding ImagingVM.CaptureCommand}" IsEnabled="{Binding !ImagingVM.IsCapturing}" />
                         <Button Grid.Column="1" Content="Cancel" Command="{Binding ImagingVM.CancelCaptureCommand}" IsEnabled="{Binding ImagingVM.IsCapturing}" />
