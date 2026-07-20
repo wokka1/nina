@@ -18,6 +18,7 @@ using NINA.WPF.Base.Mediator;
 using NINA.WPF.Base.ViewModel.Equipment.Camera;
 using NINA.WPF.Base.ViewModel.Equipment.FilterWheel;
 using NINA.WPF.Base.ViewModel.Equipment.Focuser;
+using NINA.WPF.Base.ViewModel.Equipment.Rotator;
 using NINA.WPF.Base.ViewModel.Equipment.Telescope;
 
 namespace NINA.Avalonia {
@@ -70,6 +71,7 @@ namespace NINA.Avalonia {
             services.AddSingleton<IDomeMediator, DomeMediator>();
             services.AddSingleton<IFocuserMediator, FocuserMediator>();
             services.AddSingleton<IGuiderMediator, GuiderMediator>();
+            services.AddSingleton<IRotatorMediator, RotatorMediator>();
 
             services.AddSingleton<ISbigSdk, SbigSdk>();
 
@@ -83,6 +85,8 @@ namespace NINA.Avalonia {
             services.AddSingleton<IEquipmentProviders<ITelescope>, NullEquipmentProviders<ITelescope>>();
             services.AddSingleton<IEquipmentProviders<IFilterWheel>, NullEquipmentProviders<IFilterWheel>>();
             services.AddSingleton<IEquipmentProviders<IFocuser>, NullEquipmentProviders<IFocuser>>();
+            services.AddSingleton<IEquipmentProviders<IRotator>, NullEquipmentProviders<IRotator>>();
+            services.AddSingleton<IApplicationResourceDictionary, NullApplicationResourceDictionary>();
 
             services.AddSingleton<IImageDataFactory, ImageDataFactory>();
             services.AddSingleton<IExposureDataFactory, ExposureDataFactory>();
@@ -125,6 +129,14 @@ namespace NINA.Avalonia {
                               f.GetRequiredService<IFocuserMediator>(),
                               f.GetRequiredService<IApplicationStatusMediator>(),
                               f.GetRequiredService<FocuserChooserVM>()));
+
+            services.AddSingleton<RotatorChooserVM>();
+            services.AddSingleton<IRotatorVM, RotatorVM>(f =>
+                new RotatorVM(f.GetRequiredService<IProfileService>(),
+                              f.GetRequiredService<IRotatorMediator>(),
+                              f.GetRequiredService<RotatorChooserVM>(),
+                              f.GetRequiredService<IApplicationResourceDictionary>(),
+                              f.GetRequiredService<IApplicationStatusMediator>()));
 
             services.AddSingleton<EquipmentViewModel>();
             services.AddSingleton<MainViewModel>();
