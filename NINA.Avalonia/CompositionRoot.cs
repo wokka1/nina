@@ -23,6 +23,7 @@ using NINA.WPF.Base.ViewModel.Equipment.FlatDevice;
 using NINA.WPF.Base.ViewModel.Equipment.Focuser;
 using NINA.WPF.Base.ViewModel.Equipment.Guider;
 using NINA.WPF.Base.ViewModel.Equipment.Rotator;
+using NINA.WPF.Base.ViewModel.Equipment.SafetyMonitor;
 using NINA.WPF.Base.ViewModel.Equipment.Switch;
 using NINA.WPF.Base.ViewModel.Equipment.Telescope;
 using NINA.WPF.Base.ViewModel.Equipment.WeatherData;
@@ -101,6 +102,7 @@ namespace NINA.Avalonia {
             services.AddSingleton<IEquipmentProviders<ISwitchHub>, NullEquipmentProviders<ISwitchHub>>();
             services.AddSingleton<IEquipmentProviders<IFlatDevice>, NullEquipmentProviders<IFlatDevice>>();
             services.AddSingleton<IEquipmentProviders<IWeatherData>, NullEquipmentProviders<IWeatherData>>();
+            services.AddSingleton<IEquipmentProviders<ISafetyMonitor>, NullEquipmentProviders<ISafetyMonitor>>();
             services.AddSingleton<IApplicationResourceDictionary, NullApplicationResourceDictionary>();
             services.AddSingleton<IDeviceUpdateTimerFactory, DefaultDeviceUpateTimerFactory>();
             services.AddSingleton<IDomeSynchronization, DomeSynchronization>();
@@ -196,6 +198,13 @@ namespace NINA.Avalonia {
                                   f.GetRequiredService<IWeatherDataMediator>(),
                                   f.GetRequiredService<IApplicationStatusMediator>(),
                                   f.GetRequiredService<WeatherDataChooserVM>()));
+
+            services.AddSingleton<SafetyMonitorChooserVM>();
+            services.AddSingleton<ISafetyMonitorVM, SafetyMonitorVM>(f =>
+                new SafetyMonitorVM(f.GetRequiredService<IProfileService>(),
+                                    f.GetRequiredService<ISafetyMonitorMediator>(),
+                                    f.GetRequiredService<IApplicationStatusMediator>(),
+                                    f.GetRequiredService<SafetyMonitorChooserVM>()));
 
             services.AddSingleton<EquipmentViewModel>();
             services.AddSingleton<MainViewModel>();
