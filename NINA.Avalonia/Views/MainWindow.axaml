@@ -460,16 +460,36 @@
                         <Button Content="Move Down" Command="{Binding SequencerVM.SelectedItem.MoveDownCommand}" />
                         <Button Content="Remove" Command="{Binding SequencerVM.SelectedItem.DetachCommand}" />
                     </StackPanel>
-                    <TreeView ItemsSource="{Binding SequencerVM.RootContainer.Items}" SelectedItem="{Binding SequencerVM.SelectedItem}">
-                        <TreeView.DataTemplates>
-                            <TreeDataTemplate DataType="seqc:ISequenceContainer" ItemsSource="{Binding Items}">
-                                <TextBlock Text="{Binding Name}" FontWeight="SemiBold" />
-                            </TreeDataTemplate>
-                            <DataTemplate DataType="seq:ISequenceEntity">
-                                <TextBlock Text="{Binding Name}" />
-                            </DataTemplate>
-                        </TreeView.DataTemplates>
-                    </TreeView>
+                    <Grid ColumnDefinitions="*,260">
+                        <TreeView Grid.Column="0" ItemsSource="{Binding SequencerVM.RootContainer.Items}" SelectedItem="{Binding SequencerVM.SelectedItem}">
+                            <TreeView.DataTemplates>
+                                <TreeDataTemplate DataType="seqc:ISequenceContainer" ItemsSource="{Binding Items}">
+                                    <TextBlock Text="{Binding Name}" FontWeight="SemiBold" />
+                                </TreeDataTemplate>
+                                <DataTemplate DataType="seq:ISequenceEntity">
+                                    <TextBlock Text="{Binding Name}" />
+                                </DataTemplate>
+                            </TreeView.DataTemplates>
+                        </TreeView>
+                        <!-- Generic reflection-based property panel (PropertyEditRow) for
+                             whatever's selected - see SequencerViewModel's doc comment for why
+                             this is one uniform editor instead of 52+ hand-built per-item-type
+                             views. Only simple value-typed, leaf-declared properties show up
+                             here; anything else is deliberately absent rather than shown broken. -->
+                        <StackPanel Grid.Column="1" Margin="12,0,0,0" Spacing="4">
+                            <TextBlock Text="Properties" FontWeight="SemiBold" />
+                            <ItemsControl ItemsSource="{Binding SequencerVM.SelectedItemProperties}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Grid ColumnDefinitions="*,*" Margin="0,2">
+                                            <TextBlock Grid.Column="0" Text="{Binding Name}" VerticalAlignment="Center" />
+                                            <TextBox Grid.Column="1" Text="{Binding Value}" />
+                                        </Grid>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </Grid>
                 </DockPanel>
             </TabItem>
             <TabItem Header="Imaging">

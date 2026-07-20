@@ -1,3 +1,7 @@
+using System;
+using System.Collections.ObjectModel;
+using System.Linq;
+using System.Reflection;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using NINA.Avalonia.Utility;
@@ -28,7 +32,18 @@ namespace NINA.Avalonia.ViewModels;
 /// not the two-hardcoded-buttons stand-in from the previous pass. Item types whose
 /// constructor dependencies aren't yet registered in this app's DI container are silently
 /// absent from the catalog rather than shown broken - a real, growing subset, not a permanent
-/// ceiling. Per-item-type property editors and real drag-and-drop remain deliberately deferred.
+/// ceiling.
+///
+/// SelectedItemProperties is a generic, reflection-based property panel (PropertyEditRow) -
+/// deliberately one uniform editor instead of 52+ hand-built per-item-type views (the real
+/// app's actual approach, and real design work for each). Only properties declared directly on
+/// the selected item's own concrete type are shown (not inherited framework members like
+/// Name/Description/Category/Status/Parent, which live on shared base types) - a simple,
+/// reliable way to separate "this instruction's real settings" from plumbing without needing to
+/// sniff JsonProperty/source-generator-emitted attributes. Only simple value types
+/// (double/int/bool/string) are editable this way; anything else (enums, nested objects,
+/// collections) is filtered out rather than shown broken - a real, deliberate limitation, not
+/// full parity with the real app's dedicated editors. Real drag-and-drop remains deferred too.
 /// </summary>
 public partial class SequencerViewModel : ViewModelBase {
     public SequencerViewModel(SequenceItemCatalog catalog) {
@@ -50,6 +65,30 @@ public partial class SequencerViewModel : ViewModelBase {
 
     [ObservableProperty]
     public partial ISequenceEntity? SelectedItem { get; set; }
+
+    partial void OnSelectedItemChanged(ISequenceEntity? value) {
+        SelectedItemProperties.Clear();
+        if (value == null) {
+            return;
+        }
+        foreach (var row in BuildPropertyRows(value)) {
+            SelectedItemProperties.Add(row);
+        }
+    }
+
+    public ObservableCollection<PropertyEditRow> SelectedItemProperties { get; } = new();
+
+    private static readonly Type[] SupportedPropertyTypes = [typeof(double), typeof(int), typeof(bool), typeof(string)];
+
+    private static System.Collections.Generic.IEnumerable<PropertyEditRow> BuildPropertyRows(ISequenceEntity item) {
+        var concreteType = item.GetType();
+        return concreteType
+            .GetProperties(BindingFlags.Public | BindingFlags.Instance)
+            .Where(p => p.CanRead && p.CanWrite)
+            .Where(p => p.DeclaringType == concreteType)
+            .Where(p => SupportedPropertyTypes.Contains(Nullable.GetUnderlyingType(p.PropertyType) ?? p.PropertyType))
+            .Select(p => new PropertyEditRow(item, p));
+    }
 
     [ObservableProperty]
     public partial SequenceItemCatalogEntry? SelectedCatalogEntry { get; set; }
