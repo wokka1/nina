@@ -4,6 +4,7 @@ using NINA.Avalonia.Utility;
 using NINA.Avalonia.ViewModels;
 using NINA.Core.Interfaces;
 using NINA.Core.Utility;
+using NINA.Equipment.Equipment.MyDome;
 using NINA.Equipment.Interfaces;
 using NINA.Equipment.Interfaces.Mediator;
 using NINA.Equipment.Interfaces.ViewModel;
@@ -16,6 +17,7 @@ using NINA.Profile.Interfaces;
 using NINA.WPF.Base.Interfaces.Mediator;
 using NINA.WPF.Base.Mediator;
 using NINA.WPF.Base.ViewModel.Equipment.Camera;
+using NINA.WPF.Base.ViewModel.Equipment.Dome;
 using NINA.WPF.Base.ViewModel.Equipment.FilterWheel;
 using NINA.WPF.Base.ViewModel.Equipment.Focuser;
 using NINA.WPF.Base.ViewModel.Equipment.Rotator;
@@ -72,6 +74,7 @@ namespace NINA.Avalonia {
             services.AddSingleton<IFocuserMediator, FocuserMediator>();
             services.AddSingleton<IGuiderMediator, GuiderMediator>();
             services.AddSingleton<IRotatorMediator, RotatorMediator>();
+            services.AddSingleton<ISafetyMonitorMediator, SafetyMonitorMediator>();
 
             services.AddSingleton<ISbigSdk, SbigSdk>();
 
@@ -86,7 +89,11 @@ namespace NINA.Avalonia {
             services.AddSingleton<IEquipmentProviders<IFilterWheel>, NullEquipmentProviders<IFilterWheel>>();
             services.AddSingleton<IEquipmentProviders<IFocuser>, NullEquipmentProviders<IFocuser>>();
             services.AddSingleton<IEquipmentProviders<IRotator>, NullEquipmentProviders<IRotator>>();
+            services.AddSingleton<IEquipmentProviders<IDome>, NullEquipmentProviders<IDome>>();
             services.AddSingleton<IApplicationResourceDictionary, NullApplicationResourceDictionary>();
+            services.AddSingleton<IDeviceUpdateTimerFactory, DefaultDeviceUpateTimerFactory>();
+            services.AddSingleton<IDomeSynchronization, DomeSynchronization>();
+            services.AddSingleton<IDomeFollower, DomeFollower>();
 
             services.AddSingleton<IImageDataFactory, ImageDataFactory>();
             services.AddSingleton<IExposureDataFactory, ExposureDataFactory>();
@@ -137,6 +144,18 @@ namespace NINA.Avalonia {
                               f.GetRequiredService<RotatorChooserVM>(),
                               f.GetRequiredService<IApplicationResourceDictionary>(),
                               f.GetRequiredService<IApplicationStatusMediator>()));
+
+            services.AddSingleton<DomeChooserVM>();
+            services.AddSingleton<IDomeVM, DomeVM>(f =>
+                new DomeVM(f.GetRequiredService<IProfileService>(),
+                           f.GetRequiredService<IDomeMediator>(),
+                           f.GetRequiredService<IApplicationStatusMediator>(),
+                           f.GetRequiredService<ITelescopeMediator>(),
+                           f.GetRequiredService<DomeChooserVM>(),
+                           f.GetRequiredService<IDomeFollower>(),
+                           f.GetRequiredService<ISafetyMonitorMediator>(),
+                           f.GetRequiredService<IApplicationResourceDictionary>(),
+                           f.GetRequiredService<IDeviceUpdateTimerFactory>()));
 
             services.AddSingleton<EquipmentViewModel>();
             services.AddSingleton<MainViewModel>();

@@ -215,6 +215,40 @@
                             </Grid>
                         </Border>
                     </StackPanel>
+
+                    <StackPanel Spacing="8" Width="480" Margin="0,0,24,24">
+                        <TextBlock Text="Dome" FontSize="16" FontWeight="SemiBold" />
+                        <Grid ColumnDefinitions="*,Auto,Auto,Auto" ColumnSpacing="6">
+                            <ComboBox Grid.Column="0"
+                                      ItemsSource="{ReflectionBinding EquipmentVM.DomeVM.DeviceChooserVM.Devices}"
+                                      SelectedItem="{ReflectionBinding EquipmentVM.DomeVM.DeviceChooserVM.SelectedDevice}"
+                                      HorizontalAlignment="Stretch">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{ReflectionBinding Name}" />
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+                            <Button Grid.Column="1" Content="Rescan" Command="{ReflectionBinding EquipmentVM.DomeVM.RescanDevicesCommand}" />
+                            <Button Grid.Column="2" Content="Connect" Command="{ReflectionBinding EquipmentVM.DomeVM.ConnectCommand}" />
+                            <Button Grid.Column="3" Content="Disconnect" Command="{ReflectionBinding EquipmentVM.DomeVM.DisconnectCommand}" />
+                        </Grid>
+
+                        <Border BorderBrush="Gray" BorderThickness="0,1,0,0" Padding="0,8,0,0">
+                            <Grid ColumnDefinitions="150,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto" RowSpacing="4">
+                                <TextBlock Grid.Row="0" Grid.Column="0" Text="Connected" FontWeight="SemiBold" />
+                                <TextBlock Grid.Row="0" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.DomeVM.DomeInfo.Connected}" />
+                                <TextBlock Grid.Row="1" Grid.Column="0" Text="Name" FontWeight="SemiBold" />
+                                <TextBlock Grid.Row="1" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.DomeVM.DomeInfo.Name}" />
+                                <TextBlock Grid.Row="2" Grid.Column="0" Text="Shutter" FontWeight="SemiBold" />
+                                <TextBlock Grid.Row="2" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.DomeVM.DomeInfo.ShutterStatus}" />
+                                <TextBlock Grid.Row="3" Grid.Column="0" Text="At Park" FontWeight="SemiBold" />
+                                <TextBlock Grid.Row="3" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.DomeVM.DomeInfo.AtPark}" />
+                                <TextBlock Grid.Row="4" Grid.Column="0" Text="Slewing" FontWeight="SemiBold" />
+                                <TextBlock Grid.Row="4" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.DomeVM.DomeInfo.Slewing}" />
+                            </Grid>
+                        </Border>
+                    </StackPanel>
                 </WrapPanel>
             </TabItem>
             <TabItem Header="Sky Atlas">
