@@ -19,6 +19,7 @@ using NINA.WPF.Base.Mediator;
 using NINA.WPF.Base.ViewModel.Equipment.Camera;
 using NINA.WPF.Base.ViewModel.Equipment.Dome;
 using NINA.WPF.Base.ViewModel.Equipment.FilterWheel;
+using NINA.WPF.Base.ViewModel.Equipment.FlatDevice;
 using NINA.WPF.Base.ViewModel.Equipment.Focuser;
 using NINA.WPF.Base.ViewModel.Equipment.Guider;
 using NINA.WPF.Base.ViewModel.Equipment.Rotator;
@@ -78,6 +79,7 @@ namespace NINA.Avalonia {
             services.AddSingleton<IRotatorMediator, RotatorMediator>();
             services.AddSingleton<ISafetyMonitorMediator, SafetyMonitorMediator>();
             services.AddSingleton<ISwitchMediator, SwitchMediator>();
+            services.AddSingleton<IFlatDeviceMediator, FlatDeviceMediator>();
 
             services.AddSingleton<ISbigSdk, SbigSdk>();
 
@@ -95,6 +97,7 @@ namespace NINA.Avalonia {
             services.AddSingleton<IEquipmentProviders<IDome>, NullEquipmentProviders<IDome>>();
             services.AddSingleton<IEquipmentProviders<IGuider>, NullEquipmentProviders<IGuider>>();
             services.AddSingleton<IEquipmentProviders<ISwitchHub>, NullEquipmentProviders<ISwitchHub>>();
+            services.AddSingleton<IEquipmentProviders<IFlatDevice>, NullEquipmentProviders<IFlatDevice>>();
             services.AddSingleton<IApplicationResourceDictionary, NullApplicationResourceDictionary>();
             services.AddSingleton<IDeviceUpdateTimerFactory, DefaultDeviceUpateTimerFactory>();
             services.AddSingleton<IDomeSynchronization, DomeSynchronization>();
@@ -175,6 +178,14 @@ namespace NINA.Avalonia {
                              f.GetRequiredService<IApplicationStatusMediator>(),
                              f.GetRequiredService<ISwitchMediator>(),
                              f.GetRequiredService<SwitchChooserVM>()));
+
+            services.AddSingleton<FlatDeviceChooserVM>();
+            services.AddSingleton<IFlatDeviceVM, FlatDeviceVM>(f =>
+                new FlatDeviceVM(f.GetRequiredService<IProfileService>(),
+                                 f.GetRequiredService<IFlatDeviceMediator>(),
+                                 f.GetRequiredService<IApplicationStatusMediator>(),
+                                 f.GetRequiredService<ICameraMediator>(),
+                                 f.GetRequiredService<FlatDeviceChooserVM>()));
 
             services.AddSingleton<EquipmentViewModel>();
             services.AddSingleton<MainViewModel>();
