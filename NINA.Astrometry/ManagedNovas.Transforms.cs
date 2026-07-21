@@ -174,6 +174,43 @@ namespace NINA.Astrometry {
                     position[i] = p[1][i];
                     velocity[i] = (p[2][i] - p[0][i]) / 0.2;
                 }
+            } else if (body == 11) {
+                // Moon. Not part of the real solsys3.c (confirmed by reading the source - it only
+                // ever handles Sun and Earth) - solsys3 alone has no lunar theory at all, so
+                // without this the Moon would be permanently unavailable through this managed
+                // build (see project documentation - a real, previously-flagged gap). This adds a
+                // real, independently-verified low-precision lunar ephemeris (Van Flandern &
+                // Pulkkinen 1979-derived formulation, ~1-2 arcminute accuracy - see
+                // MoonEclipticPositionOfDate's own doc comment for the verification story), rather
+                // than leaving the gap open. Position is Earth's heliocentric position (same
+                // SunEph-based calculation as the Earth case above) plus the Moon's own geocentric
+                // offset, so it flows through the same origin/barycenter handling below exactly
+                // like every other body. Velocity via the same numerical-differentiation technique
+                // already used for Earth above.
+                var p = new double[3][] { new double[3], new double[3], new double[3] };
+
+                for (i = 0; i < 3; i++) {
+                    double qjd = tjd + (double)(i - 1) * 0.1;
+
+                    SunEph(qjd, out double ras, out double decs, out double diss);
+                    var earthPos1 = new double[3];
+                    Radec2Vector(ras, decs, diss, earthPos1);
+                    var earthPosOut = new double[3];
+                    Precession(qjd, earthPos1, T0, earthPosOut);
+
+                    var moonEquOfDate = MoonGeocentricEquatorialOfDate(qjd);
+                    var moonPosOut = new double[3];
+                    Precession(qjd, moonEquOfDate, T0, moonPosOut);
+
+                    p[i][0] = -earthPosOut[0] + moonPosOut[0];
+                    p[i][1] = -earthPosOut[1] + moonPosOut[1];
+                    p[i][2] = -earthPosOut[2] + moonPosOut[2];
+                }
+
+                for (i = 0; i < 3; i++) {
+                    position[i] = p[1][i];
+                    velocity[i] = (p[2][i] - p[0][i]) / 0.2;
+                }
             } else {
                 return 2;
             }
@@ -253,6 +290,141 @@ namespace NINA.Astrometry {
         /// </summary>
         public static short SolarsystemHp(double[] tjd, NOVAS.Body body, NOVAS.SolarSystemOrigin origin, double[] position, double[] velocity) {
             return SolarsystemHp(tjd, (short)body, (short)origin, position, velocity);
+        }
+
+        /// <summary>
+        /// Geocentric position of the Moon, mean equator and equinox of date, in AU. NOT part of
+        /// the real vendored solsys3.c (confirmed by reading the source - it has no lunar theory
+        /// at all) - added to close a real gap this managed NOVAS build would otherwise have (see
+        /// project documentation). This is a low-precision (~1-2 arcminute) analytical lunar
+        /// theory, a Kepler-orbit-plus-largest-perturbation-terms formulation commonly attributed
+        /// to Van Flandern &amp; Pulkkinen (1979) "Low-precision formulae for planetary positions"
+        /// (Astrophys. J. Suppl. 41, 391) in the practical form published by Paul Schlyter,
+        /// "How to compute planetary positions" (https://stjarnhimlen.se/comp/ppcomp.html) - a
+        /// long-standing, widely-used public reference for exactly this class of problem, not
+        /// something derived from scratch here.
+        ///
+        /// Verified against the complete worked example in the same author's tutorial
+        /// (https://stjarnhimlen.se/comp/tutorial.html, 19 April 1990 0:00 UT) - every intermediate
+        /// value (orbital elements N/i/w/e/M, eccentric anomaly E, true anomaly v, distance r,
+        /// ecliptic longitude/latitude before AND after the perturbation terms) matched the
+        /// published values exactly via a disposable console harness, not just eyeballed. One real
+        /// finding during verification: the source text says "the initial [eccentric anomaly]
+        /// approximation suffices" for the Moon's eccentricity, but the worked example's own E
+        /// value only matched after iterating Kepler's equation to full Newton-Raphson convergence
+        /// (the one-shot estimate was off by ~0.005 degrees) - implemented with convergence, not
+        /// the one-shot form, to match the reference's actual (not stated) behavior.
+        ///
+        /// Accuracy is NOT sufficient for precision pointing/guiding - this is a moon-phase/
+        /// avoidance-planning-grade ephemeris, consistent with the accuracy this whole
+        /// solsys3-based managed build already provides for the Sun (~2-arcsecond sun_eph, itself
+        /// far below SOFA/JPL precision). Distance/perturbation terms not exercised by the worked
+        /// example (the r perturbation, and any longitude/latitude term not active at that
+        /// specific date) are transcribed exactly from the same cited source but were not
+        /// independently spot-checked beyond that one date.
+        /// </summary>
+        private static double[] MoonGeocentricEquatorialOfDate(double jd) {
+            const double deg2rad = Math.PI / 180.0;
+            const double rad2deg = 180.0 / Math.PI;
+            // AU_KM and ERAD are the real NOVAS constants already declared in
+            // ManagedNovas.Core.cs (same partial class - private members are shared across all
+            // files of a partial class, no redeclaration needed).
+            double auPerEarthRadius = AU_KM / (ERAD / 1000.0);
+
+            double NormDeg(double x) {
+                x %= 360.0;
+                if (x < 0) x += 360.0;
+                return x;
+            }
+
+            // Schlyter's day-number epoch: 2000 Jan 0.0 UT = 1999 Dec 31 0:00 UT = JD 2451543.5.
+            // TT vs UT is not distinguished here - negligible at this algorithm's own ~1-2
+            // arcminute accuracy budget.
+            double d = jd - 2451543.5;
+
+            // Moon's orbital elements.
+            double N = NormDeg(125.1228 - 0.0529538083 * d);
+            double inc = 5.1454;
+            double w = NormDeg(318.0634 + 0.1643573223 * d);
+            double a = 60.2666; // Earth radii
+            double e = 0.054900;
+            double M = NormDeg(115.3654 + 13.0649929509 * d);
+
+            // Eccentric anomaly via Newton-Raphson to convergence (see doc comment above - the
+            // reference's own worked example needs full convergence, not the one-shot estimate).
+            double E = M + rad2deg * e * Math.Sin(M * deg2rad) * (1.0 + e * Math.Cos(M * deg2rad));
+            for (int iter = 0; iter < 8; iter++) {
+                double dE = (E - rad2deg * e * Math.Sin(E * deg2rad) - M) / (1.0 - e * Math.Cos(E * deg2rad));
+                E -= dE;
+                if (Math.Abs(dE) < 1e-9) break;
+            }
+
+            double xv = a * (Math.Cos(E * deg2rad) - e);
+            double yv = a * (Math.Sqrt(1.0 - e * e) * Math.Sin(E * deg2rad));
+            double v = NormDeg(Math.Atan2(yv, xv) * rad2deg);
+            double r = Math.Sqrt(xv * xv + yv * yv);
+
+            double nr = N * deg2rad, ir = inc * deg2rad, vwr = (v + w) * deg2rad;
+            double xh = r * (Math.Cos(nr) * Math.Cos(vwr) - Math.Sin(nr) * Math.Sin(vwr) * Math.Cos(ir));
+            double yh = r * (Math.Sin(nr) * Math.Cos(vwr) + Math.Cos(nr) * Math.Sin(vwr) * Math.Cos(ir));
+            double zh = r * (Math.Sin(vwr) * Math.Sin(ir));
+
+            double lonecl = NormDeg(Math.Atan2(yh, xh) * rad2deg);
+            double latecl = Math.Atan2(zh, Math.Sqrt(xh * xh + yh * yh)) * rad2deg;
+
+            // Sun's orbital elements, needed only for Ms in the perturbation terms below - the
+            // same low-precision Sun formula this whole reference uses (not solsys3's own
+            // higher-precision sun_eph, which uses different, non-interchangeable coefficients).
+            double wSun = NormDeg(282.9404 + 4.70935e-5 * d);
+            double mSun = NormDeg(356.0470 + 0.9856002585 * d);
+
+            double mm = M, ms = mSun, nm = N, wm = w, ws = wSun;
+            double ls = NormDeg(ms + ws);
+            double lm = NormDeg(mm + wm + nm);
+            double dd = NormDeg(lm - ls);
+            double f = NormDeg(lm - nm);
+
+            double dLon =
+                -1.274 * Math.Sin((mm - 2 * dd) * deg2rad)
+                + 0.658 * Math.Sin((2 * dd) * deg2rad)
+                - 0.186 * Math.Sin(ms * deg2rad)
+                - 0.059 * Math.Sin((2 * mm - 2 * dd) * deg2rad)
+                - 0.057 * Math.Sin((mm - 2 * dd + ms) * deg2rad)
+                + 0.053 * Math.Sin((mm + 2 * dd) * deg2rad)
+                + 0.046 * Math.Sin((2 * dd - ms) * deg2rad)
+                + 0.041 * Math.Sin((mm - ms) * deg2rad)
+                - 0.035 * Math.Sin(dd * deg2rad)
+                - 0.031 * Math.Sin((mm + ms) * deg2rad)
+                - 0.015 * Math.Sin((2 * f - 2 * dd) * deg2rad)
+                + 0.011 * Math.Sin((mm - 4 * dd) * deg2rad);
+
+            double dLat =
+                -0.173 * Math.Sin((f - 2 * dd) * deg2rad)
+                - 0.055 * Math.Sin((mm - f - 2 * dd) * deg2rad)
+                - 0.046 * Math.Sin((mm + f - 2 * dd) * deg2rad)
+                + 0.033 * Math.Sin((f + 2 * dd) * deg2rad)
+                + 0.017 * Math.Sin((2 * mm + f) * deg2rad);
+
+            double dR =
+                -0.58 * Math.Cos((mm - 2 * dd) * deg2rad)
+                - 0.46 * Math.Cos((2 * dd) * deg2rad);
+
+            double lonecl2 = (lonecl + dLon) * deg2rad;
+            double latecl2 = (latecl + dLat) * deg2rad;
+            double r2 = r + dR;
+
+            double xh2 = r2 * Math.Cos(lonecl2) * Math.Cos(latecl2);
+            double yh2 = r2 * Math.Sin(lonecl2) * Math.Cos(latecl2);
+            double zh2 = r2 * Math.Sin(latecl2);
+
+            // Ecliptic-of-date -> equatorial-of-date, via the same source's own date-dependent
+            // obliquity formula.
+            double ecl = (23.4393 - 3.563e-7 * d) * deg2rad;
+            double xe = xh2;
+            double ye = yh2 * Math.Cos(ecl) - zh2 * Math.Sin(ecl);
+            double ze = yh2 * Math.Sin(ecl) + zh2 * Math.Cos(ecl);
+
+            return new double[] { xe / auPerEarthRadius, ye / auPerEarthRadius, ze / auPerEarthRadius };
         }
 
         /// <summary>
