@@ -22,6 +22,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using SixLabors.ImageSharp.Processing;
 using System.Xml.Linq;
 
 namespace NINA.WPF.Base.SkySurvey {
@@ -296,6 +297,155 @@ namespace NINA.WPF.Base.SkySurvey {
             }
 
             return image;
+        }
+
+        /// <summary>
+        /// Portable (ImageSharp-based) equivalent of SaveImageToCache - same dedupe-by-Id-then-by-RA/Dec/FoV/Source
+        /// logic and on-disk XML cache index (already portable, System.Xml.Linq), but encodes/resizes the actual
+        /// image bytes via ImageSharp instead of WPF's JpegBitmapEncoder/TransformedBitmap.
+        /// </summary>
+        public XElement SaveImageToCachePortable(SkySurveyImagePortable skySurveyImage) {
+            try {
+                var element =
+                    Cache
+                    .Elements("Image")
+                    .Where(
+                        x => x.Attribute("Id").Value == skySurveyImage.Id.ToString()
+                    ).FirstOrDefault();
+                if (element == null) {
+                    element =
+                    Cache
+                    .Elements("Image")
+                    .Where(
+                        x =>
+                            x.Attribute("RA").Value == skySurveyImage.Coordinates.RA.ToString("R", CultureInfo.InvariantCulture)
+                            && x.Attribute("Dec").Value == skySurveyImage.Coordinates.Dec.ToString("R", CultureInfo.InvariantCulture)
+                            && x.Attribute("FoVW").Value == skySurveyImage.FoVWidth.ToString("R", CultureInfo.InvariantCulture)
+                            && x.Attribute("Source").Value == skySurveyImage.Source
+                    ).FirstOrDefault();
+
+                    if (element == null) {
+                        if (!Directory.Exists(framingAssistantCachePath)) {
+                            Directory.CreateDirectory(framingAssistantCachePath);
+                        }
+
+                        var sanitizedName = CoreUtil.ReplaceAllInvalidFilenameChars(skySurveyImage.Name);
+                        var originalImgFilePath = Path.Combine(framingAssistantCachePath, sanitizedName + ".jpg");
+
+                        originalImgFilePath = RestoreNameFromUniqueBracket(originalImgFilePath);
+
+                        var imgFilePath = CoreUtil.GetUniqueFilePath(originalImgFilePath);
+                        var name = Path.GetFileNameWithoutExtension(originalImgFilePath);
+
+                        SixLabors.ImageSharp.ImageExtensions.SaveAsJpeg(skySurveyImage.Image, imgFilePath, jpegEncoderPortable);
+
+                        SaveThumbnailPortable(skySurveyImage.Image, CacheImage.BigThumbnailSize, imgFilePath);
+                        SaveThumbnailPortable(skySurveyImage.Image, CacheImage.MediumThumbnailSize, imgFilePath);
+                        SaveThumbnailPortable(skySurveyImage.Image, CacheImage.SmallThumbnailSize, imgFilePath);
+
+                        XElement xml = new XElement("Image",
+                            new XAttribute("Id", skySurveyImage.Id),
+                            new XAttribute("RA", skySurveyImage.Coordinates.RA.ToString("R", CultureInfo.InvariantCulture)),
+                            new XAttribute("Dec", skySurveyImage.Coordinates.Dec.ToString("R", CultureInfo.InvariantCulture)),
+                            new XAttribute("Rotation", skySurveyImage.Rotation),
+                            new XAttribute("FoVW", skySurveyImage.FoVWidth.ToString("R", CultureInfo.InvariantCulture)),
+                            new XAttribute("FoVH", skySurveyImage.FoVHeight.ToString("R", CultureInfo.InvariantCulture)),
+                            new XAttribute("FileName", Path.GetFileName(imgFilePath)),
+                            new XAttribute("Source", skySurveyImage.Source),
+                            new XAttribute("Name", name)
+                        );
+
+                        Cache.Add(xml);
+                        Cache.Save(framingAssistantCachInfo);
+                        return xml;
+                    }
+                }
+                return element;
+            } catch (Exception ex) {
+                Logger.Error(ex);
+                throw;
+            }
+        }
+
+        private static readonly SixLabors.ImageSharp.Formats.Jpeg.JpegEncoder jpegEncoderPortable =
+            new SixLabors.ImageSharp.Formats.Jpeg.JpegEncoder() { Quality = 70 };
+
+        private void SaveThumbnailPortable(SixLabors.ImageSharp.Image<SixLabors.ImageSharp.PixelFormats.Rgba32> image, int size, string path) {
+            using var resized = image.Clone(x => x.Resize(size, size));
+            var adjustedPath = CacheImage.GetImagePathForThumbnail(path, size);
+            SixLabors.ImageSharp.ImageExtensions.SaveAsJpeg(resized, adjustedPath, jpegEncoderPortable);
+        }
+
+        /// <summary>
+        /// Portable (ImageSharp-based) equivalent of GetImage(source, ra, dec, rotation, fov).
+        /// </summary>
+        public Task<SkySurveyImagePortable> GetImagePortable(string source, double ra, double dec, double rotation, double fov) {
+            return Task.Run(() => {
+                var element =
+                    Cache
+                    .Elements("Image")
+                    .Where(x => x.Attribute("Source").Value == source)
+                    .Where(x => x.Attribute("RA").Value == ra.ToString("R", CultureInfo.InvariantCulture))
+                    .Where(x => x.Attribute("Dec").Value == dec.ToString("R", CultureInfo.InvariantCulture))
+                    .Where(x => x.Attribute("Rotation").Value == rotation.ToString(CultureInfo.InvariantCulture))
+                    .Where(x => x.Attribute("FoVW").Value == fov.ToString("R", CultureInfo.InvariantCulture))
+                    .FirstOrDefault();
+
+                if (element != null) {
+                    return LoadPortable(element);
+                }
+
+                return null;
+            });
+        }
+
+        /// <summary>
+        /// Portable (ImageSharp-based) equivalent of GetImage(Guid id).
+        /// </summary>
+        public Task<SkySurveyImagePortable> GetImagePortable(Guid id) {
+            return Task.Run(() => {
+                var element =
+                    Cache
+                    .Elements("Image")
+                    .Where(
+                        x => x.Attribute("Id").Value == id.ToString()
+                    ).FirstOrDefault();
+                if (element != null) {
+                    return LoadPortable(element);
+                } else {
+                    return null;
+                }
+            });
+        }
+
+        private SkySurveyImagePortable LoadPortable(XElement element) {
+            var img = LoadJpgPortable(element.Attribute("FileName").Value);
+            Guid id = Guid.Parse(element.Attribute("Id").Value);
+            var fovW = double.Parse(element.Attribute("FoVW").Value, CultureInfo.InvariantCulture);
+            var fovH = double.Parse(element.Attribute("FoVH").Value, CultureInfo.InvariantCulture);
+            var rotation = double.Parse(element.Attribute("Rotation").Value, CultureInfo.InvariantCulture);
+            var ra = double.Parse(element.Attribute("RA").Value, CultureInfo.InvariantCulture);
+            var dec = double.Parse(element.Attribute("Dec").Value, CultureInfo.InvariantCulture);
+            var name = element.Attribute("Name").Value;
+            var source = element.Attribute("Source")?.Value ?? string.Empty;
+
+            return new SkySurveyImagePortable() {
+                Id = id,
+                Image = img,
+                FoVHeight = fovH,
+                FoVWidth = fovW,
+                Coordinates = new Coordinates(ra, dec, Epoch.J2000, Coordinates.RAType.Hours),
+                Name = name,
+                Rotation = rotation
+            };
+        }
+
+        private SixLabors.ImageSharp.Image<SixLabors.ImageSharp.PixelFormats.Rgba32> LoadJpgPortable(string filename) {
+            if (!Path.IsPathRooted(filename)) {
+                filename = Path.Combine(framingAssistantCachePath, filename);
+            }
+
+            return SixLabors.ImageSharp.Image.Load<SixLabors.ImageSharp.PixelFormats.Rgba32>(filename);
         }
     }
 }

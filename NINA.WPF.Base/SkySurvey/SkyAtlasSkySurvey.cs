@@ -49,5 +49,29 @@ namespace NINA.WPF.Base.SkySurvey {
                 };
             }, ct);
         }
+
+        /// <summary>
+        /// Portable (ImageSharp-based) equivalent of GetImage - same flat gray placeholder, no WPF dependency.
+        /// </summary>
+        public async Task<SkySurveyImagePortable> GetImagePortable(string name, Coordinates coordinates, double fieldOfView, int width, int height,
+            CancellationToken ct, IProgress<int> progress) {
+            return await Task.Run(() => {
+                width = Math.Max(1, width);
+                height = Math.Max(1, height);
+
+                var image = new SixLabors.ImageSharp.Image<SixLabors.ImageSharp.PixelFormats.Rgba32>(
+                    width, height, new SixLabors.ImageSharp.PixelFormats.Rgba32(30, 30, 30, 255));
+
+                return new SkySurveyImagePortable {
+                    Name = name,
+                    Source = nameof(SkyAtlasSkySurvey),
+                    Image = image,
+                    FoVHeight = fieldOfView,
+                    FoVWidth = ((double)width / height) * fieldOfView,
+                    Rotation = 0,
+                    Coordinates = coordinates
+                };
+            }, ct);
+        }
     }
 }

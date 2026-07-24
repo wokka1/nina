@@ -98,6 +98,60 @@ namespace NINA.WPF.Base.SkySurvey {
         public Task<SkySurveyImage> GetImage(string name, Coordinates coordinates, double fieldOfView, int width, int height, CancellationToken ct, IProgress<int> progress) {
             throw new NotImplementedException();
         }
+
+        /// <summary>
+        /// Portable (ImageSharp-based) equivalent of the hipsSkyMapPath-taking GetImage - same primary/fallback
+        /// URL retry, decoded via ImageSharp instead of WPF. There is no per-image DPI concept in ImageSharp
+        /// pixel buffers (unlike BitmapSource), so the original's ConvertBitmapTo96DPI step has no portable
+        /// equivalent needed - it existed purely to normalize a WPF-specific metadata field.
+        /// </summary>
+        public async Task<SkySurveyImagePortable> GetImagePortable(string name, string hipsSkyMapPath, Coordinates coordinates, double fieldOfView, int width, int height,
+            CancellationToken ct, IProgress<int> progress) {
+            fieldOfView = Math.Round(fieldOfView, 2);
+
+            SixLabors.ImageSharp.Image<SixLabors.ImageSharp.PixelFormats.Rgba32> image;
+            try {
+                image = await QueryImagePortable(Url, coordinates, fieldOfView, ct, progress, hipsSkyMapPath);
+            } catch (OperationCanceledException) {
+                throw;
+            } catch (Exception) {
+                try {
+                    image = await QueryImagePortable(AltUrl, coordinates, fieldOfView, ct, progress, hipsSkyMapPath);
+                } catch (OperationCanceledException) {
+                    throw;
+                } catch (Exception ex) {
+                    throw new SkySurveyUnavailableException(ex.Message);
+                }
+            }
+
+            return new SkySurveyImagePortable() {
+                Image = image,
+                Name = name,
+                Source = nameof(Hips2FitsSurvey),
+                FoVHeight = fieldOfView,
+                FoVWidth = fieldOfView,
+                Rotation = 0,
+                Coordinates = coordinates
+            };
+        }
+
+        private async Task<SixLabors.ImageSharp.Image<SixLabors.ImageSharp.PixelFormats.Rgba32>> QueryImagePortable(string url, Coordinates coordinates, double fieldOfView, CancellationToken ct, IProgress<int> progress, string hipsSkyMapPath = DefaultSkyMapPath) {
+            var request = new HttpDownloadImageRequest(
+                   url,
+                   Uri.EscapeDataString(hipsSkyMapPath),
+                   2000,
+                   2000,
+                   AstroUtil.ArcminToDegree(fieldOfView),
+                   coordinates.RADegrees,
+                   coordinates.Dec
+                );
+            var bytes = await request.Request(ct, progress);
+            return SixLabors.ImageSharp.Image.Load<SixLabors.ImageSharp.PixelFormats.Rgba32>(bytes);
+        }
+
+        public Task<SkySurveyImagePortable> GetImagePortable(string name, Coordinates coordinates, double fieldOfView, int width, int height, CancellationToken ct, IProgress<int> progress) {
+            throw new NotImplementedException();
+        }
     }
 
 }

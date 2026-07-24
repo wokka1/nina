@@ -48,5 +48,27 @@ namespace NINA.WPF.Base.SkySurvey {
                 throw new SkySurveyUnavailableException(ex.Message);
             }
         }
+
+        /// <summary>
+        /// Portable (ImageSharp-based) equivalent of GetSingleImage - decoded via ImageSharp instead of WPF.
+        /// </summary>
+        protected override async Task<SixLabors.ImageSharp.Image<SixLabors.ImageSharp.PixelFormats.Rgba32>> GetSingleImagePortable(Coordinates coordinates, double fovW, double fovH, CancellationToken ct, int width, int height) {
+            try {
+                var request = new HttpDownloadImageRequest(
+                    Url,
+                    coordinates.RADegrees,
+                    coordinates.Dec,
+                    fovW,
+                    fovH
+                );
+
+                var bytes = await request.Request(ct);
+                return SixLabors.ImageSharp.Image.Load<SixLabors.ImageSharp.PixelFormats.Rgba32>(bytes);
+            } catch (OperationCanceledException) {
+                throw;
+            } catch (Exception ex) {
+                throw new SkySurveyUnavailableException(ex.Message);
+            }
+        }
     }
 }

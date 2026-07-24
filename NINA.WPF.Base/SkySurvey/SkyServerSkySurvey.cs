@@ -64,5 +64,48 @@ namespace NINA.WPF.Base.SkySurvey {
                 Coordinates = coordinates
             };
         }
+
+        /// <summary>
+        /// Portable (ImageSharp-based) equivalent of GetImage - same query math, decoded via ImageSharp
+        /// instead of WPF so it also runs on macOS/Linux.
+        /// </summary>
+        public async Task<SkySurveyImagePortable> GetImagePortable(string name, Coordinates coordinates, double fieldOfView, int width,
+            int height, CancellationToken ct, IProgress<int> progress) {
+            var arcSecPerPixel = 0.4;
+            var targetFoVInArcSec = AstroUtil.ArcminToArcsec(fieldOfView);
+            var pixels = Math.Min(targetFoVInArcSec / arcSecPerPixel, 2048);
+            if (pixels == 2048) {
+                arcSecPerPixel = targetFoVInArcSec / 2048;
+            }
+
+            SixLabors.ImageSharp.Image<SixLabors.ImageSharp.PixelFormats.Rgba32> image;
+
+            try {
+                var request = new HttpDownloadImageRequest(
+                    Url,
+                    coordinates.RADegrees,
+                    coordinates.Dec,
+                    pixels,
+                    pixels,
+                    arcSecPerPixel);
+
+                var bytes = await request.Request(ct, progress);
+                image = SixLabors.ImageSharp.Image.Load<SixLabors.ImageSharp.PixelFormats.Rgba32>(bytes);
+            } catch (OperationCanceledException) {
+                throw;
+            } catch (Exception ex) {
+                throw new SkySurveyUnavailableException(ex.Message);
+            }
+
+            return new SkySurveyImagePortable() {
+                Name = name,
+                Source = nameof(SkyServerSkySurvey),
+                Image = image,
+                FoVHeight = fieldOfView,
+                FoVWidth = fieldOfView,
+                Rotation = 0,
+                Coordinates = coordinates
+            };
+        }
     }
 }
