@@ -4,6 +4,8 @@ This file is a solution-wide navigation guide for humans and coding agents worki
 
 For repository-wide contribution workflow, branch expectations, release-note updates, and general coding rules, also read [`CONTRIBUTING.md`](CONTRIBUTING.md).
 
+**This fork (`wokka1/nina`, branch `feature/avalonia-port`) adds a native macOS/Linux app shell, `NINA.Avalonia`, built on Avalonia UI instead of WPF.** This is a genuinely new, multi-week effort layered on top of the upstream architecture described below - the durable plan of record and full history live in GitHub issue [`wokka1/nina#1`](https://github.com/wokka1/nina/issues/1), which is updated at every real milestone. Read that issue before starting Avalonia-port work in an unfamiliar area; it has real, hard-won conventions (multi-targeting, `#if HAS_WPF` gating, portable-vs-WPF pixel pipelines) that this file summarizes but the issue documents in full. See [`NINA.Avalonia/ARCHITECTURE.md`](NINA.Avalonia/ARCHITECTURE.md) and the "Portability Conventions" section of [`NINA.WPF.Base/ARCHITECTURE.md`](NINA.WPF.Base/ARCHITECTURE.md) for the concrete rules.
+
 ## Scope
 
 This guide covers the projects listed in `NINA.sln`.
@@ -48,6 +50,7 @@ Read the project-local architecture doc before making non-trivial changes in tha
 - [`NINA.SetupBundle/ARCHITECTURE.md`](NINA.SetupBundle/ARCHITECTURE.md)
 - [`NINA.Test/ARCHITECTURE.md`](NINA.Test/ARCHITECTURE.md)
 - [`NINA.WPF.Base/ARCHITECTURE.md`](NINA.WPF.Base/ARCHITECTURE.md)
+- [`NINA.Avalonia/ARCHITECTURE.md`](NINA.Avalonia/ARCHITECTURE.md) (this fork only - the Avalonia app shell)
 
 Note: the solution project is named `NINA.PlateSolving`, but the folder on disk is `NINA.Platesolving`.
 
@@ -95,6 +98,8 @@ The solution has a clear layering pattern.
 
 - `NINA`
   Executable WPF app, DI composition root, main shell, app-specific views/view models, runtime assets.
+- `NINA.Avalonia` (this fork only)
+  Executable Avalonia app - native macOS/Linux shell, replacing WPF. Own DI composition root (`CompositionRoot.cs`), consumes the same backend libraries as `NINA` directly (multi-targeted to `net10.0` for this purpose). See [`NINA.Avalonia/ARCHITECTURE.md`](NINA.Avalonia/ARCHITECTURE.md).
 - `NINA.Setup`
   WiX MSI project.
 - `NINA.SetupBundle`
