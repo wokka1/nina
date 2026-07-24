@@ -21,6 +21,9 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using NINA.Image.ImageAnalysis;
 using System.Windows.Media;
+using ISPointF = SixLabors.ImageSharp.PointF;
+using SixLabors.ImageSharp.Processing;
+using NINA.WPF.Base.SkySurvey.Portable;
 
 namespace NINA.WPF.Base.SkySurvey {
     public class CacheSkySurveyImageFactory {
@@ -132,6 +135,66 @@ namespace NINA.WPF.Base.SkySurvey {
                 return l;
             }
 
+        }
+
+        /// <summary>
+        /// Portable (ImageSharp-based) equivalent of Render() - same viewport math and cached-image selection,
+        /// but compositing via SixLabors.ImageSharp instead of System.Drawing/GDI+ so it also runs on macOS/Linux.
+        /// Returns raw RGBA32 pixel bytes (width*height*4) instead of a WPF BitmapSource.
+        /// </summary>
+        public byte[] RenderPortable(Coordinates centerCoordinates, double vFoVDegrees, double imageRotation) {
+            lock (lockObj) {
+                ViewportFoV = new ViewportFoV(centerCoordinates, vFoVDegrees, width, height, imageRotation);
+
+                using var dsoImageBufferPortable = new SixLabors.ImageSharp.Image<SixLabors.ImageSharp.PixelFormats.Rgba32>(width, height);
+                dsoImageBufferPortable.Mutate(ctx => {
+                    SixLabors.ImageSharp.Drawing.Processing.ClearExtensions.Clear(ctx, SixLabors.ImageSharp.Color.Transparent);
+                    DrawBufferedDSOImagesPortable(ctx);
+                });
+
+                var buffer = new byte[width * height * 4];
+                dsoImageBufferPortable.CopyPixelDataTo(buffer);
+                return buffer;
+            }
+        }
+
+        private void DrawBufferedDSOImagesPortable(SixLabors.ImageSharp.Processing.IImageProcessingContext ctx) {
+            try {
+                var relevantImages = GetCacheImagesForViewport();
+                foreach (var cacheImage in relevantImages) {
+                    if (File.Exists(cacheImage.ImagePath)) {
+                        var image = cacheImage.GetImageForScalePortable(ViewportFoV.HFoV, 400);
+
+                        var imageResW = AstroUtil.ArcminToArcsec(cacheImage.FoVW) / image.Width;
+                        var imageResH = AstroUtil.ArcminToArcsec(cacheImage.FoVH) / image.Height;
+                        var conversionW = imageResW / ViewportFoV.ArcSecWidth;
+                        var conversionH = imageResH / ViewportFoV.ArcSecHeight;
+                        var destWidth = image.Width * conversionW;
+                        var destHeight = image.Height * conversionH;
+
+                        var center = cacheImage.Coordinates.XYProjection(ViewportFoV);
+                        var centerPoint = new ISPointF((float)center.X, (float)center.Y);
+
+                        var panelDeltaX = center.X - ViewportFoV.ViewPortCenterPoint.X;
+                        var panelDeltaY = center.Y - ViewportFoV.ViewPortCenterPoint.Y;
+                        var referenceCenter = ViewportFoV.CenterCoordinates.Shift(panelDeltaX < 1E-10 ? 1 : 0, panelDeltaY, ViewportFoV.Rotation, ViewportFoV.ArcSecWidth, ViewportFoV.ArcSecHeight);
+
+                        var rotation = -(90 - ((float)AstroUtil.CalculatePositionAngle(referenceCenter.RADegrees, cacheImage.Coordinates.RADegrees, referenceCenter.Dec, cacheImage.Coordinates.Dec)));
+                        if (panelDeltaX < 0) {
+                            rotation += 180;
+                        }
+                        if (cacheImage.Coordinates.Dec < 0 || (referenceCenter.Dec < 0 && cacheImage.Coordinates.Dec >= 0)) {
+                            rotation += 180;
+                        }
+
+                        rotation += (float)cacheImage.Rotation;
+
+                        PortableDrawingUtility.DrawCachedImageRotatedCentered(ctx, image, (float)destWidth, (float)destHeight, centerPoint, rotation);
+                    }
+                }
+            } catch (Exception) {
+            } finally {
+            }
         }
     }
 }

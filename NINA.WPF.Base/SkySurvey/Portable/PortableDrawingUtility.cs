@@ -12,7 +12,10 @@
 
 #endregion "copyright"
 
+using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Drawing;
+using SixLabors.ImageSharp.PixelFormats;
+using SixLabors.ImageSharp.Processing;
 using System;
 using System.Numerics;
 using PointF = SixLabors.ImageSharp.PointF;
@@ -43,6 +46,42 @@ namespace NINA.WPF.Base.SkySurvey.Portable {
             var rotate = Matrix3x2.CreateRotation(DegreesToRadians(degrees));
             var fromOrigin = Matrix3x2.CreateTranslation(pivot.X, pivot.Y);
             return path.Transform(toOrigin * rotate * fromOrigin);
+        }
+
+        /// <summary>
+        /// Resizes <paramref name="source"/> to (destWidth, destHeight), optionally rotates it, and composites it
+        /// onto <paramref name="ctx"/> centered at <paramref name="center"/>. Mirrors the effect of GDI+'s
+        /// TranslateTransform(center) + RotateTransform(rotationDegrees) + DrawImage(image, rect-centered-at-origin)
+        /// pattern used by CacheSkySurveyImageFactory.Render()/SkyMapAnnotator.DrawBufferedDSOImages - except
+        /// ImageSharp's Rotate() expands the canvas to fit the rotated bounds instead of rotating in place, so the
+        /// draw position has to be re-derived from the rotated image's own (larger) size, not the pre-rotation one.
+        /// </summary>
+        public static void DrawCachedImageRotatedCentered(
+            IImageProcessingContext ctx,
+            Image<Rgba32> source,
+            float destWidth,
+            float destHeight,
+            PointF center,
+            float rotationDegrees) {
+            var w = Math.Max(1, (int)destWidth);
+            var h = Math.Max(1, (int)destHeight);
+
+            using var resized = source.Clone(x => x.Resize(w, h));
+            Image<Rgba32> rotated = null;
+            var toDraw = resized;
+            try {
+                if (rotationDegrees != 0) {
+                    rotated = resized.Clone(x => x.Rotate(rotationDegrees));
+                    toDraw = rotated;
+                }
+
+                var position = new SixLabors.ImageSharp.Point(
+                    (int)(center.X - (toDraw.Width / 2f)),
+                    (int)(center.Y - (toDraw.Height / 2f)));
+                ctx.DrawImage(toDraw, position, 1f);
+            } finally {
+                rotated?.Dispose();
+            }
         }
     }
 }
