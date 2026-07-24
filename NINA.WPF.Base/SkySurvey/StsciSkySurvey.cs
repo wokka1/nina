@@ -18,13 +18,16 @@ using NINA.WPF.Base.Exceptions;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+#if HAS_WPF
 using System.Windows.Media.Imaging;
+#endif
 
 namespace NINA.WPF.Base.SkySurvey {
 
     internal class StsciSkySurvey : MosaicSkySurvey, ISkySurvey {
         private const string Url = "https://archive.stsci.edu/cgi-bin/dss_search?format=GIF&r={0}&d={1}&e=J2000&w={2}&h={3}&v=1";
 
+#if HAS_WPF
         protected override async Task<BitmapSource> GetSingleImage(Coordinates coordinates, double fovW, double fovH, CancellationToken ct, int width, int height) {
             try {
                 var request = new HttpDownloadImageRequest(
@@ -43,6 +46,7 @@ namespace NINA.WPF.Base.SkySurvey {
                 throw new SkySurveyUnavailableException(ex.Message);
             }
         }
+#endif
 
         /// <summary>
         /// Portable (ImageSharp-based) equivalent of GetSingleImage - decoded via ImageSharp instead of WPF.

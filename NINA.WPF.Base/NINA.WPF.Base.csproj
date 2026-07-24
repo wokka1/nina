@@ -138,23 +138,7 @@
          buffers) that all need gating too, not just the one method. -->
     <Compile Remove="Interfaces\ViewModel\IFramingAssistantVM.cs" />
     <Compile Remove="Interfaces\ViewModel\ISkyMapAnnotator.cs" />
-    <Compile Remove="Model\FramingAssistant\FramingDSO.cs" />
-    <Compile Remove="Model\FramingAssistant\FrameLineMatrix2.cs" />
-    <Compile Remove="Model\FramingAssistant\FramingConstellation.cs" />
-    <Compile Remove="Model\FramingAssistant\FramingConstellationBoundary.cs" />
-    <Compile Remove="SkySurvey\CacheSkySurvey.cs" />
-    <Compile Remove="SkySurvey\CacheSkySurveyImageFactory.cs" />
-    <Compile Remove="SkySurvey\ESOSkySurvey.cs" />
     <Compile Remove="SkySurvey\FileSkySurvey.cs" />
-    <Compile Remove="SkySurvey\Hips2FitsSurvey.cs" />
-    <Compile Remove="SkySurvey\ISkySurvey.cs" />
-    <Compile Remove="SkySurvey\MosaicSkySurvey.cs" />
-    <Compile Remove="SkySurvey\NASASkySurvey.cs" />
-    <Compile Remove="SkySurvey\SkyAtlasSkySurvey.cs" />
-    <Compile Remove="SkySurvey\SkyMapAnnotator.cs" />
-    <Compile Remove="SkySurvey\SkyServerSkySurvey.cs" />
-    <Compile Remove="SkySurvey\SkySurveyFactory.cs" />
-    <Compile Remove="SkySurvey\StsciSkySurvey.cs" />
 
     <!-- Pure WPF utility classes (DataTemplateSelector, ResourceDictionary subclass, and a
          Dispatcher-bound progress factory / IDispatcher backing) - no separable portable logic,

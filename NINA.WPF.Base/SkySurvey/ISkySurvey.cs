@@ -16,7 +16,9 @@ using NINA.Astrometry;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+#if HAS_WPF
 using System.Windows.Media.Imaging;
+#endif
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 
@@ -24,6 +26,7 @@ namespace NINA.WPF.Base.SkySurvey {
 
     public interface ISkySurvey {
 
+#if HAS_WPF
         Task<SkySurveyImage> GetImage(string name, Coordinates coordinates, double fieldOfView, int width, int height,
             CancellationToken ct, IProgress<int> progress);
 
@@ -32,6 +35,7 @@ namespace NINA.WPF.Base.SkySurvey {
 
             return GetImage(name, coordinates: coordinates, fieldOfView: fieldOfView, width: width, height: height, ct: ct, progress: progress);
         }
+#endif
 
         /// <summary>
         /// Portable (ImageSharp-based) equivalent of GetImage - returns a SkySurveyImagePortable instead of a
@@ -57,7 +61,9 @@ namespace NINA.WPF.Base.SkySurvey {
     public class SkySurveyImage {
         public Guid Id { get; set; } = Guid.NewGuid();
         public string Source { get; set; }
+#if HAS_WPF
         public BitmapSource Image { get; set; }
+#endif
         public double FoVWidth { get; set; }
         public double FoVHeight { get; set; }
         public double Rotation { get; set; }

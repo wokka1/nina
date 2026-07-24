@@ -18,14 +18,20 @@ using System.Drawing;
 namespace NINA.WPF.Base.Model.FramingAssistant {
 
     public class FramingConstellationBoundary {
-        private static Pen boundaryPen = new Pen(Color.FromArgb(128, Color.Khaki), 0.1f);
         public List<PointF> Points = new List<PointF>();
+
+        // Real runtime finding (2026-07-24): boundaryPen's field initializer runs in this class's implicit
+        // static constructor the instant any member is touched, including DrawPortable - needs libgdiplus,
+        // not present on macOS/Linux - so it's gated together with its only consumer, Draw(Graphics).
+#if HAS_WPF
+        private static Pen boundaryPen = new Pen(Color.FromArgb(128, Color.Khaki), 0.1f);
 
         public void Draw(Graphics g) {
             if (this.Points.Count > 1) {
                 g.DrawPolygon(boundaryPen, this.Points.ToArray());
             }
         }
+#endif
 
         private static readonly SixLabors.ImageSharp.Drawing.Processing.SolidPen boundaryPenPortable =
             new SixLabors.ImageSharp.Drawing.Processing.SolidPen(SixLabors.ImageSharp.Color.Khaki.WithAlpha(128f / 255f), 0.1f);

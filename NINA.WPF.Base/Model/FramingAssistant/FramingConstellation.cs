@@ -79,7 +79,7 @@ namespace NINA.WPF.Base.Model.FramingAssistant {
         public void RecalculateConstellationPoints(ViewportFoV reference, bool calculateConnections) {
             // calculate all star positions for the constellation once and add them to the star collection for drawing if they're visible
             foreach (var star in constellation.Stars) {
-                var starPosition = star.Coords.XYProjection(reference);
+                var starPosition = star.Coords.XYProjectionPortable(reference);
                 star.Position = new PointF((float)starPosition.X, (float)starPosition.Y);
                 var isInBounds = reference.ContainsCoordinates(star.Coords);
                 var contains = Stars.Contains(star);
@@ -103,11 +103,17 @@ namespace NINA.WPF.Base.Model.FramingAssistant {
                     }
                 }
 
-                var p = constellationCenter.XYProjection(reference);
+                var p = constellationCenter.XYProjectionPortable(reference);
                 CenterPoint = new PointF((float)p.X, (float)p.Y);
             }
         }
 
+        // Real runtime finding (2026-07-24): the static Font/Brush/Pen fields below are plain field
+        // initializers - gating just the methods wouldn't be enough, since the CLR's implicit static
+        // constructor for this whole class still runs (constructing them, needing libgdiplus) the instant any
+        // member is touched, including DrawStarsPortable/DrawAnnotationsPortable. Both the methods and the
+        // fields need gating together.
+#if HAS_WPF
         public void DrawAnnotations(Graphics g) {
             var constellationSize = g.MeasureString(this.Name, font);
             g.DrawString(this.Name, font, constColorBrush, (this.CenterPoint.X - constellationSize.Width / 2), (this.CenterPoint.Y));
@@ -136,6 +142,7 @@ namespace NINA.WPF.Base.Model.FramingAssistant {
         private static Pen constLinePen = new Pen(Color.FromArgb(128, 0, 255, 0));
         private static SolidBrush starFontColorBrush = new SolidBrush(Color.FromArgb(128, 255, 215, 0));
         private static SolidBrush starColorBrush = new SolidBrush(Color.FromArgb(200, 255, 255, 255));
+#endif
 
         public PointF CenterPoint { get; private set; }
 

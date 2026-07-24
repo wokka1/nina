@@ -66,15 +66,7 @@ namespace NINA.WPF.Base.Interfaces.ViewModel {
         void UpdateSkyMap();
     }
 
-    public partial class ActiveCatalogue : BaseINPC {
-        [ObservableProperty]
-        private string name;
-        [ObservableProperty]
-        private bool active;
-
-        public ActiveCatalogue(string name, bool active) {
-            Name = name;
-            Active = active;
-        }
-    }
+    // ActiveCatalogue moved to NINA.WPF.Base/SkySurvey/ActiveCatalogue.cs (2026-07-24) - it has no WPF
+    // dependency of its own, but SkyMapAnnotator's use of it (in shared, portable code) needs it to exist
+    // on net10.0 too, and this whole file stays excluded there.
 }

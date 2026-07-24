@@ -17,8 +17,10 @@ using NINA.WPF.Base.Exceptions;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+#if HAS_WPF
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+#endif
 using SixLabors.ImageSharp.Processing;
 
 namespace NINA.WPF.Base.SkySurvey {
@@ -26,6 +28,7 @@ namespace NINA.WPF.Base.SkySurvey {
     public abstract class MosaicSkySurvey : ISkySurvey {
         protected double MaxFoVPerImage = 60;
 
+#if HAS_WPF
         public async Task<SkySurveyImage> GetImage(string name, Coordinates coordinates, double fieldOfView, int width,
             int height, CancellationToken ct, IProgress<int> progress) {
             return await Task.Run(async () => {
@@ -197,6 +200,7 @@ namespace NINA.WPF.Base.SkySurvey {
         }
 
         protected abstract Task<BitmapSource> GetSingleImage(Coordinates coordinates, double fovW, double fovH, CancellationToken ct, int width, int height);
+#endif
 
         /// <summary>
         /// Portable (ImageSharp-based) equivalent of GetImage - same single-vs-mosaic branching and field-of-view

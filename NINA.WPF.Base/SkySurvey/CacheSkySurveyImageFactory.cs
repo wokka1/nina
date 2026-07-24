@@ -15,12 +15,16 @@ using System.Collections.Generic;
 using System.Linq;
 using NINA.Core.Utility;
 using System.IO;
+#if HAS_WPF
 using System.Windows.Media.Imaging;
+#endif
 using System.Globalization;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using NINA.Image.ImageAnalysis;
+#if HAS_WPF
 using System.Windows.Media;
+#endif
 using ISPointF = SixLabors.ImageSharp.PointF;
 using SixLabors.ImageSharp.Processing;
 using NINA.WPF.Base.SkySurvey.Portable;
@@ -41,6 +45,7 @@ namespace NINA.WPF.Base.SkySurvey {
 
         private object lockObj = new object();
 
+#if HAS_WPF
         public BitmapSource Render(Coordinates centerCoordinates, double vFoVDegrees, double imageRotation) {
             lock (lockObj) {
                 ViewportFoV = new ViewportFoV(centerCoordinates, vFoVDegrees, width, height, imageRotation);
@@ -72,10 +77,10 @@ namespace NINA.WPF.Base.SkySurvey {
                         var conversionH = imageResH / ViewportFoV.ArcSecHeight;
                         var dest = new RectangleF(-(float)(image.Width * conversionW / 2f), -(float)(image.Height * conversionH / 2f), (float)(image.Width * conversionW), (float)(image.Height * conversionH));
 
-                        var center = cacheImage.Coordinates.XYProjection(ViewportFoV);
+                        var center = cacheImage.Coordinates.XYProjectionPortable(ViewportFoV);
 
-                        var panelDeltaX = center.X - ViewportFoV.ViewPortCenterPoint.X;
-                        var panelDeltaY = center.Y - ViewportFoV.ViewPortCenterPoint.Y;
+                        var panelDeltaX = center.X - ViewportFoV.ViewPortCenterPointPortable.X;
+                        var panelDeltaY = center.Y - ViewportFoV.ViewPortCenterPointPortable.Y;
                         var referenceCenter = ViewportFoV.CenterCoordinates.Shift(panelDeltaX < 1E-10 ? 1 : 0, panelDeltaY, ViewportFoV.Rotation, ViewportFoV.ArcSecWidth, ViewportFoV.ArcSecHeight);
 
                         var rotation = -(90 - ((float)AstroUtil.CalculatePositionAngle(referenceCenter.RADegrees, cacheImage.Coordinates.RADegrees, referenceCenter.Dec, cacheImage.Coordinates.Dec)));
@@ -98,6 +103,7 @@ namespace NINA.WPF.Base.SkySurvey {
             } finally {
             }
         }
+#endif
 
         private List<CacheImage> GetCacheImagesForViewport() {
             using (MyStopWatch.Measure()) {
@@ -172,11 +178,11 @@ namespace NINA.WPF.Base.SkySurvey {
                         var destWidth = image.Width * conversionW;
                         var destHeight = image.Height * conversionH;
 
-                        var center = cacheImage.Coordinates.XYProjection(ViewportFoV);
+                        var center = cacheImage.Coordinates.XYProjectionPortable(ViewportFoV);
                         var centerPoint = new ISPointF((float)center.X, (float)center.Y);
 
-                        var panelDeltaX = center.X - ViewportFoV.ViewPortCenterPoint.X;
-                        var panelDeltaY = center.Y - ViewportFoV.ViewPortCenterPoint.Y;
+                        var panelDeltaX = center.X - ViewportFoV.ViewPortCenterPointPortable.X;
+                        var panelDeltaY = center.Y - ViewportFoV.ViewPortCenterPointPortable.Y;
                         var referenceCenter = ViewportFoV.CenterCoordinates.Shift(panelDeltaX < 1E-10 ? 1 : 0, panelDeltaY, ViewportFoV.Rotation, ViewportFoV.ArcSecWidth, ViewportFoV.ArcSecHeight);
 
                         var rotation = -(90 - ((float)AstroUtil.CalculatePositionAngle(referenceCenter.RADegrees, cacheImage.Coordinates.RADegrees, referenceCenter.Dec, cacheImage.Coordinates.Dec)));

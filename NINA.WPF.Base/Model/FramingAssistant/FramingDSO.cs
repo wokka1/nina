@@ -94,9 +94,9 @@ namespace NINA.WPF.Base.Model.FramingAssistant {
 
         public void RecalculateTopLeft(ViewportFoV reference) {
             ViewPortCenter = reference.CenterCoordinates;
-            ViewPortCenterPoint = reference.ViewPortCenterPoint;
+            ViewPortCenterPoint = reference.ViewPortCenterPointPortable;
             ViewPortRotation = reference.Rotation;
-            CenterPoint = coordinates.XYProjection(reference);
+            CenterPoint = coordinates.XYProjectionPortable(reference);
             arcSecWidth = reference.ArcSecWidth;
             arcSecHeight = reference.ArcSecHeight;
             TextPosition = new PointF((float)CenterPoint.X, (float)(CenterPoint.Y + RadiusHeight + 5));
@@ -106,9 +106,14 @@ namespace NINA.WPF.Base.Model.FramingAssistant {
 
         public double RadiusHeight => (sizeHeight / arcSecHeight) / 2;
 
-        public System.Windows.Point CenterPoint { get; private set; }
+        /// <summary>
+        /// Point2d (WPF-free) rather than System.Windows.Point - used identically by both the original
+        /// System.Drawing-based Draw() (just reads .X/.Y, never needed WPF's Point type specifically) and
+        /// the portable DrawPortable(), so no HAS_WPF gating/duplication needed for these two fields.
+        /// </summary>
+        public Point2d CenterPoint { get; private set; }
         public Coordinates ViewPortCenter { get; private set; }
-        public System.Windows.Point ViewPortCenterPoint { get; private set; }
+        public Point2d ViewPortCenterPoint { get; private set; }
         public double ViewPortRotation { get; private set; }
 
         public string Id { get; }
@@ -116,6 +121,14 @@ namespace NINA.WPF.Base.Model.FramingAssistant {
         public string Name2 { get; }
         public string Name3 { get; }
 
+        private string dsoType;
+
+        // Real runtime finding (2026-07-24): plain field initializers run in this class's implicit static
+        // constructor the instant ANY member is touched (including DrawPortable), so these (and their only
+        // consumer, the original Draw(Graphics) below) must be gated - not just for compile-time type
+        // availability, but because System.Drawing.SolidBrush/Pen/Font construction needs libgdiplus at runtime,
+        // which isn't present on macOS/Linux.
+#if HAS_WPF
         private static SolidBrush dsoFillColorBrush = new SolidBrush(Color.FromArgb(10, 255, 255, 255));
 
         private static Pen galxyStrokePen = new Pen(Color.FromArgb(128, Color.BurlyWood));
@@ -134,7 +147,6 @@ namespace NINA.WPF.Base.Model.FramingAssistant {
         private static SolidBrush dsoDefaultFontColorBrush = new SolidBrush(Color.FromArgb(255, 255, 255, 255));
 
         private static Font dsoFont = new Font("Segoe UI", 10, System.Drawing.FontStyle.Regular);
-        private string dsoType;
 
         public void Draw(System.Drawing.Graphics g) {
             Pen dsoPen;
@@ -200,6 +212,7 @@ namespace NINA.WPF.Base.Model.FramingAssistant {
                 }
             }
         }
+#endif
 
         private static readonly SixLabors.ImageSharp.Color dsoFillColorPortable = SixLabors.ImageSharp.Color.FromRgba(255, 255, 255, 10);
 

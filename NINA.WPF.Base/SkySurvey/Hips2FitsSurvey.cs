@@ -19,7 +19,9 @@ using NINA.WPF.Base.Exceptions;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+#if HAS_WPF
 using System.Windows.Media.Imaging;
+#endif
 
 namespace NINA.WPF.Base.SkySurvey {
 
@@ -33,6 +35,7 @@ namespace NINA.WPF.Base.SkySurvey {
         private const string Url = "https://alaskybis.u-strasbg.fr/hips-image-services/hips2fits?projection=STG&hips={0}&width={1}&height={2}&fov={3}&ra={4}&dec={5}&format=jpg";
         private const string DefaultSkyMapPath = "CDS/P/DSS2/color";
 
+#if HAS_WPF
         public async Task<SkySurveyImage> GetImage(string name, string hipsSkyMapPath, Coordinates coordinates, double fieldOfView, int width, int height,
             CancellationToken ct, IProgress<int> progress) {
 
@@ -98,6 +101,7 @@ namespace NINA.WPF.Base.SkySurvey {
         public Task<SkySurveyImage> GetImage(string name, Coordinates coordinates, double fieldOfView, int width, int height, CancellationToken ct, IProgress<int> progress) {
             throw new NotImplementedException();
         }
+#endif
 
         /// <summary>
         /// Portable (ImageSharp-based) equivalent of the hipsSkyMapPath-taking GetImage - same primary/fallback

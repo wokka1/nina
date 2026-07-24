@@ -18,7 +18,9 @@ using NINA.WPF.Base.Exceptions;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+#if HAS_WPF
 using System.Windows.Media.Imaging;
+#endif
 
 namespace NINA.WPF.Base.SkySurvey {
 
@@ -30,6 +32,7 @@ namespace NINA.WPF.Base.SkySurvey {
 
         private const string Url = "http://archive.eso.org/dss/dss/image?ra={0}&dec={1}&x={2}&y={3}&mime-type=download-gif&Sky-Survey=DSS2&equinox=J2000&statsmode=VO";
 
+#if HAS_WPF
         protected override async Task<BitmapSource> GetSingleImage(Coordinates coordinates, double fovW, double fovH, CancellationToken ct, int width, int height) {
             try {
                 var request = new HttpDownloadImageRequest(
@@ -48,6 +51,7 @@ namespace NINA.WPF.Base.SkySurvey {
                 throw new SkySurveyUnavailableException(ex.Message);
             }
         }
+#endif
 
         /// <summary>
         /// Portable (ImageSharp-based) equivalent of GetSingleImage - decoded via ImageSharp instead of WPF.

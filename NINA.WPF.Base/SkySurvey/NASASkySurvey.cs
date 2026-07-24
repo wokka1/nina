@@ -12,8 +12,10 @@
 
 #endregion "copyright"
 
+#if HAS_WPF
 using Accord.Imaging;
 using Accord.Statistics.Visualizations;
+#endif
 using NINA.Image.ImageData;
 using NINA.Core.Utility.Http;
 using System;
@@ -22,13 +24,16 @@ using System.Threading.Tasks;
 using NINA.Core.Utility;
 using NINA.Astrometry;
 using NINA.WPF.Base.Exceptions;
+#if HAS_WPF
 using System.Windows.Media.Imaging;
+#endif
 
 namespace NINA.WPF.Base.SkySurvey {
 
     internal class NASASkySurvey : ISkySurvey {
         private const string Url = "https://skyview.gsfc.nasa.gov/current/cgi/runquery.pl?Survey=dss2r&Position={0},{1}&Size={2}&Pixels={3}&Return=JPG";
 
+#if HAS_WPF
         public async Task<SkySurveyImage> GetImage(string name, Coordinates coordinates, double fieldOfView, int width,
             int height, CancellationToken ct, IProgress<int> progress) {
             var arcSecPerPixel = 2;
@@ -76,6 +81,7 @@ namespace NINA.WPF.Base.SkySurvey {
                 Coordinates = coordinates
             };
         }
+#endif
 
         /// <summary>
         /// Portable (ImageSharp-based) equivalent of GetImage - downloads and decodes the same way, then applies

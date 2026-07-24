@@ -30,10 +30,12 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+#if HAS_WPF
 using System.Windows;
-using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+#endif
+using System.Windows.Input;
 using ISPointF = SixLabors.ImageSharp.PointF;
 using SixLabors.ImageSharp.Processing;
 using Color = System.Drawing.Color;
@@ -42,7 +44,11 @@ using PixelFormat = System.Drawing.Imaging.PixelFormat;
 
 namespace NINA.WPF.Base.SkySurvey {
 
-    public partial class SkyMapAnnotator : BaseINPC, ITelescopeConsumer, ISkyMapAnnotator {
+    public partial class SkyMapAnnotator : BaseINPC, ITelescopeConsumer
+#if HAS_WPF
+        , ISkyMapAnnotator
+#endif
+    {
         private readonly DatabaseInteraction dbInstance;
         public ViewportFoV ViewportFoV { get; private set; }
         private List<Constellation> dbConstellations;
@@ -105,7 +111,9 @@ namespace NINA.WPF.Base.SkySurvey {
                     activeCat.PropertyChanged += (s, e) => {
                         if (e.PropertyName == nameof(ActiveCatalogue.Active)) {
                             SaveDisabledCatalogues();
+                            #if HAS_WPF
                             UpdateSkyMap();
+                            #endif
                         }
                     };
 
@@ -140,7 +148,9 @@ namespace NINA.WPF.Base.SkySurvey {
             Initialized = true;
 
             firstDraw = true;
+            #if HAS_WPF
             UpdateSkyMap();
+            #endif
             firstDraw = false;
         }
 
@@ -151,7 +161,9 @@ namespace NINA.WPF.Base.SkySurvey {
 
             FrameLineMatrix.CalculatePoints(ViewportFoV);
 
+            #if HAS_WPF
             UpdateSkyMap();
+            #endif
 
             return ViewportFoV;
         }
@@ -188,8 +200,10 @@ namespace NINA.WPF.Base.SkySurvey {
         [ObservableProperty]
         private bool useCachedImages;
 
+#if HAS_WPF
         [ObservableProperty]
         private BitmapSource skyMapOverlay;
+#endif
 
         [ObservableProperty]
         private bool showAllCatalogues = true;
@@ -224,7 +238,9 @@ namespace NINA.WPF.Base.SkySurvey {
             }
 
             SaveDisabledCatalogues();
+            #if HAS_WPF
             UpdateSkyMap();
+            #endif
         }
         private void SaveDisabledCatalogues() {
 
@@ -339,11 +355,13 @@ namespace NINA.WPF.Base.SkySurvey {
             }
         }
 
+#if HAS_WPF
         public Coordinates ShiftViewport(Vector delta) {
             ViewportFoV.Shift(delta);
 
             return ViewportFoV.CenterCoordinates;
         }
+#endif
 
         public void ClearFrameLineMatrix() {
             FrameLineMatrix.RAPoints.Clear();
@@ -373,7 +391,7 @@ namespace NINA.WPF.Base.SkySurvey {
                 var frameLine = new FramingConstellationBoundary();
                 if (boundary.Value.Boundaries.Any((x) => ViewportFoV.ContainsCoordinates(x))) {
                     foreach (var coordinates in boundary.Value.Boundaries) {
-                        var point = coordinates.XYProjection(ViewportFoV);
+                        var point = coordinates.XYProjectionPortable(ViewportFoV);
                         frameLine.Points.Add(new PointF((float)point.X, (float)point.Y));
                     }
 
@@ -382,6 +400,10 @@ namespace NINA.WPF.Base.SkySurvey {
             }
         }
 
+        // These 5 helpers (through UpdateAndDrawGrid below) call the original .Draw(g)/.DrawStars(g)/
+        // .DrawAnnotations(g) methods on FramingDSO/FramingConstellation/FramingConstellationBoundary/
+        // FrameLineMatrix2 - all now #if HAS_WPF-gated in their own files, so these callers need the same gate.
+#if HAS_WPF
         private void UpdateAndAnnotateDSOs() {
             var allGatheredDSO = GetDeepSkyObjectsForViewport();
 
@@ -459,7 +481,9 @@ namespace NINA.WPF.Base.SkySurvey {
 
             FrameLineMatrix.Draw(g);
         }
+#endif
 
+#if HAS_WPF
         private Task DrawBufferedDSOImages(CancellationToken ct) {
             return Task.Run(async () => {
                 try {
@@ -476,10 +500,10 @@ namespace NINA.WPF.Base.SkySurvey {
                             var conversionH = imageResH / ViewportFoV.ArcSecHeight;
                             var dest = new RectangleF(-(float)(image.Width * conversionW / 2f), -(float)(image.Height * conversionH / 2f), (float)(image.Width * conversionW), (float)(image.Height * conversionH));
 
-                            var center = cacheImage.Coordinates.XYProjection(ViewportFoV);
+                            var center = cacheImage.Coordinates.XYProjectionPortable(ViewportFoV);
 
-                            var panelDeltaX = center.X - ViewportFoV.ViewPortCenterPoint.X;
-                            var panelDeltaY = center.Y - ViewportFoV.ViewPortCenterPoint.Y;
+                            var panelDeltaX = center.X - ViewportFoV.ViewPortCenterPointPortable.X;
+                            var panelDeltaY = center.Y - ViewportFoV.ViewPortCenterPointPortable.Y;
                             var referenceCenter = ViewportFoV.CenterCoordinates.Shift(panelDeltaX < 1E-10 ? 1 : 0, panelDeltaY, ViewportFoV.Rotation, ViewportFoV.ArcSecWidth, ViewportFoV.ArcSecHeight);
 
                             var rotation = -(90 - ((float)AstroUtil.CalculatePositionAngle(referenceCenter.RADegrees, cacheImage.Coordinates.RADegrees, referenceCenter.Dec, cacheImage.Coordinates.Dec)));
@@ -590,10 +614,15 @@ namespace NINA.WPF.Base.SkySurvey {
                 }
             }
         }
+#endif
 
+        // Real runtime finding (2026-07-24): DrawTelescope + ScopePen gated together - ScopePen's field
+        // initializer runs in this class's implicit static constructor the instant any member is touched
+        // (including RenderPortable/DrawTelescopePortable), needing libgdiplus, not present on macOS/Linux.
+#if HAS_WPF
         private void DrawTelescope() {
             if (ViewportFoV.ContainsCoordinates(telescopeCoordinates)) {
-                System.Windows.Point scopePosition = telescopeCoordinates.XYProjection(ViewportFoV);
+                var scopePosition = telescopeCoordinates.XYProjectionPortable(ViewportFoV);
                 g.DrawEllipse(ScopePen, (float)(scopePosition.X - 15), (float)(scopePosition.Y - 15), 30, 30);
                 g.DrawLine(ScopePen, (float)(scopePosition.X), (float)(scopePosition.Y - 15),
                     (float)(scopePosition.X), (float)(scopePosition.Y - 5));
@@ -607,6 +636,7 @@ namespace NINA.WPF.Base.SkySurvey {
         }
 
         private static readonly Pen ScopePen = new Pen(Color.FromArgb(128, Color.Yellow), 2.0f);
+#endif
 
         private bool telescopeConnected;
         private Coordinates telescopeCoordinates = new Coordinates(0, 0, Epoch.J2000, Coordinates.RAType.Degrees);
@@ -619,7 +649,9 @@ namespace NINA.WPF.Base.SkySurvey {
                 if (Math.Abs(telescopeCoordinates.RADegrees - coordinates.RADegrees) > 0.01 || Math.Abs(telescopeCoordinates.Dec - coordinates.Dec) > 0.01) {
                     telescopeCoordinates = coordinates;
                     if (ViewportFoV.ContainsCoordinates(coordinates)) {
+                        #if HAS_WPF
                         UpdateSkyMap();
+                        #endif
                     }
                 }
             } else {
@@ -786,7 +818,7 @@ namespace NINA.WPF.Base.SkySurvey {
 
         private void DrawTelescopePortable(SixLabors.ImageSharp.Processing.IImageProcessingContext ctx) {
             if (ViewportFoV.ContainsCoordinates(telescopeCoordinates)) {
-                var scopePosition = telescopeCoordinates.XYProjection(ViewportFoV);
+                var scopePosition = telescopeCoordinates.XYProjectionPortable(ViewportFoV);
                 var center = new ISPointF((float)scopePosition.X, (float)scopePosition.Y);
 
                 var ellipse = new SixLabors.ImageSharp.Drawing.EllipsePolygon(center, 15f);

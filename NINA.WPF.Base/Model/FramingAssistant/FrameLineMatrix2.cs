@@ -25,9 +25,17 @@ namespace NINA.WPF.Base.Model.FramingAssistant {
 
     public class FrameLineMatrix2 : IDisposable {
         private const double MAXDEC = 89.999;
+        // Real runtime finding (2026-07-24, caught by a disposable console harness, not the compiler): these are
+        // plain field initializers, so the CLR's implicit static constructor for this whole class constructs them
+        // - and libgdiplus, which System.Drawing.SolidBrush/Pen/Font need at runtime - the instant ANY member of
+        // this class is touched, including DrawPortable. Gating them (and their only consumers, the original
+        // Draw(Graphics)/DrawDecLineCollection/DrawFrameLineCollection/DrawRALineCollection methods below) is
+        // required for DrawPortable to actually run on macOS/Linux, not just compile there.
+#if HAS_WPF
         private static SolidBrush gridAnnotationBrush = new SolidBrush(System.Drawing.Color.SteelBlue);
         private static Font gridAnnotationFont = new Font("Segoe UI", 7, System.Drawing.FontStyle.Italic);
         private static System.Drawing.Pen gridPen = new System.Drawing.Pen(Color.FromArgb(127, System.Drawing.Color.SteelBlue));
+#endif
         private double currentDecStep;
         private double currentRAStep;
         private ViewportFoV currentViewport;
@@ -70,6 +78,7 @@ namespace NINA.WPF.Base.Model.FramingAssistant {
                 }
             }
         }
+#if HAS_WPF
         public void Draw(Graphics g) {
             lock (lockObj) {
                 foreach (var frameLine in this.RAPoints) {
@@ -81,6 +90,7 @@ namespace NINA.WPF.Base.Model.FramingAssistant {
                 }
             }
         }
+#endif
 
         private static void CalcCurve(PointF[] pts, float tension, out PointF p1, out PointF p2) {
             float deltaX, deltaY;
@@ -241,6 +251,7 @@ namespace NINA.WPF.Base.Model.FramingAssistant {
             }
         }
 
+#if HAS_WPF
         private void DrawDecLineCollection(Graphics g, FrameLine frameLine) {
             if (frameLine.Collection.Count > 1) {
                 var position = frameLine.Collection.FirstOrDefault(x => x.X > 0 && x.Y > 0);
@@ -268,7 +279,7 @@ namespace NINA.WPF.Base.Model.FramingAssistant {
         private void DrawRALineCollection(Graphics g, FrameLine frameLine) {
             if (frameLine.Collection.Count > 1) {
                 //Prevent annotations to overlap on southern pole
-                var southPole = new Coordinates(0, -MAXDEC, Epoch.J2000, Coordinates.RAType.Degrees).XYProjection(currentViewport);
+                var southPole = new Coordinates(0, -MAXDEC, Epoch.J2000, Coordinates.RAType.Degrees).XYProjectionPortable(currentViewport);
                 PointF? position = frameLine.Collection.FirstOrDefault(x => x.X > 0 && x.Y > 0 && x.X < currentViewport.Width && x.Y < currentViewport.Height && Math.Abs(x.X - southPole.X) > 5 && Math.Abs(x.Y - southPole.Y) > 5);
 
                 if (position != null) {
@@ -281,6 +292,7 @@ namespace NINA.WPF.Base.Model.FramingAssistant {
                 DrawFrameLineCollection(g, frameLine);
             }
         }
+#endif
 
         private void GenerateDecCoordinateMatrix(double decStep) {
             decCoordinateMatrix.Clear();
@@ -324,14 +336,16 @@ namespace NINA.WPF.Base.Model.FramingAssistant {
         }
 
         private PointF Project(Coordinates coordinates) {
-            var p = coordinates.XYProjection(currentViewport);
+            var p = coordinates.XYProjectionPortable(currentViewport);
             return new PointF((float)p.X, (float)p.Y);
         }
 
         public void Dispose() {
+#if HAS_WPF
             gridAnnotationBrush.Dispose();
             gridAnnotationFont.Dispose();
             gridPen.Dispose();
+#endif
         }
 
         private static readonly SixLabors.ImageSharp.Color gridAnnotationColorPortable = SixLabors.ImageSharp.Color.SteelBlue;
@@ -389,7 +403,7 @@ namespace NINA.WPF.Base.Model.FramingAssistant {
 
         private void DrawRALineCollectionPortable(SixLabors.ImageSharp.Processing.IImageProcessingContext ctx, FrameLine frameLine) {
             if (frameLine.Collection.Count > 1) {
-                var southPole = new Coordinates(0, -MAXDEC, Epoch.J2000, Coordinates.RAType.Degrees).XYProjection(currentViewport);
+                var southPole = new Coordinates(0, -MAXDEC, Epoch.J2000, Coordinates.RAType.Degrees).XYProjectionPortable(currentViewport);
                 PointF? position = frameLine.Collection.FirstOrDefault(x => x.X > 0 && x.Y > 0 && x.X < currentViewport.Width && x.Y < currentViewport.Height && Math.Abs(x.X - southPole.X) > 5 && Math.Abs(x.Y - southPole.Y) > 5);
 
                 if (position != null) {

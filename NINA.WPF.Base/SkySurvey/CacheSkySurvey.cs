@@ -20,8 +20,10 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+#if HAS_WPF
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+#endif
 using SixLabors.ImageSharp.Processing;
 using System.Xml.Linq;
 
@@ -58,7 +60,7 @@ namespace NINA.WPF.Base.SkySurvey {
                 elements = Cache.Elements("Image").Where(x => x.Attribute("Source") == null);
                 foreach (var element in elements) {
                     if (element.Attribute("Rotation").Value != "0") {
-                        element.Add(new XAttribute("Source", nameof(FileSkySurvey)));
+                        element.Add(new XAttribute("Source", "FileSkySurvey"));
                     } else {
                         element.Add(new XAttribute("Source", nameof(NASASkySurvey)));
                     }
@@ -110,6 +112,7 @@ namespace NINA.WPF.Base.SkySurvey {
             }
         }
 
+#if HAS_WPF
         public XElement SaveImageToCache(SkySurveyImage skySurveyImage) {
             try {
                 var element =
@@ -190,7 +193,8 @@ namespace NINA.WPF.Base.SkySurvey {
                 encoder.Save(fileStream);
             }
         }
-        
+#endif
+
         private string RestoreNameFromUniqueBracket(string originalImgFilePath) {
             var filename = Path.GetFileName(originalImgFilePath);
 
@@ -218,6 +222,7 @@ namespace NINA.WPF.Base.SkySurvey {
         /// <param name="rotation">Rotation of image</param>
         /// <param name="fov">Field of View in Arcminutes</param>
         /// <returns></returns>
+#if HAS_WPF
         public Task<SkySurveyImage> GetImage(string source, double ra, double dec, double rotation, double fov) {
             return Task.Run(() => {
                 var element =
@@ -298,6 +303,7 @@ namespace NINA.WPF.Base.SkySurvey {
 
             return image;
         }
+#endif
 
         /// <summary>
         /// Portable (ImageSharp-based) equivalent of SaveImageToCache - same dedupe-by-Id-then-by-RA/Dec/FoV/Source

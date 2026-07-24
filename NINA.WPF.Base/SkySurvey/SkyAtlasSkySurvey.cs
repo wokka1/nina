@@ -16,13 +16,16 @@ using NINA.Astrometry;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+#if HAS_WPF
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+#endif
 
 namespace NINA.WPF.Base.SkySurvey {
 
     internal class SkyAtlasSkySurvey : ISkySurvey {
 
+#if HAS_WPF
         public async Task<SkySurveyImage> GetImage(string name, Coordinates coordinates, double fieldOfView, int width,
             int height, CancellationToken ct, IProgress<int> progress) {
             return await Task.Run(() => {
@@ -49,6 +52,7 @@ namespace NINA.WPF.Base.SkySurvey {
                 };
             }, ct);
         }
+#endif
 
         /// <summary>
         /// Portable (ImageSharp-based) equivalent of GetImage - same flat gray placeholder, no WPF dependency.

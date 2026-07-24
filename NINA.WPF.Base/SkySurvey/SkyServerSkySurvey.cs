@@ -18,13 +18,16 @@ using NINA.WPF.Base.Exceptions;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+#if HAS_WPF
 using System.Windows.Media.Imaging;
+#endif
 
 namespace NINA.WPF.Base.SkySurvey {
 
     internal class SkyServerSkySurvey : ISkySurvey {
         private const string Url = "http://skyserver.sdss.org/dr14/SkyserverWS/ImgCutout/getjpeg?ra={0}&dec={1}&width={2}&height={3}&scale={4}";
 
+#if HAS_WPF
         public async Task<SkySurveyImage> GetImage(string name, Coordinates coordinates, double fieldOfView, int width,
             int height, CancellationToken ct, IProgress<int> progress) {
             var arcSecPerPixel = 0.4;
@@ -64,6 +67,7 @@ namespace NINA.WPF.Base.SkySurvey {
                 Coordinates = coordinates
             };
         }
+#endif
 
         /// <summary>
         /// Portable (ImageSharp-based) equivalent of GetImage - same query math, decoded via ImageSharp
