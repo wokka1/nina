@@ -552,7 +552,7 @@
                         <Button Content="Remove" Command="{Binding SequencerVM.SelectedItem.DetachCommand}" />
                     </StackPanel>
                     <Grid ColumnDefinitions="*,260">
-                        <TreeView Grid.Column="0" ItemsSource="{Binding SequencerVM.RootContainer.Items}" SelectedItem="{Binding SequencerVM.SelectedItem}">
+                        <TreeView Name="SequencerTree" Grid.Column="0" ItemsSource="{Binding SequencerVM.RootContainer.Items}" SelectedItem="{Binding SequencerVM.SelectedItem}">
                             <TreeView.DataTemplates>
                                 <TreeDataTemplate DataType="seqc:ISequenceContainer" ItemsSource="{Binding Items}">
                                     <TextBlock Text="{Binding Name}" FontWeight="SemiBold" />
