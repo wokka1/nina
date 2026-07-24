@@ -21,12 +21,13 @@ namespace NINA.Avalonia.ViewModels;
 public partial class MainViewModel : ViewModelBase {
     private readonly IProfileService profileService;
 
-    public MainViewModel(IProfileService profileService, EquipmentViewModel equipmentViewModel, ImagingViewModel imagingViewModel, SequencerViewModel sequencerViewModel, SkyAtlasViewModel skyAtlasViewModel, OptionsViewModel optionsViewModel, PluginsViewModel pluginsViewModel) {
+    public MainViewModel(IProfileService profileService, EquipmentViewModel equipmentViewModel, ImagingViewModel imagingViewModel, SequencerViewModel sequencerViewModel, SkyAtlasViewModel skyAtlasViewModel, FramingAssistantViewModel framingAssistantViewModel, OptionsViewModel optionsViewModel, PluginsViewModel pluginsViewModel) {
         this.profileService = profileService;
         EquipmentVM = equipmentViewModel;
         ImagingVM = imagingViewModel;
         SequencerVM = sequencerViewModel;
         SkyAtlasVM = skyAtlasViewModel;
+        FramingAssistantVM = framingAssistantViewModel;
         OptionsVM = optionsViewModel;
         PluginsVM = pluginsViewModel;
 
@@ -75,6 +76,10 @@ public partial class MainViewModel : ViewModelBase {
 
     // Real DSO catalog search (Phase 4, first slice - search only, no framing/rendering yet).
     public SkyAtlasViewModel SkyAtlasVM { get; }
+
+    // Real Framing Assistant tab - grid/DSO/constellation overlay + cached-sky-image background,
+    // both rendered via the ImageSharp-based *Portable path (2026-07-24).
+    public FramingAssistantViewModel FramingAssistantVM { get; }
 
     // Real settings editor over the active profile (Phase 5, first slice).
     public OptionsViewModel OptionsVM { get; }

@@ -62,5 +62,39 @@ namespace NINA.Avalonia.Utility {
             Marshal.Copy(bgra, 0, lockedBuffer.Address, bgra.Length);
             return bitmap;
         }
+
+        /// <summary>
+        /// Converts raw RGBA32 bytes (R,G,B,A per pixel - SixLabors.ImageSharp.PixelFormats.Rgba32's own
+        /// in-memory layout, as produced by SkyMapAnnotator.RenderPortable()/CacheSkySurveyImageFactory.
+        /// RenderPortable() via Image&lt;Rgba32&gt;.CopyPixelDataTo) into a displayable Avalonia bitmap.
+        /// Unlike ToWriteableBitmap(PortableImageBuffer) above, there's no 16-bit downshift here - this data
+        /// is already 8-bit-per-channel - just a channel-order swap (RGBA -> Avalonia's BGRA8888).
+        /// </summary>
+        public static WriteableBitmap ToWriteableBitmapFromRgba32(byte[] rgba, int width, int height) {
+            var bitmap = new WriteableBitmap(
+                new PixelSize(width, height),
+                new Vector(96, 96),
+                PixelFormat.Bgra8888,
+                AlphaFormat.Unpremul);
+
+            using var lockedBuffer = bitmap.Lock();
+            var pixelCount = width * height;
+            var bgra = new byte[pixelCount * 4];
+
+            for (int i = 0; i < pixelCount; i++) {
+                int o = i * 4;
+                byte r = rgba[o + 0];
+                byte g = rgba[o + 1];
+                byte b = rgba[o + 2];
+                byte a = rgba[o + 3];
+                bgra[o + 0] = b;
+                bgra[o + 1] = g;
+                bgra[o + 2] = r;
+                bgra[o + 3] = a;
+            }
+
+            Marshal.Copy(bgra, 0, lockedBuffer.Address, bgra.Length);
+            return bitmap;
+        }
     }
 }
