@@ -115,7 +115,27 @@
          providers and the sky-map annotation renderer for the framing assistant; there is
          no separable portable logic left once the WPF bitmap pipeline is removed, and
          building a portable replacement rendering pipeline is out of scope for this pass.
-         Revisit alongside IDeepSkyObjectSearchVM.cs in Phase 4. -->
+         Revisit alongside IDeepSkyObjectSearchVM.cs in Phase 4.
+
+         UPDATE 2026-07-24: a real portable rendering/fetch/cache path (*Portable methods) was
+         written for every file below except FileSkySurvey.cs, and the actual ImageSharp APIs they
+         use were verified for real at runtime via a disposable console harness (font resolution,
+         rotation/compositing math, drawing calls - all against the real ImageSharp/ImageSharp.Drawing
+         packages, not mocked) - see NINA.WPF.Base/SkySurvey/Portable/ and commits
+         1c1b54dd2/80f0c9010/de8bee521. IMPORTANT CAVEAT found after committing: none of this was
+         ever actually compiled *as part of NINA.WPF.Base's own net10.0 build* - these files stayed
+         excluded here the whole time, so every "0 errors on net10.0" build during that work was
+         real but misleading (nothing to error on, since the files weren't in the build). Still
+         excluded here on purpose now, correction pending: each file's *original*
+         WPF/BitmapSource-dependent members need
+         #if HAS_WPF wrapping first (same pattern used for NINA.Core/NINA.Profile/etc during the
+         backend-portability phase) before this whole file can be un-excluded and compile for real
+         alongside the *Portable additions - not done yet, sized as its own follow-up rather than
+         risk leaving a half-wrapped file committed. SkyMapAnnotator.cs is the biggest piece of that
+         follow-up: it implements ISkyMapAnnotator (BitmapSource + System.Windows.Vector in its own
+         contract, itself WPF-only, see the exclusion below) and has several WPF-typed fields beyond
+         just its Render() method (BitmapSource SkyMapOverlay, System.Drawing Bitmap/Graphics
+         buffers) that all need gating too, not just the one method. -->
     <Compile Remove="Interfaces\ViewModel\IFramingAssistantVM.cs" />
     <Compile Remove="Interfaces\ViewModel\ISkyMapAnnotator.cs" />
     <Compile Remove="Model\FramingAssistant\FramingDSO.cs" />
