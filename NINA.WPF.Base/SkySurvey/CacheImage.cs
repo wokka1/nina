@@ -13,6 +13,7 @@ using NINA.Astrometry;
 using System;
 using System.Drawing;
 using System.IO;
+using SixLabors.ImageSharp.Processing;
 
 namespace NINA.WPF.Base.SkySurvey {
 
@@ -119,8 +120,54 @@ namespace NINA.WPF.Base.SkySurvey {
                 if (cachedImage != null) {
                     cachedImage.Dispose();
                 }
+                cachedImagePortable?.Dispose();
             }
             isDisposed = true;
         }
+
+        private SixLabors.ImageSharp.Image<SixLabors.ImageSharp.PixelFormats.Rgba32> cachedImagePortable;
+
+        /// <summary>
+        /// Portable (ImageSharp-based) equivalent of GetImageForScale - same thumbnail-tier caching strategy
+        /// (Small/Medium/Big/full-size, based on how large the plate will actually render at the current field of
+        /// view) but reading/writing/resizing via ImageSharp instead of System.Drawing.Bitmap, so it also runs on
+        /// macOS/Linux. Thumbnail files on disk are shared with the non-portable path (same naming convention via
+        /// GetImagePathForThumbnail) - whichever path runs first creates them, the other just reads them back.
+        /// </summary>
+        public SixLabors.ImageSharp.Image<SixLabors.ImageSharp.PixelFormats.Rgba32> GetImageForScalePortable(double totalFieldOfViewDeg, double totalWidth) {
+            var estimatedPlatePixelWidth = (AstroUtil.ArcminToDegree(FoVW) / totalFieldOfViewDeg) * totalWidth;
+
+            int? tier = null;
+            if (estimatedPlatePixelWidth <= 150) {
+                tier = SmallThumbnailSize;
+            } else if (estimatedPlatePixelWidth <= (MediumThumbnailSize * 2)) {
+                tier = MediumThumbnailSize;
+            } else if (estimatedPlatePixelWidth <= (BigThumbnailSize * 2)) {
+                tier = BigThumbnailSize;
+            }
+
+            if (cachedImagePortable == null || previousPixelWidthPortable != (tier ?? -1)) {
+                cachedImagePortable?.Dispose();
+
+                if (tier.HasValue) {
+                    var file = GetImagePathForThumbnail(ImagePath, tier.Value);
+                    if (!File.Exists(file)) {
+                        using var full = SixLabors.ImageSharp.Image.Load<SixLabors.ImageSharp.PixelFormats.Rgba32>(ImagePath);
+                        var resized = full.Clone(x => x.Resize(tier.Value, tier.Value));
+                        SixLabors.ImageSharp.ImageExtensions.SaveAsJpeg(resized, file);
+                        cachedImagePortable = resized;
+                    } else {
+                        cachedImagePortable = SixLabors.ImageSharp.Image.Load<SixLabors.ImageSharp.PixelFormats.Rgba32>(file);
+                    }
+                } else {
+                    cachedImagePortable = SixLabors.ImageSharp.Image.Load<SixLabors.ImageSharp.PixelFormats.Rgba32>(ImagePath);
+                }
+                previousPixelWidthPortable = tier ?? -1;
+            }
+
+            return cachedImagePortable;
+        }
+
+        private int previousPixelWidthPortable = -2;
     }
 }

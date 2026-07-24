@@ -34,6 +34,8 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using ISPointF = SixLabors.ImageSharp.PointF;
+using SixLabors.ImageSharp.Processing;
 using Color = System.Drawing.Color;
 using Pen = System.Drawing.Pen;
 using PixelFormat = System.Drawing.Imaging.PixelFormat;
@@ -126,6 +128,8 @@ namespace NINA.WPF.Base.SkySurvey {
             g = Graphics.FromImage(img);
             g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAliasGridFit;
             g.SmoothingMode = SmoothingMode.AntiAlias;
+
+            InitializePortableBuffers();
 
             FrameLineMatrix.CalculatePoints(ViewportFoV);
             if (ConstellationBoundaries.Count == 0) {
@@ -630,6 +634,173 @@ namespace NINA.WPF.Base.SkySurvey {
             img?.Dispose();
             dsoImageBuffer?.Dispose();
             FrameLineMatrix?.Dispose();
+            imgPortable?.Dispose();
+        }
+
+        private SixLabors.ImageSharp.Image<SixLabors.ImageSharp.PixelFormats.Rgba32> imgPortable;
+
+        private static readonly SixLabors.ImageSharp.Drawing.Processing.SolidPen ScopePenPortable =
+            new SixLabors.ImageSharp.Drawing.Processing.SolidPen(SixLabors.ImageSharp.Color.Yellow.WithAlpha(128f / 255f), 2.0f);
+
+        [ObservableProperty]
+        private byte[] skyMapOverlayRawPixels;
+
+        /// <summary>
+        /// Portable (ImageSharp-based) counterpart to Initialize()'s Bitmap/Graphics setup - allocates the
+        /// equivalent overlay buffer so RenderPortable() has somewhere to draw. Called from the same place
+        /// Initialize() creates img/g, right after the ViewportFoV for this session is known.
+        /// NOTE: this does not yet allocate a portable dsoImageBuffer equivalent - the cached-background-image
+        /// compositing (DrawBufferedDSOImages) hasn't been ported yet, see CacheSkySurveyImageFactory.Render().
+        /// </summary>
+        private void InitializePortableBuffers() {
+            imgPortable?.Dispose();
+            imgPortable = new SixLabors.ImageSharp.Image<SixLabors.ImageSharp.PixelFormats.Rgba32>((int)ViewportFoV.Width, (int)ViewportFoV.Height);
+        }
+
+        /// <summary>
+        /// Portable (ImageSharp-based) counterpart to Render(). Same drawing order as the original, minus the
+        /// cached-background-image layer (dsoImageBuffer - not yet ported) and running through each *Portable
+        /// draw method built alongside the System.Drawing-based ones instead of a shared Graphics instance.
+        /// Note: DSOInViewport/ConstellationsInViewport are the same fields Render() maintains - safe because in
+        /// practice only one of Render()/RenderPortable() runs against a given SkyMapAnnotator instance (WPF app
+        /// vs. Avalonia app), never both on the same instance.
+        /// </summary>
+        public void RenderPortable() {
+            try {
+                if (imgPortable == null) {
+                    InitializePortableBuffers();
+                }
+
+                imgPortable.Mutate(ctx => {
+                    SixLabors.ImageSharp.Drawing.Processing.ClearExtensions.Clear(ctx, SixLabors.ImageSharp.Color.Transparent);
+
+                    if (!AnnotateConstellations && AnnotateDSO || AnnotateConstellations) {
+                        UpdateAndAnnotateConstellationsPortable(ctx, AnnotateConstellations);
+                        if (!AnnotateDSO) {
+                            DrawStarsPortable(ctx);
+                        }
+                    }
+
+                    if (AnnotateDSO) {
+                        UpdateAndAnnotateDSOsPortable(ctx);
+                        DrawStarsPortable(ctx);
+                    }
+
+                    if (AnnotateConstellationBoundaries) {
+                        UpdateAndDrawConstellationBoundariesPortable(ctx);
+                    }
+
+                    if (AnnotateGrid) {
+                        UpdateAndDrawGridPortable(ctx);
+                    }
+
+                    if (telescopeConnected) {
+                        DrawTelescopePortable(ctx);
+                    }
+                });
+
+                var buffer = new byte[imgPortable.Width * imgPortable.Height * 4];
+                imgPortable.CopyPixelDataTo(buffer);
+                SkyMapOverlayRawPixels = buffer;
+            } catch (Exception) {
+            }
+        }
+
+        private void UpdateAndAnnotateDSOsPortable(SixLabors.ImageSharp.Processing.IImageProcessingContext ctx) {
+            var allGatheredDSO = GetDeepSkyObjectsForViewport();
+
+            var existingDSOs = new List<string>();
+            for (int i = DSOInViewport.Count - 1; i >= 0; i--) {
+                var dso = DSOInViewport[i];
+                if (allGatheredDSO.ContainsKey(dso.Id)) {
+                    dso.RecalculateTopLeft(ViewportFoV);
+                    existingDSOs.Add(dso.Id);
+                } else {
+                    DSOInViewport.RemoveAt(i);
+                }
+            }
+
+            var dsosToAdd = allGatheredDSO.Where(x => !existingDSOs.Any(y => y == x.Value.Id));
+            foreach (var dso in dsosToAdd) {
+                DSOInViewport.Add(new FramingDSO(dso.Value, ViewportFoV));
+            }
+
+            foreach (var dso in DSOInViewport) {
+                dso.DrawPortable(ctx);
+            }
+        }
+
+        private void DrawStarsPortable(SixLabors.ImageSharp.Processing.IImageProcessingContext ctx) {
+            foreach (var constellation in ConstellationsInViewport) {
+                constellation.DrawStarsPortable(ctx);
+            }
+        }
+
+        private void UpdateAndAnnotateConstellationsPortable(SixLabors.ImageSharp.Processing.IImageProcessingContext ctx, bool drawAnnotations) {
+            foreach (var constellation in dbConstellations) {
+                var viewPortConstellation = ConstellationsInViewport.FirstOrDefault(x => x.Id == constellation.Id);
+
+                var isInViewport = false;
+                foreach (var star in constellation.Stars) {
+                    if (!ViewportFoV.ContainsCoordinates(star.Coords)) {
+                        continue;
+                    }
+
+                    isInViewport = true;
+                    break;
+                }
+
+                if (isInViewport) {
+                    if (viewPortConstellation == null) {
+                        var framingConstellation = new FramingConstellation(constellation, ViewportFoV);
+                        framingConstellation.RecalculateConstellationPoints(ViewportFoV, drawAnnotations);
+                        ConstellationsInViewport.Add(framingConstellation);
+                    } else {
+                        viewPortConstellation.RecalculateConstellationPoints(ViewportFoV, drawAnnotations);
+                    }
+                } else if (viewPortConstellation != null) {
+                    ConstellationsInViewport.Remove(viewPortConstellation);
+                }
+            }
+
+            if (drawAnnotations) {
+                foreach (var constellation in ConstellationsInViewport) {
+                    constellation.DrawAnnotationsPortable(ctx);
+                }
+            }
+        }
+
+        private void UpdateAndDrawConstellationBoundariesPortable(SixLabors.ImageSharp.Processing.IImageProcessingContext ctx) {
+            CalculateConstellationBoundaries();
+            foreach (var constellationBoundary in ConstellationBoundariesInViewPort) {
+                constellationBoundary.DrawPortable(ctx);
+            }
+        }
+
+        private void UpdateAndDrawGridPortable(SixLabors.ImageSharp.Processing.IImageProcessingContext ctx) {
+            ClearFrameLineMatrix();
+            CalculateFrameLineMatrix();
+
+            FrameLineMatrix.DrawPortable(ctx);
+        }
+
+        private void DrawTelescopePortable(SixLabors.ImageSharp.Processing.IImageProcessingContext ctx) {
+            if (ViewportFoV.ContainsCoordinates(telescopeCoordinates)) {
+                var scopePosition = telescopeCoordinates.XYProjection(ViewportFoV);
+                var center = new ISPointF((float)scopePosition.X, (float)scopePosition.Y);
+
+                var ellipse = new SixLabors.ImageSharp.Drawing.EllipsePolygon(center, 15f);
+                SixLabors.ImageSharp.Drawing.Processing.DrawPathExtensions.Draw(ctx, ScopePenPortable, ellipse);
+
+                SixLabors.ImageSharp.Drawing.Processing.DrawLineExtensions.DrawLine(ctx, ScopePenPortable,
+                    new ISPointF(center.X, center.Y - 15), new ISPointF(center.X, center.Y - 5));
+                SixLabors.ImageSharp.Drawing.Processing.DrawLineExtensions.DrawLine(ctx, ScopePenPortable,
+                    new ISPointF(center.X, center.Y + 5), new ISPointF(center.X, center.Y + 15));
+                SixLabors.ImageSharp.Drawing.Processing.DrawLineExtensions.DrawLine(ctx, ScopePenPortable,
+                    new ISPointF(center.X - 15, center.Y), new ISPointF(center.X - 5, center.Y));
+                SixLabors.ImageSharp.Drawing.Processing.DrawLineExtensions.DrawLine(ctx, ScopePenPortable,
+                    new ISPointF(center.X + 5, center.Y), new ISPointF(center.X + 15, center.Y));
+            }
         }
     }
 }

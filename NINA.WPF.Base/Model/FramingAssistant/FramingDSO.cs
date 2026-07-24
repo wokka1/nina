@@ -17,6 +17,8 @@ using System;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using ISPointF = SixLabors.ImageSharp.PointF;
+using NINA.WPF.Base.SkySurvey.Portable;
 using Color = System.Drawing.Color;
 using Pen = System.Drawing.Pen;
 
@@ -195,6 +197,97 @@ namespace NINA.WPF.Base.Model.FramingAssistant {
                 if (this.Name3 != null) {
                     var size3 = g.MeasureString(this.Name3, dsoFont);
                     g.DrawString(this.Name3, dsoFont, dsoSolidBrush, this.TextPosition.X - size3.Width / 2, (float)(this.TextPosition.Y + size1.Height + 2 + size2.Height + 2));
+                }
+            }
+        }
+
+        private static readonly SixLabors.ImageSharp.Color dsoFillColorPortable = SixLabors.ImageSharp.Color.FromRgba(255, 255, 255, 10);
+
+        private static readonly SixLabors.ImageSharp.Drawing.Processing.SolidPen galxyStrokePenPortable =
+            new SixLabors.ImageSharp.Drawing.Processing.SolidPen(SixLabors.ImageSharp.Color.BurlyWood.WithAlpha(128f / 255f));
+        private static readonly SixLabors.ImageSharp.Color galxyFontColorPortable = SixLabors.ImageSharp.Color.BurlyWood;
+
+        private static readonly SixLabors.ImageSharp.Drawing.Processing.SolidPen nebulaStrokePenPortable =
+            new SixLabors.ImageSharp.Drawing.Processing.SolidPen(SixLabors.ImageSharp.Color.Violet.WithAlpha(128f / 255f));
+        private static readonly SixLabors.ImageSharp.Color nebulaFontColorPortable = SixLabors.ImageSharp.Color.Violet;
+
+        private static readonly SixLabors.ImageSharp.Drawing.Processing.SolidPen plNebulaStrokePenPortable =
+            new SixLabors.ImageSharp.Drawing.Processing.SolidPen(SixLabors.ImageSharp.Color.Cyan.WithAlpha(128f / 255f));
+        private static readonly SixLabors.ImageSharp.Color plNebulaFontColorPortable = SixLabors.ImageSharp.Color.Cyan;
+
+        private static readonly SixLabors.ImageSharp.Drawing.Processing.SolidPen gloclStrokePenPortable =
+            new SixLabors.ImageSharp.Drawing.Processing.SolidPen(SixLabors.ImageSharp.Color.Yellow.WithAlpha(128f / 255f));
+        private static readonly SixLabors.ImageSharp.Color gloclFontColorPortable = SixLabors.ImageSharp.Color.Yellow;
+
+        private static readonly SixLabors.ImageSharp.Drawing.Processing.SolidPen dsoDefaultStrokePenPortable =
+            new SixLabors.ImageSharp.Drawing.Processing.SolidPen(SixLabors.ImageSharp.Color.FromRgba(255, 255, 255, 127));
+        private static readonly SixLabors.ImageSharp.Color dsoDefaultFontColorPortable = SixLabors.ImageSharp.Color.FromRgba(255, 255, 255, 255);
+
+        private static readonly SixLabors.Fonts.Font dsoFontPortable = NINA.WPF.Base.SkySurvey.Portable.PortableFonts.Get(10, SixLabors.Fonts.FontStyle.Regular);
+
+        /// <summary>
+        /// Portable (ImageSharp-based) equivalent of Draw(Graphics). Only the ellipse marker is rotated by the DSO's
+        /// position angle - the original also draws its name labels after a ResetTransform(), i.e. unrotated - so this
+        /// bakes the rotation into the ellipse's own path via PortableDrawingUtility.RotateAround rather than pushing/
+        /// popping a graphics-wide transform, and draws the text separately afterward exactly like the original does.
+        /// </summary>
+        public void DrawPortable(SixLabors.ImageSharp.Processing.IImageProcessingContext ctx) {
+            SixLabors.ImageSharp.Drawing.Processing.SolidPen dsoPen;
+            SixLabors.ImageSharp.Color dsoColor;
+            switch (dsoType) {
+                case "GALXY":
+                case "GALCL":
+                    dsoPen = galxyStrokePenPortable;
+                    dsoColor = galxyFontColorPortable;
+                    break;
+
+                case "PLNNB":
+                    dsoPen = plNebulaStrokePenPortable;
+                    dsoColor = plNebulaFontColorPortable;
+                    break;
+
+                case "BRTNB":
+                case "CL+NB":
+                    dsoPen = nebulaStrokePenPortable;
+                    dsoColor = nebulaFontColorPortable;
+                    break;
+
+                case "GLOCL":
+                    dsoPen = gloclStrokePenPortable;
+                    dsoColor = gloclFontColorPortable;
+                    break;
+
+                default:
+                    dsoPen = dsoDefaultStrokePenPortable;
+                    dsoColor = dsoDefaultFontColorPortable;
+                    break;
+            }
+
+            var panelDeltaX = CenterPoint.X - ViewPortCenterPoint.X;
+            var panelDeltaY = CenterPoint.Y - ViewPortCenterPoint.Y;
+            var referenceCenter = ViewPortCenter.Shift(panelDeltaX < 1E-10 ? 1 : 0, panelDeltaY, ViewPortRotation, arcSecWidth, arcSecHeight);
+
+            float adjustedAngle = positionAngle;
+            if (Math.Abs(ViewPortCenter.RA - coordinates.RA) > 1E-13 || Math.Abs(ViewPortCenter.Dec - coordinates.Dec) > 1E-13) {
+                adjustedAngle = positionAngle - (90 - ((float)AstroUtil.CalculatePositionAngle(referenceCenter.RADegrees, coordinates.RADegrees, referenceCenter.Dec, coordinates.Dec)));
+            }
+
+            var pivot = new ISPointF((float)this.CenterPoint.X, (float)this.CenterPoint.Y);
+            var ellipse = new SixLabors.ImageSharp.Drawing.EllipsePolygon(pivot, new SixLabors.ImageSharp.SizeF((float)(this.RadiusWidth * 2), (float)(this.RadiusHeight * 2)));
+            var rotated = PortableDrawingUtility.RotateAround(ellipse, pivot, adjustedAngle);
+
+            SixLabors.ImageSharp.Drawing.Processing.FillPathExtensions.Fill(ctx, dsoFillColorPortable, rotated);
+            SixLabors.ImageSharp.Drawing.Processing.DrawPathExtensions.Draw(ctx, dsoPen, rotated);
+
+            var textPos = new ISPointF((float)this.TextPosition.X, (float)this.TextPosition.Y);
+            var size1 = SixLabors.Fonts.TextMeasurer.MeasureSize(this.Name1, new SixLabors.Fonts.TextOptions(dsoFontPortable));
+            SixLabors.ImageSharp.Drawing.Processing.DrawTextExtensions.DrawText(ctx, this.Name1, dsoFontPortable, dsoColor, new ISPointF(textPos.X - size1.Width / 2, textPos.Y));
+            if (this.Name2 != null) {
+                var size2 = SixLabors.Fonts.TextMeasurer.MeasureSize(this.Name2, new SixLabors.Fonts.TextOptions(dsoFontPortable));
+                SixLabors.ImageSharp.Drawing.Processing.DrawTextExtensions.DrawText(ctx, this.Name2, dsoFontPortable, dsoColor, new ISPointF(textPos.X - size2.Width / 2, textPos.Y + size1.Height + 2));
+                if (this.Name3 != null) {
+                    var size3 = SixLabors.Fonts.TextMeasurer.MeasureSize(this.Name3, new SixLabors.Fonts.TextOptions(dsoFontPortable));
+                    SixLabors.ImageSharp.Drawing.Processing.DrawTextExtensions.DrawText(ctx, this.Name3, dsoFontPortable, dsoColor, new ISPointF(textPos.X - size3.Width / 2, textPos.Y + size1.Height + 2 + size2.Height + 2));
                 }
             }
         }

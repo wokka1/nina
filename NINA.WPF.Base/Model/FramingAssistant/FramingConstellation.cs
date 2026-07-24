@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using ISPointF = SixLabors.ImageSharp.PointF;
 
 namespace NINA.WPF.Base.Model.FramingAssistant {
 
@@ -144,5 +145,39 @@ namespace NINA.WPF.Base.Model.FramingAssistant {
         public HashSet<Star> Stars { get; private set; }
 
         public HashSet<Tuple<Star, Star>> Points { get; private set; }
+
+        private static readonly SixLabors.Fonts.Font fontPortable = NINA.WPF.Base.SkySurvey.Portable.PortableFonts.Get(11, SixLabors.Fonts.FontStyle.Bold);
+        private static readonly SixLabors.Fonts.Font starfontPortable = NINA.WPF.Base.SkySurvey.Portable.PortableFonts.Get(8, SixLabors.Fonts.FontStyle.Italic);
+        private static readonly SixLabors.ImageSharp.Color constColorPortable = SixLabors.ImageSharp.Color.FromRgba(255, 255, 153, 128);
+        private static readonly SixLabors.ImageSharp.Drawing.Processing.SolidPen constLinePenPortable =
+            new SixLabors.ImageSharp.Drawing.Processing.SolidPen(SixLabors.ImageSharp.Color.FromRgba(0, 255, 0, 128));
+        private static readonly SixLabors.ImageSharp.Color starFontColorPortable = SixLabors.ImageSharp.Color.FromRgba(255, 215, 0, 128);
+        private static readonly SixLabors.ImageSharp.Color starColorPortable = SixLabors.ImageSharp.Color.FromRgba(255, 255, 255, 200);
+
+        public void DrawAnnotationsPortable(SixLabors.ImageSharp.Processing.IImageProcessingContext ctx) {
+            var constellationSize = SixLabors.Fonts.TextMeasurer.MeasureSize(this.Name, new SixLabors.Fonts.TextOptions(fontPortable));
+            SixLabors.ImageSharp.Drawing.Processing.DrawTextExtensions.DrawText(ctx, this.Name, fontPortable, constColorPortable,
+                new ISPointF(this.CenterPoint.X - constellationSize.Width / 2, this.CenterPoint.Y));
+
+            foreach (var starConnection in this.Points) {
+                SixLabors.ImageSharp.Drawing.Processing.DrawLineExtensions.DrawLine(ctx, constLinePenPortable,
+                    new ISPointF(starConnection.Item1.Position.X, starConnection.Item1.Position.Y),
+                    new ISPointF(starConnection.Item2.Position.X, starConnection.Item2.Position.Y));
+            }
+
+            foreach (var star in this.Stars) {
+                var size = SixLabors.Fonts.TextMeasurer.MeasureSize(star.Name, new SixLabors.Fonts.TextOptions(starfontPortable));
+                SixLabors.ImageSharp.Drawing.Processing.DrawTextExtensions.DrawText(ctx, star.Name, starfontPortable, starFontColorPortable,
+                    new ISPointF(star.Position.X + star.Radius - size.Width / 2, star.Position.Y + star.Radius * 2 + 5));
+            }
+        }
+
+        public void DrawStarsPortable(SixLabors.ImageSharp.Processing.IImageProcessingContext ctx) {
+            foreach (var star in this.Stars) {
+                var ellipse = new SixLabors.ImageSharp.Drawing.EllipsePolygon(
+                    new ISPointF(star.Position.X, star.Position.Y), star.Radius);
+                SixLabors.ImageSharp.Drawing.Processing.FillPathExtensions.Fill(ctx, starColorPortable, ellipse);
+            }
+        }
     }
 }

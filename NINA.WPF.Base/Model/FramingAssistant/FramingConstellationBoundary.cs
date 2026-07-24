@@ -26,5 +26,15 @@ namespace NINA.WPF.Base.Model.FramingAssistant {
                 g.DrawPolygon(boundaryPen, this.Points.ToArray());
             }
         }
+
+        private static readonly SixLabors.ImageSharp.Drawing.Processing.SolidPen boundaryPenPortable =
+            new SixLabors.ImageSharp.Drawing.Processing.SolidPen(SixLabors.ImageSharp.Color.Khaki.WithAlpha(128f / 255f), 0.1f);
+
+        public void DrawPortable(SixLabors.ImageSharp.Processing.IImageProcessingContext ctx) {
+            if (this.Points.Count > 1) {
+                var points = this.Points.ConvertAll(p => new SixLabors.ImageSharp.PointF(p.X, p.Y)).ToArray();
+                SixLabors.ImageSharp.Drawing.Processing.DrawPolygonExtensions.DrawPolygon(ctx, boundaryPenPortable, points);
+            }
+        }
     }
 }

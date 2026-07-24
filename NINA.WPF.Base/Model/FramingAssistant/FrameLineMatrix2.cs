@@ -17,6 +17,9 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using SixLabors.ImageSharp.Processing;
+using NINA.WPF.Base.SkySurvey.Portable;
+using ISPointF = SixLabors.ImageSharp.PointF;
 
 namespace NINA.WPF.Base.Model.FramingAssistant {
 
@@ -330,5 +333,75 @@ namespace NINA.WPF.Base.Model.FramingAssistant {
             gridAnnotationFont.Dispose();
             gridPen.Dispose();
         }
+
+        private static readonly SixLabors.ImageSharp.Color gridAnnotationColorPortable = SixLabors.ImageSharp.Color.SteelBlue;
+        private static readonly SixLabors.Fonts.Font gridAnnotationFontPortable = PortableFonts.Get(7, SixLabors.Fonts.FontStyle.Italic);
+        private static readonly SixLabors.ImageSharp.Drawing.Processing.SolidPen gridPenPortable =
+            new SixLabors.ImageSharp.Drawing.Processing.SolidPen(SixLabors.ImageSharp.Color.SteelBlue.WithAlpha(127f / 255f), 1f);
+
+        /// <summary>
+        /// Portable (ImageSharp-based) equivalent of Draw(Graphics) - draws the RA/Dec grid lines and their
+        /// angle labels directly onto a raw pixel buffer, with no System.Drawing/GDI+ dependency, so it also
+        /// runs on macOS/Linux. Reuses the exact same already-computed RAPoints/DecPoints (CalculatePoints/
+        /// CardinalSpline math is pure PointF arithmetic, not GDI+-dependent) - only the actual draw calls differ.
+        /// </summary>
+        /// <summary>
+        /// Takes an already-open IImageProcessingContext (from the caller's single image.Mutate(...) block) rather
+        /// than opening its own, so SkyMapAnnotator's portable render path can draw the grid, DSOs, constellations,
+        /// and boundaries into the same frame without nesting multiple Mutate calls.
+        /// </summary>
+        public void DrawPortable(SixLabors.ImageSharp.Processing.IImageProcessingContext ctx) {
+            lock (lockObj) {
+                foreach (var frameLine in this.RAPoints) {
+                    DrawRALineCollectionPortable(ctx, frameLine);
+                }
+
+                foreach (var frameLine in this.DecPoints) {
+                    DrawDecLineCollectionPortable(ctx, frameLine);
+                }
+            }
+        }
+
+        private static ISPointF ToIS(PointF p) => new ISPointF(p.X, p.Y);
+
+        private void DrawFrameLineCollectionPortable(SixLabors.ImageSharp.Processing.IImageProcessingContext ctx, FrameLine frameLine) {
+            var gdiPoints = CardinalSpline(frameLine.Collection, 0.5f, frameLine.Closed);
+            var points = gdiPoints.ConvertAll(ToIS).ToArray();
+
+            if (frameLine.StrokeThickness != 1) {
+                var pen = new SixLabors.ImageSharp.Drawing.Processing.SolidPen(gridPenPortable.StrokeFill, frameLine.StrokeThickness);
+                SixLabors.ImageSharp.Drawing.Processing.DrawBezierExtensions.DrawBeziers(ctx, pen, points);
+            } else {
+                SixLabors.ImageSharp.Drawing.Processing.DrawBezierExtensions.DrawBeziers(ctx, gridPenPortable, points);
+            }
+        }
+
+        private void DrawDecLineCollectionPortable(SixLabors.ImageSharp.Processing.IImageProcessingContext ctx, FrameLine frameLine) {
+            if (frameLine.Collection.Count > 1) {
+                var position = frameLine.Collection.FirstOrDefault(x => x.X > 0 && x.Y > 0);
+                if (position != PointF.Empty) {
+                    var text = $"{string.Format("{0:N2}", frameLine.Angle.Degree)}°";
+                    SixLabors.ImageSharp.Drawing.Processing.DrawTextExtensions.DrawText(ctx, text, gridAnnotationFontPortable, gridAnnotationColorPortable, ToIS(position));
+                }
+                DrawFrameLineCollectionPortable(ctx, frameLine);
+            }
+        }
+
+        private void DrawRALineCollectionPortable(SixLabors.ImageSharp.Processing.IImageProcessingContext ctx, FrameLine frameLine) {
+            if (frameLine.Collection.Count > 1) {
+                var southPole = new Coordinates(0, -MAXDEC, Epoch.J2000, Coordinates.RAType.Degrees).XYProjection(currentViewport);
+                PointF? position = frameLine.Collection.FirstOrDefault(x => x.X > 0 && x.Y > 0 && x.X < currentViewport.Width && x.Y < currentViewport.Height && Math.Abs(x.X - southPole.X) > 5 && Math.Abs(x.Y - southPole.Y) > 5);
+
+                if (position != null) {
+                    var hms = AstroUtil.HoursToHMS(frameLine.Angle.Hours);
+                    var text = $"{hms.Substring(0, hms.Length - 3)}h";
+                    var size = SixLabors.Fonts.TextMeasurer.MeasureSize(text, new SixLabors.Fonts.TextOptions(gridAnnotationFontPortable));
+                    SixLabors.ImageSharp.Drawing.Processing.DrawTextExtensions.DrawText(ctx, text, gridAnnotationFontPortable, gridAnnotationColorPortable, new ISPointF(position.Value.X, Math.Max(0, position.Value.Y - size.Height)));
+                }
+
+                DrawFrameLineCollectionPortable(ctx, frameLine);
+            }
+        }
+
     }
 }
