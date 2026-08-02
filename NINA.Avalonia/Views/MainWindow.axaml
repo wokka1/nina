@@ -507,8 +507,10 @@
                             <TextBlock Text="Source" FontWeight="SemiBold" />
                             <ComboBox ItemsSource="{Binding FramingAssistantVM.AvailableSources}" SelectedItem="{Binding FramingAssistantVM.Source}" Width="120" />
                         </StackPanel>
-                        <StackPanel VerticalAlignment="Bottom">
-                            <Button Content="Load Framing" Command="{Binding FramingAssistantVM.LoadFramingCommand}" IsEnabled="{Binding !FramingAssistantVM.IsLoading}" />
+                        <StackPanel VerticalAlignment="Bottom" Orientation="Horizontal">
+                            <Button Content="Load Framing" Command="{Binding FramingAssistantVM.LoadFramingCommand}" IsEnabled="{Binding !FramingAssistantVM.IsLoading}" Margin="0,0,8,0" />
+                            <Button Content="Load From File..." Click="OnLoadFromFileClick" IsEnabled="{Binding !FramingAssistantVM.IsLoading}"
+                                    ToolTip.Tip="Load a local FITS/TIFF/etc image instead of fetching from an online survey - uses the file's own WCS or telescope/camera metadata for framing." />
                         </StackPanel>
                     </WrapPanel>
                     <TextBlock Grid.Row="1" Margin="0,0,0,8" Opacity="0.7" Text="{Binding FramingAssistantVM.StatusMessage}" />

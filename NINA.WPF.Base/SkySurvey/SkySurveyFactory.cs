@@ -1,7 +1,7 @@
 #region "copyright"
 
 /*
-    Copyright © 2016 - 2026 Stefan Berg <isbeorn86+NINA@googlemail.com> and the N.I.N.A. contributors
+    Copyright ï¿½ 2016 - 2026 Stefan Berg <isbeorn86+NINA@googlemail.com> and the N.I.N.A. contributors
 
     This file is part of N.I.N.A. - Nighttime Imaging 'N' Astronomy.
 
@@ -41,10 +41,8 @@ namespace NINA.WPF.Base.SkySurvey {
                 case SkySurveySource.HIPS2FITS:
                     return new Hips2FitsSurvey();
 
-#if HAS_WPF
                 case SkySurveySource.FILE:
                     return new FileSkySurvey(imageDataFactory);
-#endif
 
                 case SkySurveySource.SKYATLAS:
                     return new SkyAtlasSkySurvey();
@@ -83,10 +81,7 @@ namespace NINA.WPF.Base.SkySurvey {
                     return typeof(SkyAtlasSkySurvey).Name;
 
                 case SkySurveySource.FILE:
-                    // FileSkySurvey.cs isn't compiled on net10.0 yet (no portable path - needs Avalonia's
-                    // IStorageProvider file picker, see NINA.WPF.Base.csproj's exclusion comment) - the literal
-                    // string avoids needing the type itself just for its own class name.
-                    return "FileSkySurvey";
+                    return typeof(FileSkySurvey).Name;
 
                 case SkySurveySource.CACHE:
                     return typeof(CacheSkySurvey).Name;

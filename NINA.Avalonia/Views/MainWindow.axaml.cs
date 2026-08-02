@@ -1,8 +1,13 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
+using Avalonia.Interactivity;
+using Avalonia.Platform.Storage;
 using Avalonia.VisualTree;
+using NINA.Avalonia.ViewModels;
 using NINA.Core.Enum;
 using NINA.Sequencer;
 using NINA.Sequencer.Container;
@@ -173,5 +178,43 @@ public partial class MainWindow : Window
             return DropTargetEnum.Bottom;
         }
         return targetIsContainer ? DropTargetEnum.Center : DropTargetEnum.Top;
+    }
+
+    /// <summary>
+    /// Framing Assistant's "Load From File..." button (2026-08-02). File *picking* has to happen
+    /// here, not in FramingAssistantViewModel - Avalonia's IStorageProvider is only reachable
+    /// through a real TopLevel/window reference, which a portable ViewModel deliberately doesn't
+    /// have. Once a file's chosen, everything else (decode/stretch/WCS framing) is real portable
+    /// work in FileSkySurvey.GetImagePortableFromPath, called via
+    /// FramingAssistantViewModel.LoadFromFileAsync.
+    /// </summary>
+    private async void OnLoadFromFileClick(object? sender, RoutedEventArgs e) {
+        if (DataContext is not MainViewModel mainViewModel) {
+            return;
+        }
+
+        var topLevel = TopLevel.GetTopLevel(this);
+        if (topLevel?.StorageProvider == null) {
+            return;
+        }
+
+        var files = await topLevel.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions {
+            Title = "Load image for Framing Assistant",
+            AllowMultiple = false,
+            FileTypeFilter = new List<FilePickerFileType> {
+                new("Image files") {
+                    Patterns = new[] {
+                        "*.tif", "*.tiff", "*.jpeg", "*.jpg", "*.png",
+                        "*.cr2", "*.cr3", "*.nef", "*.raw", "*.raf", "*.pef", "*.dng", "*.arw", "*.orf", "*.rw2",
+                        "*.fit", "*.fts", "*.fits", "*.fit.fz", "*.fits.fz", "*.xisf"
+                    }
+                }
+            }
+        });
+
+        var picked = files.FirstOrDefault();
+        if (picked?.TryGetLocalPath() is string path) {
+            await mainViewModel.FramingAssistantVM.LoadFromFileAsync(path);
+        }
     }
 }

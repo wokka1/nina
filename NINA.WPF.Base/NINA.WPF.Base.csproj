@@ -122,23 +122,18 @@
          use were verified for real at runtime via a disposable console harness (font resolution,
          rotation/compositing math, drawing calls - all against the real ImageSharp/ImageSharp.Drawing
          packages, not mocked) - see NINA.WPF.Base/SkySurvey/Portable/ and commits
-         1c1b54dd2/80f0c9010/de8bee521. IMPORTANT CAVEAT found after committing: none of this was
-         ever actually compiled *as part of NINA.WPF.Base's own net10.0 build* - these files stayed
-         excluded here the whole time, so every "0 errors on net10.0" build during that work was
-         real but misleading (nothing to error on, since the files weren't in the build). Still
-         excluded here on purpose now, correction pending: each file's *original*
-         WPF/BitmapSource-dependent members need
-         #if HAS_WPF wrapping first (same pattern used for NINA.Core/NINA.Profile/etc during the
-         backend-portability phase) before this whole file can be un-excluded and compile for real
-         alongside the *Portable additions - not done yet, sized as its own follow-up rather than
-         risk leaving a half-wrapped file committed. SkyMapAnnotator.cs is the biggest piece of that
-         follow-up: it implements ISkyMapAnnotator (BitmapSource + System.Windows.Vector in its own
-         contract, itself WPF-only, see the exclusion below) and has several WPF-typed fields beyond
-         just its Render() method (BitmapSource SkyMapOverlay, System.Drawing Bitmap/Graphics
-         buffers) that all need gating too, not just the one method. -->
+         1c1b54dd2/80f0c9010/de8bee521.
+
+         UPDATE 2026-08-02: FileSkySurvey.cs now has a real portable path too
+         (GetImagePortableFromPath(string filePath, ...) - takes an already-chosen path instead
+         of opening its own WPF file dialog, since Avalonia's IStorageProvider picker can only be
+         driven from NINA.Avalonia, which actually has a window/TopLevel reference; the decode/
+         stretch/WCS-or-telescope-framing logic after that is real, portable code reusing the same
+         IImageData/IRenderedImage pipeline Phase 2's Imaging tab already proved out). Un-excluded
+         here - GetImage's WPF-only body is now #if HAS_WPF-gated in the file itself, same pattern
+         as everywhere else. -->
     <Compile Remove="Interfaces\ViewModel\IFramingAssistantVM.cs" />
     <Compile Remove="Interfaces\ViewModel\ISkyMapAnnotator.cs" />
-    <Compile Remove="SkySurvey\FileSkySurvey.cs" />
 
     <!-- Pure WPF utility classes (DataTemplateSelector, ResourceDictionary subclass, and a
          Dispatcher-bound progress factory / IDispatcher backing) - no separable portable logic,

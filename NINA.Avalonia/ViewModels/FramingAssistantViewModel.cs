@@ -121,6 +121,33 @@ public partial class FramingAssistantViewModel : ViewModelBase {
     }
 
     /// <summary>
+    /// Loads a local FITS/TIFF/etc image via FileSkySurvey's real portable decode path
+    /// (GetImagePortableFromPath). Called from MainWindow.axaml.cs's file-picker button handler,
+    /// not a [RelayCommand] itself - the actual file *picking* has to happen in the View (needs
+    /// a real TopLevel/window reference for Avalonia's IStorageProvider), this method only does
+    /// the portable work once a path is already chosen.
+    /// </summary>
+    public async Task LoadFromFileAsync(string filePath) {
+        IsLoading = true;
+        StatusMessage = $"Loading {Path.GetFileName(filePath)}...";
+        try {
+            var fileSurvey = (FileSkySurvey)skySurveyFactory.Create(SkySurveySource.FILE);
+            var fetched = await fileSurvey.GetImagePortableFromPath(filePath, CancellationToken.None);
+            cache.SaveImageToCachePortable(fetched);
+
+            TargetName = fetched.Name;
+            TargetRADegrees = fetched.Coordinates.RADegrees;
+            TargetDec = fetched.Coordinates.Dec;
+            FieldOfViewArcmin = fetched.FoVWidth;
+
+            await RenderFraming(fetched.Coordinates, FieldOfViewArcmin);
+        } catch (Exception ex) {
+            StatusMessage = $"Loading from file failed: {ex.Message}";
+            IsLoading = false;
+        }
+    }
+
+    /// <summary>
     /// Nudges the viewport center by 20% of the viewport size in the given screen direction and
     /// re-renders. Real pixel deltas (not arcsec) - Coordinates.Shift's pixel-based overload
     /// scales internally via the annotator's own ArcSecWidth/ArcSecHeight, same convention the
