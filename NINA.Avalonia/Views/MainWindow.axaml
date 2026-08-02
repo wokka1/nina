@@ -430,7 +430,7 @@
                      NINA.Astrometry.DatabaseInteraction (same SQLite catalog the WPF app reads).
                      No framing/rendering yet - that needs Avalonia-native sky survey image
                      rendering, a separate problem (see SkyAtlasViewModel doc comment). -->
-                <Grid Margin="12" RowDefinitions="Auto,Auto,*">
+                <Grid Margin="12" RowDefinitions="Auto,Auto,Auto,*">
                     <WrapPanel Grid.Row="0" Margin="0,0,0,8">
                         <StackPanel Margin="0,0,12,0">
                             <TextBlock Text="Object name" FontWeight="SemiBold" />
@@ -458,7 +458,11 @@
                         </StackPanel>
                     </WrapPanel>
                     <TextBlock Grid.Row="1" Margin="0,0,0,8" Opacity="0.7" Text="{Binding SkyAtlasVM.StatusMessage}" />
-                    <ListBox Grid.Row="2" ItemsSource="{Binding SkyAtlasVM.SearchResults}" SelectedItem="{Binding SkyAtlasVM.SelectedResult}">
+                    <StackPanel Grid.Row="2" Margin="0,0,0,8" Orientation="Horizontal">
+                        <Button Content="Frame This" Command="{Binding FrameSelectedCommand}"
+                                ToolTip.Tip="Send the selected result to Framing Assistant and switch to that tab." />
+                    </StackPanel>
+                    <ListBox Grid.Row="3" ItemsSource="{Binding SkyAtlasVM.SearchResults}" SelectedItem="{Binding SkyAtlasVM.SelectedResult}">
                         <ListBox.ItemTemplate>
                             <DataTemplate>
                                 <Grid ColumnDefinitions="160,80,90,90,70">

@@ -1,6 +1,7 @@
 using System;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using NINA.Core.Enum;
 using NINA.Core.Locale;
 using NINA.Profile.Interfaces;
@@ -88,4 +89,21 @@ public partial class MainViewModel : ViewModelBase {
     public PluginsViewModel PluginsVM { get; }
 
     private readonly DispatcherTimer clockTimer;
+
+    /// <summary>
+    /// Sky Atlas's "Frame This" button (2026-08-02) - hands the selected search result straight
+    /// to Framing Assistant (FramingAssistantViewModel.SetTarget already existed for this, just
+    /// was never actually called from anywhere) and switches to that tab, instead of requiring
+    /// the user to re-type RA/Dec by hand. A plain no-op guard rather than a CanExecute binding
+    /// for this first slice - avoids needing to wire SkyAtlasVM.SelectedResult property-change
+    /// notifications back into this VM just to auto-disable the button.
+    /// </summary>
+    [RelayCommand]
+    private void FrameSelected() {
+        if (SkyAtlasVM.SelectedResult == null) {
+            return;
+        }
+        FramingAssistantVM.SetTarget(SkyAtlasVM.SelectedResult);
+        TabIndex = (int)ApplicationTab.FRAMINGASSISTANT;
+    }
 }
