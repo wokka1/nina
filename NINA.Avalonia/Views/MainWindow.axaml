@@ -82,6 +82,17 @@
                                 <TextBlock Grid.Row="3" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.CameraVM.CameraInfo.CoolerOn, StringFormat='On: {0}'}" />
                             </Grid>
                         </Border>
+
+                        <!-- Real ICameraVM.SetCooler/SetTemperature, via new EquipmentViewModel
+                             wrapper commands (see their own doc comment). -->
+                        <Border BorderBrush="Gray" BorderThickness="0,1,0,0" Padding="0,8,0,0">
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                <Button Content="Cooler On" Command="{ReflectionBinding EquipmentVM.SetCoolerOnCommand}" />
+                                <Button Content="Cooler Off" Command="{ReflectionBinding EquipmentVM.SetCoolerOffCommand}" />
+                                <NumericUpDown Value="{ReflectionBinding EquipmentVM.TargetCoolingTemp}" FormatString="0.0" Width="110" />
+                                <Button Content="Set Temp" Command="{ReflectionBinding EquipmentVM.SetCameraTemperatureCommand}" />
+                            </StackPanel>
+                        </Border>
                     </StackPanel>
 
                     <StackPanel Spacing="8" Width="480" Margin="0,0,24,24">
@@ -123,6 +134,20 @@
                                 <TextBlock Grid.Row="4" Grid.Column="0" Text="At Park" FontWeight="SemiBold" />
                                 <TextBlock Grid.Row="4" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.TelescopeVM.TelescopeInfo.AtPark}" />
                             </Grid>
+                        </Border>
+
+                        <!-- Real ITelescopeVM.ParkTelescope/UnparkTelescope/StopSlew/
+                             SetTrackingEnabled, via new EquipmentViewModel wrapper commands
+                             (see their own doc comment) - deliberately scoped to these
+                             well-understood operations, not a full manual slew-to-coordinates
+                             UI (see the doc comment for why). -->
+                        <Border BorderBrush="Gray" BorderThickness="0,1,0,0" Padding="0,8,0,0">
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                <Button Content="Park" Command="{ReflectionBinding EquipmentVM.ParkTelescopeCommand}" />
+                                <Button Content="Unpark" Command="{ReflectionBinding EquipmentVM.UnparkTelescopeCommand}" />
+                                <Button Content="Stop Slew" Command="{ReflectionBinding EquipmentVM.StopTelescopeSlewCommand}" />
+                                <Button Content="Toggle Tracking" Command="{ReflectionBinding EquipmentVM.ToggleTelescopeTrackingCommand}" />
+                            </StackPanel>
                         </Border>
                     </StackPanel>
 

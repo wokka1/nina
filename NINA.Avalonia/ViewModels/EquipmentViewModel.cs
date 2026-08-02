@@ -1,6 +1,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using NINA.Core.Model;
 using NINA.Equipment.Interfaces;
@@ -56,5 +57,64 @@ public partial class EquipmentViewModel : ViewModelBase {
             return;
         }
         await SwitchVM.SetSwitchValue(sw.Id, sw.TargetValue, new Progress<ApplicationStatus>(), CancellationToken.None);
+    }
+
+    /// <summary>
+    /// Telescope advanced controls (2026-08-02) - Park/Unpark/StopSlew/tracking toggle, all real
+    /// ITelescopeVM methods that already existed with no command wired to them. Deliberately
+    /// scoped to these well-understood, commonly-used operations rather than a full manual
+    /// slew-to-coordinates UI - that's real additional scope (target validation, real physical
+    /// mount movement) better suited to its own pass with live hardware verification, matching
+    /// this project's established "functional first slice, not full parity" pattern everywhere
+    /// else.
+    /// </summary>
+    [RelayCommand]
+    private async Task ParkTelescope() {
+        await TelescopeVM.ParkTelescope(new Progress<ApplicationStatus>(), CancellationToken.None);
+    }
+
+    [RelayCommand]
+    private async Task UnparkTelescope() {
+        await TelescopeVM.UnparkTelescope(new Progress<ApplicationStatus>(), CancellationToken.None);
+    }
+
+    [RelayCommand]
+    private void StopTelescopeSlew() {
+        TelescopeVM.StopSlew();
+    }
+
+    [RelayCommand]
+    private void ToggleTelescopeTracking() {
+        var current = TelescopeVM.GetDeviceInfo()?.TrackingEnabled ?? false;
+        TelescopeVM.SetTrackingEnabled(!current);
+    }
+
+    /// <summary>
+    /// Camera cooling controls (2026-08-02) - real ICameraVM.SetCooler/SetTemperature, same
+    /// "existing method, no command wired to it" gap as Switch/Telescope above. TargetCoolingTemp
+    /// defaults to -10°C, a common real-world OSC/mono cooled-camera setpoint, not a device-
+    /// reported default (CameraInfo doesn't expose one) - purely a sane starting value for the
+    /// NumericUpDown, the user's own real setpoint is whatever they type before hitting Set.
+    /// Uses the plain SetCooler/SetTemperature pair (immediate), not the gradual
+    /// CoolCamera/WarmCamera ramp overloads - those take a real IProgress-driven ramp duration
+    /// better suited to a dedicated ramp-with-progress-bar control than a quick toggle/set pair,
+    /// consistent with keeping this a functional first slice.
+    /// </summary>
+    [ObservableProperty]
+    public partial double TargetCoolingTemp { get; set; } = -10;
+
+    [RelayCommand]
+    private void SetCoolerOn() {
+        CameraVM.SetCooler(true);
+    }
+
+    [RelayCommand]
+    private void SetCoolerOff() {
+        CameraVM.SetCooler(false);
+    }
+
+    [RelayCommand]
+    private void SetCameraTemperature() {
+        CameraVM.SetTemperature(TargetCoolingTemp);
     }
 }
