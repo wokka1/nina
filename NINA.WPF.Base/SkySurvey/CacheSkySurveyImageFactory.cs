@@ -144,6 +144,19 @@ namespace NINA.WPF.Base.SkySurvey {
         }
 
         /// <summary>
+        /// True if the cache already has at least one image covering this viewport - lets a caller (e.g. the
+        /// Avalonia Framing Assistant) decide whether to fetch a new image before rendering, instead of
+        /// silently rendering a blank/transparent background when nothing's cached yet. Reuses the same
+        /// viewport math and cached-image selection as RenderPortable/GetCacheImagesForViewport.
+        /// </summary>
+        public bool HasCachedImageForViewport(Coordinates centerCoordinates, double vFoVDegrees, double imageRotation = 0) {
+            lock (lockObj) {
+                ViewportFoV = new ViewportFoV(centerCoordinates, vFoVDegrees, width, height, imageRotation);
+                return GetCacheImagesForViewport().Any();
+            }
+        }
+
+        /// <summary>
         /// Portable (ImageSharp-based) equivalent of Render() - same viewport math and cached-image selection,
         /// but compositing via SixLabors.ImageSharp instead of System.Drawing/GDI+ so it also runs on macOS/Linux.
         /// Returns raw RGBA32 pixel bytes (width*height*4) instead of a WPF BitmapSource.

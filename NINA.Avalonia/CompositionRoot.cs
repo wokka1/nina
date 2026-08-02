@@ -30,6 +30,7 @@ using NINA.WPF.Base.Interfaces;
 using NINA.WPF.Base.Interfaces.Mediator;
 using NINA.WPF.Base.Interfaces.ViewModel;
 using NINA.WPF.Base.Mediator;
+using NINA.WPF.Base.SkySurvey;
 using NINA.WPF.Base.ViewModel;
 using NINA.WPF.Base.ViewModel.Equipment.Camera;
 using NINA.WPF.Base.ViewModel.Equipment.Dome;
@@ -134,6 +135,7 @@ namespace NINA.Avalonia {
 
             services.AddSingleton<IImageDataFactory, ImageDataFactory>();
             services.AddSingleton<IExposureDataFactory, ExposureDataFactory>();
+            services.AddSingleton<ISkySurveyFactory, SkySurveyFactory>();
 
             // Real NINA.WPF.Base.ViewModel.Equipment.Camera classes - the whole point of
             // multi-targeting NINA.WPF.Base was to reuse these as-is, not rewrite them.
