@@ -9,6 +9,7 @@
         mc:Ignorable="d" d:DesignWidth="900" d:DesignHeight="550"
         x:Class="NINA.Avalonia.Views.MainWindow"
         x:DataType="vm:MainViewModel"
+        x:Name="RootWindow"
         Icon="/Assets/avalonia-logo.ico"
         Title="NINA.Avalonia">
 
@@ -292,11 +293,13 @@
                         </Border>
                     </StackPanel>
 
-                    <!-- Switch's real status surface is a whole writable/readonly switch-value
-                         grid (SwitchInfo doesn't reduce to a few scalar fields the way the other
-                         device types do) - out of scope for this minimal connect/status card,
-                         same spirit as skipping Setup Dialog buttons elsewhere. Just proves the
-                         chooser/connect/disconnect pattern here; a real switch grid is deferred. -->
+                    <!-- Real writable/readonly switch-value grid (2026-08-02) - SwitchInfo.
+                         WritableSwitches/ReadonlySwitches, the real per-switch data the other
+                         device types don't have (they reduce to a few scalar status fields).
+                         "Set" calls the real, unchanged ISwitchVM.SetSwitchValue via
+                         EquipmentViewModel.SetSwitchValueCommand (new - see its own doc
+                         comment); readonly switches are display-only, matching what the
+                         hardware itself allows. -->
                     <StackPanel Spacing="8" Width="480" Margin="0,0,24,24">
                         <TextBlock Text="Switch" FontSize="16" FontWeight="SemiBold" />
                         <Grid ColumnDefinitions="*,Auto,Auto,Auto,Auto" ColumnSpacing="6">
@@ -323,6 +326,41 @@
                                 <TextBlock Grid.Row="1" Grid.Column="0" Text="Name" FontWeight="SemiBold" />
                                 <TextBlock Grid.Row="1" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.SwitchVM.SwitchInfo.Name}" />
                             </Grid>
+                        </Border>
+
+                        <Border BorderBrush="Gray" BorderThickness="0,1,0,0" Padding="0,8,0,0">
+                            <StackPanel Spacing="4">
+                                <TextBlock Text="Writable switches" FontWeight="SemiBold" />
+                                <ItemsControl ItemsSource="{ReflectionBinding EquipmentVM.SwitchVM.SwitchInfo.WritableSwitches}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Grid ColumnDefinitions="140,Auto,Auto" ColumnSpacing="6" Margin="0,2">
+                                                <TextBlock Grid.Column="0" Text="{ReflectionBinding Name}" VerticalAlignment="Center" ToolTip.Tip="{ReflectionBinding Description}" />
+                                                <NumericUpDown Grid.Column="1" Value="{ReflectionBinding TargetValue}" Minimum="{ReflectionBinding Minimum}" Maximum="{ReflectionBinding Maximum}" Increment="{ReflectionBinding StepSize}" Width="110" />
+                                                <Button Grid.Column="2" Content="Set"
+                                                        Command="{ReflectionBinding #RootWindow.DataContext.EquipmentVM.SetSwitchValueCommand}"
+                                                        CommandParameter="{ReflectionBinding}" />
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+                        </Border>
+
+                        <Border BorderBrush="Gray" BorderThickness="0,1,0,0" Padding="0,8,0,0">
+                            <StackPanel Spacing="4">
+                                <TextBlock Text="Readonly switches" FontWeight="SemiBold" />
+                                <ItemsControl ItemsSource="{ReflectionBinding EquipmentVM.SwitchVM.SwitchInfo.ReadonlySwitches}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Grid ColumnDefinitions="140,*" ColumnSpacing="6" Margin="0,2">
+                                                <TextBlock Grid.Column="0" Text="{ReflectionBinding Name}" ToolTip.Tip="{ReflectionBinding Description}" />
+                                                <TextBlock Grid.Column="1" Text="{ReflectionBinding Value}" />
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
                         </Border>
                     </StackPanel>
 
