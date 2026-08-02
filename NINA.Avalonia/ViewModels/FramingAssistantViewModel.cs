@@ -35,8 +35,15 @@ namespace NINA.Avalonia.ViewModels;
 /// DegreeToArcsec(HFoV)/Width only makes sense if vFoVDegrees really is degrees). At the default
 /// value of 60 this rendered a 60-degree field instead of the intended 1 degree (60 arcmin).
 ///
-/// Not yet built: panning/zooming interaction (ShiftViewport/ChangeFoV are WPF-Vector-typed
-/// today, see SkyMapAnnotator.cs's own HAS_WPF gating notes).
+/// Pan/zoom (2026-08-02): real finding while wiring this up - ChangeFoV (zoom) already had no
+/// HAS_WPF gate at all, it only touches ViewportFoV/FrameLineMatrix, not WPF types (the earlier
+/// note above was wrong about it). ShiftViewport (pan) really was HAS_WPF-gated, but only because
+/// its Vector parameter was a convenience (X,Y) container - the real math underneath
+/// (Coordinates.Shift) already took plain doubles, so ViewportFoV.ShiftPortable/
+/// SkyMapAnnotator.ShiftViewportPortable are thin overloads, not a real "port." PanCommand nudges
+/// the center by 20% of the viewport per press; ZoomCommand scales FieldOfViewArcmin by 0.8/1.25.
+/// Both re-render through the same fetch-on-demand path LoadFraming uses, in case panning/zooming
+/// moves into a region nothing's cached for yet.
 /// </summary>
 public partial class FramingAssistantViewModel : ViewModelBase {
     private readonly IProfileService profileService;
@@ -75,7 +82,9 @@ public partial class FramingAssistantViewModel : ViewModelBase {
     [ObservableProperty]
     public partial SkySurveySource Source { get; set; } = SkySurveySource.NASA;
 
-    public static SkySurveySource[] AvailableSources { get; } = new[] {
+    // Instance property, not static - {Binding FramingAssistantVM.AvailableSources} resolves
+    // against the DataContext instance, a static property wouldn't be found the same way.
+    public SkySurveySource[] AvailableSources { get; } = new[] {
         SkySurveySource.NASA,
         SkySurveySource.SKYSERVER,
         SkySurveySource.STSCI,
@@ -107,17 +116,64 @@ public partial class FramingAssistantViewModel : ViewModelBase {
 
     [RelayCommand]
     private async Task LoadFraming() {
+        var coordinates = new Coordinates(TargetRADegrees, TargetDec, Epoch.J2000, Coordinates.RAType.Degrees);
+        await RenderFraming(coordinates, FieldOfViewArcmin);
+    }
+
+    /// <summary>
+    /// Nudges the viewport center by 20% of the viewport size in the given screen direction and
+    /// re-renders. Real pixel deltas (not arcsec) - Coordinates.Shift's pixel-based overload
+    /// scales internally via the annotator's own ArcSecWidth/ArcSecHeight, same convention the
+    /// original WPF drag handler used.
+    /// </summary>
+    [RelayCommand]
+    private async Task Pan(string direction) {
+        if (annotator.ViewportFoV == null) {
+            StatusMessage = "Load a framing first before panning.";
+            return;
+        }
+        double deltaX = 0, deltaY = 0;
+        var stepX = ViewportWidth * 0.2;
+        var stepY = ViewportHeight * 0.2;
+        switch (direction) {
+            case "Left": deltaX = -stepX; break;
+            case "Right": deltaX = stepX; break;
+            case "Up": deltaY = -stepY; break;
+            case "Down": deltaY = stepY; break;
+        }
+
+        var newCenter = annotator.ShiftViewportPortable(deltaX, deltaY);
+        TargetRADegrees = newCenter.RADegrees;
+        TargetDec = newCenter.Dec;
+
+        await RenderFraming(newCenter, FieldOfViewArcmin);
+    }
+
+    [RelayCommand]
+    private async Task ZoomIn() {
+        FieldOfViewArcmin = Math.Max(1, FieldOfViewArcmin * 0.8);
+        var coordinates = new Coordinates(TargetRADegrees, TargetDec, Epoch.J2000, Coordinates.RAType.Degrees);
+        await RenderFraming(coordinates, FieldOfViewArcmin);
+    }
+
+    [RelayCommand]
+    private async Task ZoomOut() {
+        FieldOfViewArcmin = Math.Min(600, FieldOfViewArcmin * 1.25);
+        var coordinates = new Coordinates(TargetRADegrees, TargetDec, Epoch.J2000, Coordinates.RAType.Degrees);
+        await RenderFraming(coordinates, FieldOfViewArcmin);
+    }
+
+    private async Task RenderFraming(Coordinates coordinates, double fovArcmin) {
         IsLoading = true;
         StatusMessage = "Rendering...";
         try {
-            var coordinates = new Coordinates(TargetRADegrees, TargetDec, Epoch.J2000, Coordinates.RAType.Degrees);
-            var fovDegrees = AstroUtil.ArcminToDegree(FieldOfViewArcmin);
+            var fovDegrees = AstroUtil.ArcminToDegree(fovArcmin);
 
             if (!imageFactory.HasCachedImageForViewport(coordinates, fovDegrees)) {
                 StatusMessage = $"Fetching image from {Source}...";
                 var progress = new Progress<int>(p => StatusMessage = $"Fetching image from {Source}... {p}%");
                 var survey = skySurveyFactory.Create(Source);
-                var fetched = await survey.GetImagePortable(TargetName, coordinates, FieldOfViewArcmin, ViewportWidth, ViewportHeight, CancellationToken.None, progress);
+                var fetched = await survey.GetImagePortable(TargetName, coordinates, fovArcmin, ViewportWidth, ViewportHeight, CancellationToken.None, progress);
                 cache.SaveImageToCachePortable(fetched);
                 StatusMessage = "Rendering...";
             }
@@ -131,7 +187,7 @@ public partial class FramingAssistantViewModel : ViewModelBase {
             var backgroundPixels = imageFactory.RenderPortable(coordinates, fovDegrees, 0);
             BackgroundImage = PortableImageBufferConverter.ToWriteableBitmapFromRgba32(backgroundPixels, ViewportWidth, ViewportHeight);
 
-            StatusMessage = $"Framed {TargetName} at RA {TargetRADegrees:0.###} / Dec {TargetDec:0.###}, FoV {FieldOfViewArcmin} arcmin.";
+            StatusMessage = $"Framed {TargetName} at RA {TargetRADegrees:0.###} / Dec {TargetDec:0.###}, FoV {fovArcmin:0.#} arcmin.";
         } catch (Exception ex) {
             StatusMessage = $"Framing failed: {ex.Message}";
         } finally {

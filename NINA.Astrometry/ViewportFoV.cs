@@ -1,7 +1,7 @@
 #region "copyright"
 
 /*
-    Copyright © 2016 - 2026 Stefan Berg <isbeorn86+NINA@googlemail.com> and the N.I.N.A. contributors
+    Copyright ï¿½ 2016 - 2026 Stefan Berg <isbeorn86+NINA@googlemail.com> and the N.I.N.A. contributors
 
     This file is part of N.I.N.A. - Nighttime Imaging 'N' Astronomy.
 
@@ -70,12 +70,21 @@ namespace NINA.Astrometry {
 
 #if HAS_WPF
         public void Shift(Vector delta) {
-            if (delta.X == 0 && delta.Y == 0) {
+            ShiftPortable(delta.X, delta.Y);
+        }
+#endif
+
+        /// <summary>
+        /// Portable (WPF-free) equivalent of Shift(Vector) - Vector was only ever used here as a
+        /// convenient (X,Y) pair, Coordinates.Shift itself already takes plain doubles, so this
+        /// isn't really a "port" so much as skipping the WPF-only wrapper type entirely.
+        /// </summary>
+        public void ShiftPortable(double deltaX, double deltaY) {
+            if (deltaX == 0 && deltaY == 0) {
                 return;
             }
 
-            CenterCoordinates = CenterCoordinates.Shift(delta.X, delta.Y, Rotation, ArcSecWidth, ArcSecHeight);
+            CenterCoordinates = CenterCoordinates.Shift(deltaX, deltaY, Rotation, ArcSecWidth, ArcSecHeight);
         }
-#endif
     }
 }

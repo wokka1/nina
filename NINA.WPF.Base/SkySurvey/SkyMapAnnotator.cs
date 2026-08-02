@@ -363,6 +363,17 @@ namespace NINA.WPF.Base.SkySurvey {
         }
 #endif
 
+        /// <summary>
+        /// Portable (WPF-free) equivalent of ShiftViewport(Vector) - ViewportFoV.ShiftPortable
+        /// already does the real work with plain doubles, Vector was only ever a convenience
+        /// (X,Y) container here, not real vector math.
+        /// </summary>
+        public Coordinates ShiftViewportPortable(double deltaX, double deltaY) {
+            ViewportFoV.ShiftPortable(deltaX, deltaY);
+
+            return ViewportFoV.CenterCoordinates;
+        }
+
         public void ClearFrameLineMatrix() {
             FrameLineMatrix.RAPoints.Clear();
             FrameLineMatrix.DecPoints.Clear();
