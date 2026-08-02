@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Threading;
 using System.Threading.Tasks;
@@ -12,9 +13,15 @@ using NINA.Core.Model;
 using NINA.Core.Model.Equipment;
 using NINA.Equipment.Interfaces.ViewModel;
 using NINA.Equipment.Model;
+using NINA.Image.ImageAnalysis;
 using OxyPlot;
 using OxyPlot.Axes;
 using OxyPlot.Series;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Drawing;
+using SixLabors.ImageSharp.Drawing.Processing;
+using SixLabors.ImageSharp.PixelFormats;
+using SixLabors.ImageSharp.Processing;
 
 namespace NINA.Avalonia.ViewModels;
 
@@ -35,14 +42,20 @@ namespace NINA.Avalonia.ViewModels;
 /// Star detection runs after every capture via the real, already-portable
 /// StarDetection.DetectPortable() (called internally by IRenderedImage.DetectStars() on
 /// net10.0 - see RenderedImage.cs's own #if HAS_WPF/#else split) - shown as text stats
-/// (HFR/star count/eccentricity), not a visual marker overlay. Real visual markers need
-/// per-star pixel-to-display-coordinate math against the Image control's Stretch="Uniform"
-/// scaling/letterboxing - genuine additional UI work, deliberately deferred rather than rushed;
-/// the numeric feedback alone is a real, working consumer of the portable detection pipeline
-/// and arguably the more actionable one for judging focus/image quality anyway. annotateImage
-/// is passed false to DetectStars() since the portable side has no annotator to draw with
-/// regardless (PortableStarAnnotator is a real no-op, see its own doc comment) - passing true
-/// would just be requesting work that silently can't happen.
+/// (HFR/star count/eccentricity). annotateImage is passed false to DetectStars() since the
+/// portable side has no annotator to draw with regardless (PortableStarAnnotator is a real
+/// no-op, see its own doc comment) - passing true would just be requesting work that silently
+/// can't happen.
+///
+/// Real visual star markers (2026-08-02): rather than the per-star pixel-to-display-coordinate
+/// math against the Image control's Stretch="Uniform" scaling this was originally scoped to
+/// need, BuildStarMarkerOverlay draws circles directly into a second same-pixel-dimensions
+/// ImageSharp buffer and stacks it as a second Image control over the base image in
+/// MainWindow.axaml - same two-layer Stretch="Uniform" trick FramingAssistant already uses for
+/// its background+overlay images. Since both layers share identical source pixel dimensions and
+/// identical Stretch mode, they scale/letterbox in lockstep with no manual bounds tracking
+/// needed - real DetectedStar.Position values (StarDetectionAnalysis.StarList, same image-pixel
+/// space as the analyzed/displayed image) go straight in with no coordinate transform at all.
 ///
 /// Image statistics (mean/median/stdev/min/max) come from the real IImageData.Statistics
 /// (AsyncLazy&lt;IImageStatistics&gt;, computed once and cached), the same source
@@ -93,6 +106,9 @@ public partial class ImagingViewModel : ViewModelBase {
     public partial WriteableBitmap? Image { get; set; }
 
     [ObservableProperty]
+    public partial WriteableBitmap? StarOverlayImage { get; set; }
+
+    [ObservableProperty]
     public partial string CaptureStatus { get; set; } = "No capture yet.";
 
     [ObservableProperty]
@@ -132,6 +148,7 @@ public partial class ImagingViewModel : ViewModelBase {
         }
 
         IsCapturing = true;
+        StarOverlayImage = null;
         captureCts = new CancellationTokenSource();
         try {
             CaptureStatus = "Exposing...";
@@ -177,6 +194,11 @@ public partial class ImagingViewModel : ViewModelBase {
             StarDetectionStatus = analysis.DetectedStars > 0
                 ? $"{analysis.DetectedStars} stars detected, avg HFR {analysis.HFR:0.00}px, eccentricity {analysis.Eccentricity:0.00}"
                 : "No stars detected.";
+            StarOverlayImage = analysis.StarList != null && analysis.StarList.Count > 0
+                ? PortableImageBufferConverter.ToWriteableBitmapFromRgba32(
+                    BuildStarMarkerOverlay(stretched.RawPixels.Width, stretched.RawPixels.Height, analysis.StarList),
+                    stretched.RawPixels.Width, stretched.RawPixels.Height)
+                : null;
             CaptureStatus = $"Captured {stretched.RawPixels.Width}x{stretched.RawPixels.Height} ({stretched.RawPixels.Format}) at {DateTime.Now:T}";
         } catch (OperationCanceledException) {
             CaptureStatus = "Capture cancelled.";
@@ -202,5 +224,32 @@ public partial class ImagingViewModel : ViewModelBase {
         series.Points.AddRange(histogram);
         model.Series.Add(series);
         return model;
+    }
+
+    /// <summary>
+    /// Draws a circle at each real detected star's position (DetectedStar.Position, the exact
+    /// same image-pixel space the analyzed/displayed image is in) onto a transparent RGBA32
+    /// canvas of the same pixel dimensions as the displayed image - see this class's own doc
+    /// comment for why a second same-size overlay layer sidesteps needing any
+    /// display-coordinate math. Circle radius follows each star's own real HFR (doubled, with a
+    /// floor so very tight stars still get a visible marker) rather than a fixed size, so
+    /// tighter-focused stars visibly draw smaller circles than bloated ones.
+    /// </summary>
+    private static byte[] BuildStarMarkerOverlay(int width, int height, List<DetectedStar> stars) {
+        using var img = new Image<Rgba32>(width, height);
+        var pen = new SolidPen(Color.Lime.WithAlpha(0.85f), 2f);
+
+        img.Mutate(ctx => {
+            foreach (var star in stars) {
+                var radius = (float)Math.Max(star.HFR * 2, 6);
+                var center = new PointF((float)star.Position.X, (float)star.Position.Y);
+                var circle = new EllipsePolygon(center, radius);
+                ctx.Draw(pen, circle);
+            }
+        });
+
+        var buffer = new byte[width * height * 4];
+        img.CopyPixelDataTo(buffer);
+        return buffer;
     }
 }

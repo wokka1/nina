@@ -635,13 +635,19 @@
                         <TextBlock Grid.Column="2" Text="{Binding ImagingVM.CaptureStatus}" VerticalAlignment="Center" />
                     </Grid>
                     <Border BorderBrush="Gray" BorderThickness="1" MinHeight="300">
-                        <Image Source="{Binding ImagingVM.Image}" Stretch="Uniform" />
+                        <!-- StarOverlayImage is a second, same-pixel-dimensions ImageSharp-drawn
+                             layer (real circles at each DetectedStar.Position) stacked over the
+                             base image with the same Stretch="Uniform" - both scale/letterbox
+                             identically, so the markers land on the real stars with no manual
+                             coordinate math (see ImagingViewModel's doc comment). -->
+                        <Panel>
+                            <Image Source="{Binding ImagingVM.Image}" Stretch="Uniform" />
+                            <Image Source="{Binding ImagingVM.StarOverlayImage}" Stretch="Uniform" />
+                        </Panel>
                     </Border>
                     <!-- Real StarDetection.DetectPortable() output (via IRenderedImage.
-                         DetectStars(), see ImagingViewModel's doc comment) - text stats, not a
-                         visual marker overlay yet (deliberately deferred, needs real
-                         pixel-to-display-coordinate math against the image's Stretch="Uniform"
-                         scaling). -->
+                         DetectStars(), see ImagingViewModel's doc comment) - text stats plus the
+                         real visual marker overlay drawn on the image above. -->
                     <TextBlock Text="{Binding ImagingVM.StarDetectionStatus}" Opacity="0.8" />
                     <!-- Real IImageData.Statistics (mean/median/stdev/min/max), same source
                          NINA/ViewModel/ImageStatisticsVM.cs uses. -->
