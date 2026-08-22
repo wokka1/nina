@@ -17,6 +17,7 @@
          constructor (see CompositionRoot.Compose), so it can no longer be parameterlessly
          instantiated for the XAML previewer. Runtime DataContext is set in App.axaml.cs. -->
 
+    <Panel>
     <DockPanel Margin="16">
         <StackPanel DockPanel.Dock="Top" Spacing="4" Margin="0,0,0,16">
             <TextBlock Text="{Binding StatusMessage}" FontSize="18" FontWeight="Bold" />
@@ -782,5 +783,24 @@
             </TabItem>
         </TabControl>
     </DockPanel>
+
+    <!-- Sequencer drag-and-drop visual polish (2026-08-22): the OS-level DoDragDropAsync call in
+         MainWindow.axaml.cs doesn't render any custom drag-clone image (that's entirely up to the
+         platform, and native cross-app drag imagery isn't reachable from Avalonia), so this ghost
+         is a hand-tracked overlay instead - repositioned to the pointer in code-behind's
+         OnSequencerDragOver, shown/hidden around the DoDragDropAsync call. Same idea for the
+         drop-zone highlight: a thin bar positioned over whichever TreeViewItem/zone
+         DetermineDropZone currently resolves to. Both IsHitTestVisible="False" so they never
+         steal the drop target from whatever's underneath. -->
+    <Border x:Name="DragGhost" IsVisible="False" IsHitTestVisible="False"
+            Background="#CC1E3A5F" BorderBrush="#FF4A90D9" BorderThickness="1" CornerRadius="4"
+            Padding="8,4" HorizontalAlignment="Left" VerticalAlignment="Top">
+        <TextBlock x:Name="DragGhostText" Foreground="White" FontSize="12" />
+    </Border>
+
+    <Border x:Name="DropZoneHighlight" IsVisible="False" IsHitTestVisible="False"
+            Background="#664A90D9" BorderBrush="#FF4A90D9" BorderThickness="0"
+            HorizontalAlignment="Left" VerticalAlignment="Top" />
+    </Panel>
 
 </Window>

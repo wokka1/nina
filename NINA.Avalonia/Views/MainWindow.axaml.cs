@@ -5,6 +5,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using Avalonia.Media;
 using Avalonia.Platform.Storage;
 using Avalonia.VisualTree;
 using NINA.Avalonia.ViewModels;
@@ -27,9 +28,18 @@ public partial class MainWindow : Window
     private Point dragStartPoint;
     private bool dragInProgress;
 
+    private Border? dragGhost;
+    private TextBlock? dragGhostText;
+    private Border? dropZoneHighlight;
+    private DropTargetEnum? currentDropZone;
+
     public MainWindow()
     {
         InitializeComponent();
+
+        dragGhost = this.FindControl<Border>("DragGhost");
+        dragGhostText = this.FindControl<TextBlock>("DragGhostText");
+        dropZoneHighlight = this.FindControl<Border>("DropZoneHighlight");
 
         var tree = this.FindControl<TreeView>("SequencerTree");
         if (tree != null) {
@@ -47,9 +57,12 @@ public partial class MainWindow : Window
     /// Behaviors + manual VisualTreeHelper hit-testing + RenderTargetBitmap drag-clone adorners)
     /// is deeply WPF-specific and not portable - this uses Avalonia's own DragDrop API instead
     /// (DataTransfer/DataFormat.CreateInProcessFormat, not the older, now-obsolete DataObject).
-    /// Deliberately a functional first slice, not visual parity: no drag-clone/adorner preview,
-    /// no drop-zone highlight yet - dropping in the wrong zone by a few pixels just reorders/
-    /// reparents differently, it doesn't fail.
+    /// Visual polish added 2026-08-22: a hand-tracked ghost overlay (DragGhost in MainWindow.axaml)
+    /// follows the pointer for the dragged item's name, and a drop-zone highlight bar shows which
+    /// of Top/Bottom/Center DetermineDropZone currently resolves to. Neither is OS drag imagery -
+    /// Avalonia's DoDragDropAsync hands the actual drag session to the platform and doesn't expose
+    /// a custom drag-cursor image API, so both are ordinary controls in an overlay Panel,
+    /// repositioned from DragOver event coordinates instead.
     /// </summary>
     private void SetupSequencerDragDrop(TreeView tree)
     {
@@ -105,10 +118,39 @@ public partial class MainWindow : Window
         var transfer = new DataTransfer();
         transfer.Add(DataTransferItem.Create(SequenceDragFormat, source));
 
+        ShowDragGhost(source, dragStartPoint);
+
         try {
             await DragDrop.DoDragDropAsync(pressArgs, transfer, DragDropEffects.Move);
         } finally {
             dragInProgress = false;
+            HideDragGhost();
+            HideDropZoneHighlight();
+        }
+    }
+
+    private void ShowDragGhost(ISequenceEntity source, Point atWindowPoint)
+    {
+        if (dragGhost == null || dragGhostText == null) {
+            return;
+        }
+        dragGhostText.Text = source.Name;
+        dragGhost.RenderTransform = new TranslateTransform(atWindowPoint.X + 12, atWindowPoint.Y + 12);
+        dragGhost.IsVisible = true;
+    }
+
+    private void HideDragGhost()
+    {
+        if (dragGhost != null) {
+            dragGhost.IsVisible = false;
+        }
+    }
+
+    private void HideDropZoneHighlight()
+    {
+        currentDropZone = null;
+        if (dropZoneHighlight != null) {
+            dropZoneHighlight.IsVisible = false;
         }
     }
 
@@ -122,11 +164,57 @@ public partial class MainWindow : Window
     {
         e.DragEffects = e.DataTransfer.Contains(SequenceDragFormat) ? DragDropEffects.Move : DragDropEffects.None;
         e.Handled = true;
+
+        if (dragGhost != null) {
+            var windowPos = e.GetPosition(this);
+            dragGhost.RenderTransform = new TranslateTransform(windowPos.X + 12, windowPos.Y + 12);
+        }
+
+        UpdateDropZoneHighlight(e);
+    }
+
+    private void UpdateDropZoneHighlight(DragEventArgs e)
+    {
+        var hovered = (e.Source as Visual)?.FindAncestorOfType<TreeViewItem>();
+        if (dropZoneHighlight == null || hovered?.DataContext is not ISequenceEntity target) {
+            HideDropZoneHighlight();
+            return;
+        }
+
+        var bounds = hovered.Bounds;
+        var pos = e.GetPosition(hovered);
+        var zone = DetermineDropZone(pos.Y, bounds.Height, target is ISequenceContainer);
+        currentDropZone = zone;
+
+        var topLeftInWindow = hovered.TranslatePoint(new Point(0, 0), this) ?? default;
+        const double barThickness = 3;
+
+        switch (zone) {
+            case DropTargetEnum.Top:
+                dropZoneHighlight.Width = bounds.Width;
+                dropZoneHighlight.Height = barThickness;
+                dropZoneHighlight.RenderTransform = new TranslateTransform(topLeftInWindow.X, topLeftInWindow.Y);
+                break;
+            case DropTargetEnum.Bottom:
+                dropZoneHighlight.Width = bounds.Width;
+                dropZoneHighlight.Height = barThickness;
+                dropZoneHighlight.RenderTransform =
+                    new TranslateTransform(topLeftInWindow.X, topLeftInWindow.Y + bounds.Height - barThickness);
+                break;
+            default:
+                dropZoneHighlight.Width = bounds.Width;
+                dropZoneHighlight.Height = bounds.Height;
+                dropZoneHighlight.RenderTransform = new TranslateTransform(topLeftInWindow.X, topLeftInWindow.Y);
+                break;
+        }
+        dropZoneHighlight.IsVisible = true;
     }
 
     private void OnSequencerDrop(object? sender, DragEventArgs e)
     {
         e.Handled = true;
+        HideDropZoneHighlight();
+
         var source = e.DataTransfer.TryGetValue(SequenceDragFormat);
         if (source == null) {
             return;
