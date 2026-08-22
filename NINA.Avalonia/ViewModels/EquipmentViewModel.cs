@@ -1,9 +1,11 @@
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using NINA.Core.Model;
+using NINA.Core.Model.Equipment;
 using NINA.Equipment.Interfaces;
 using NINA.Equipment.Interfaces.ViewModel;
 
@@ -37,6 +39,12 @@ public partial class EquipmentViewModel : ViewModelBase {
         FlatDeviceVM = flatDeviceVM;
         WeatherDataVM = weatherDataVM;
         SafetyMonitorVM = safetyMonitorVM;
+
+        FilterWheelVM.GetDeviceInfo().PropertyChanged += (_, e) => {
+            if (e.PropertyName == nameof(NINA.Equipment.Equipment.MyFilterWheel.FilterWheelInfo.Connected)) {
+                OnPropertyChanged(nameof(AvailableFilters));
+            }
+        };
     }
 
     public ICameraVM CameraVM { get; }
@@ -116,5 +124,120 @@ public partial class EquipmentViewModel : ViewModelBase {
     [RelayCommand]
     private void SetCameraTemperature() {
         CameraVM.SetTemperature(TargetCoolingTemp);
+    }
+
+    /// <summary>
+    /// Remaining per-device advanced controls (2026-08-22) - closes out the last "genuinely
+    /// cosmetic/deferred, not chased" item from the 2026-08-02 sweep. Same "existing real VM
+    /// method, no command wired to it yet" gap as Switch/Telescope/Camera above, just spread
+    /// across the other 5 device types that had one. FilterWheel is the one exception: its real
+    /// ChangeFilterCommand/TargetFilter already exist as real members on the concrete
+    /// NINA.WPF.Base FilterWheelVM (same "not on the interface, but real and bindable via
+    /// ReflectionBinding" situation as SetupDialogCommand), so MainWindow.axaml binds those
+    /// directly instead of wrapping them here - only the device-reported filter list needed a
+    /// new property, since GetAllFilters() is a plain method (not observable) and only returns
+    /// real data once connected.
+    /// </summary>
+    public ICollection<FilterInfo> AvailableFilters => FilterWheelVM.GetAllFilters();
+
+    [ObservableProperty]
+    public partial int TargetFocuserPosition { get; set; }
+
+    [RelayCommand]
+    private async Task MoveFocuser() {
+        await FocuserVM.MoveFocuser(TargetFocuserPosition, CancellationToken.None);
+    }
+
+    [RelayCommand]
+    private void ToggleFocuserTempComp() {
+        var current = FocuserVM.GetDeviceInfo()?.TempComp ?? false;
+        FocuserVM.ToggleTempComp(!current);
+    }
+
+    [ObservableProperty]
+    public partial float TargetRotatorPosition { get; set; }
+
+    [RelayCommand]
+    private async Task MoveRotator() {
+        await RotatorVM.Move(TargetRotatorPosition, CancellationToken.None);
+    }
+
+    [ObservableProperty]
+    public partial float TargetRotatorSyncAngle { get; set; }
+
+    [RelayCommand]
+    private void SyncRotator() {
+        RotatorVM.Sync(TargetRotatorSyncAngle);
+    }
+
+    [RelayCommand]
+    private async Task OpenDomeShutter() {
+        await DomeVM.OpenShutter(CancellationToken.None);
+    }
+
+    [RelayCommand]
+    private async Task CloseDomeShutter() {
+        await DomeVM.CloseShutter(CancellationToken.None);
+    }
+
+    [RelayCommand]
+    private async Task ParkDome() {
+        await DomeVM.Park(CancellationToken.None);
+    }
+
+    [RelayCommand]
+    private async Task HomeDome() {
+        await DomeVM.FindHome(CancellationToken.None);
+    }
+
+    [RelayCommand]
+    private async Task ToggleDomeFollow() {
+        if (DomeVM.FollowEnabled) {
+            await DomeVM.DisableFollowing(CancellationToken.None);
+        } else {
+            await DomeVM.EnableFollowing(CancellationToken.None);
+        }
+    }
+
+    [ObservableProperty]
+    public partial double TargetDomeAzimuth { get; set; }
+
+    [RelayCommand]
+    private async Task SlewDomeToAzimuth() {
+        await DomeVM.SlewToAzimuth(TargetDomeAzimuth, CancellationToken.None);
+    }
+
+    [RelayCommand]
+    private async Task StartGuiding() {
+        await GuiderVM.StartGuiding(false, new Progress<ApplicationStatus>(), CancellationToken.None);
+    }
+
+    [RelayCommand]
+    private async Task StopGuiding() {
+        await GuiderVM.StopGuiding(CancellationToken.None);
+    }
+
+    [RelayCommand]
+    private async Task OpenFlatCover() {
+        await FlatDeviceVM.OpenCover(new Progress<ApplicationStatus>(), CancellationToken.None);
+    }
+
+    [RelayCommand]
+    private async Task CloseFlatCover() {
+        await FlatDeviceVM.CloseCover(new Progress<ApplicationStatus>(), CancellationToken.None);
+    }
+
+    [RelayCommand]
+    private async Task ToggleFlatLight() {
+        var current = FlatDeviceVM.GetDeviceInfo()?.LightOn ?? false;
+        await FlatDeviceVM.ToggleLight(!current, new Progress<ApplicationStatus>(), CancellationToken.None);
+    }
+
+    [ObservableProperty]
+    public partial int TargetFlatBrightness { get; set; }
+
+    [RelayCommand]
+    private async Task SetFlatBrightness() {
+        await FlatDeviceVM.SetBrightness(TargetFlatBrightness, new Progress<ApplicationStatus>(), CancellationToken.None);
     }
 }
