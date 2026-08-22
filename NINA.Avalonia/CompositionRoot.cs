@@ -5,6 +5,7 @@ using NINA.Astrometry.Interfaces;
 using NINA.Avalonia.Utility;
 using NINA.Avalonia.ViewModels;
 using NINA.Core.Interfaces;
+using NINA.Core.Interfaces.Utility;
 using NINA.Core.Utility;
 using NINA.Equipment.Equipment.MyDome;
 using NINA.Equipment.Equipment.MyPlanetarium;
@@ -101,6 +102,13 @@ namespace NINA.Avalonia {
             services.AddSingleton<IWeatherDataMediator, WeatherDataMediator>();
             services.AddSingleton<IImagingMediator, ImagingMediator>();
             services.AddSingleton<IImageSaveMediator, ImageSaveMediator>();
+
+            // Real, unchanged NINA.Core.Utility.DefaultMicroCacheFactory - SbigSdk's constructor
+            // needs it and nothing had ever registered it (2026-08-22 first real GUI launch -
+            // this was the app's first-ever runtime failure, invisible to every prior clean
+            // compile: MEDI's eager constructor injection resolves SbigSdk, which needs this,
+            // during Compose() itself, before any UI even renders).
+            services.AddSingleton<IMicroCacheFactory, DefaultMicroCacheFactory>();
 
             services.AddSingleton<ISbigSdk, SbigSdk>();
 
