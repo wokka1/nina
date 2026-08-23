@@ -135,561 +135,671 @@
                      whether that device's chooser binding otherwise could be plain {Binding};
                      IsVisible checks IDevice.HasSetupDialog (a real interface member) so the
                      button only shows for devices that actually have one. -->
-                <WrapPanel Margin="16,12,0,0" Orientation="Horizontal">
-                    <StackPanel Spacing="8" Width="480" Margin="0,0,24,24">
-                        <TextBlock Text="Camera" FontSize="16" FontWeight="SemiBold" />
-                        <Grid ColumnDefinitions="*,Auto,Auto,Auto,Auto" ColumnSpacing="6">
-                            <ComboBox Grid.Column="0"
-                                      ItemsSource="{Binding EquipmentVM.CameraVM.DeviceChooserVM.Devices}"
-                                      SelectedItem="{Binding EquipmentVM.CameraVM.DeviceChooserVM.SelectedDevice}"
-                                      HorizontalAlignment="Stretch">
-                                <ComboBox.ItemTemplate>
-                                    <DataTemplate>
-                                        <TextBlock Text="{Binding Name}" />
-                                    </DataTemplate>
-                                </ComboBox.ItemTemplate>
-                            </ComboBox>
-                            <Button Grid.Column="1" Content="Rescan" Command="{ReflectionBinding EquipmentVM.CameraVM.RescanDevicesCommand}" />
-                            <Button Grid.Column="2" Content="Connect" Command="{ReflectionBinding EquipmentVM.CameraVM.ConnectCommand}" />
-                            <Button Grid.Column="3" Content="Disconnect" Command="{ReflectionBinding EquipmentVM.CameraVM.DisconnectCommand}" />
-                            <Button Grid.Column="4" Content="Setup" Command="{ReflectionBinding EquipmentVM.CameraVM.DeviceChooserVM.SetupDialogCommand}" IsVisible="{ReflectionBinding EquipmentVM.CameraVM.DeviceChooserVM.SelectedDevice.HasSetupDialog}" />
-                        </Grid>
-
-                        <Border BorderBrush="Gray" BorderThickness="0,1,0,0" Padding="0,8,0,0">
-                            <Grid ColumnDefinitions="150,*" RowDefinitions="Auto,Auto,Auto,Auto" RowSpacing="4">
-                                <TextBlock Grid.Row="0" Grid.Column="0" Text="Connected" FontWeight="SemiBold" />
-                                <TextBlock Grid.Row="0" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.CameraVM.CameraInfo.Connected}" />
-                                <TextBlock Grid.Row="1" Grid.Column="0" Text="Name" FontWeight="SemiBold" />
-                                <TextBlock Grid.Row="1" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.CameraVM.CameraInfo.Name}" />
-                                <TextBlock Grid.Row="2" Grid.Column="0" Text="Temperature" FontWeight="SemiBold" />
-                                <TextBlock Grid.Row="2" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.CameraVM.CameraInfo.Temperature, StringFormat='{}{0:0.0} °C'}" />
-                                <TextBlock Grid.Row="3" Grid.Column="0" Text="Cooler" FontWeight="SemiBold" />
-                                <TextBlock Grid.Row="3" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.CameraVM.CameraInfo.CoolerOn, StringFormat='On: {0}'}" />
-                            </Grid>
-                        </Border>
-
-                        <!-- Real ICameraVM.SetCooler/SetTemperature, via new EquipmentViewModel
-                             wrapper commands (see their own doc comment). -->
-                        <Border BorderBrush="Gray" BorderThickness="0,1,0,0" Padding="0,8,0,0">
-                            <StackPanel Orientation="Horizontal" Spacing="6">
-                                <Button Content="Cooler On" Command="{ReflectionBinding EquipmentVM.SetCoolerOnCommand}" />
-                                <Button Content="Cooler Off" Command="{ReflectionBinding EquipmentVM.SetCoolerOffCommand}" />
-                                <NumericUpDown Value="{ReflectionBinding EquipmentVM.TargetCoolingTemp}" FormatString="0.0" Width="110" />
-                                <Button Content="Set Temp" Command="{ReflectionBinding EquipmentVM.SetCameraTemperatureCommand}" />
+                <TabControl TabStripPlacement="Left" Padding="0">
+                    <TabItem>
+                        <TabItem.Header>
+                            <StackPanel Width="46" Spacing="2" Margin="0,4">
+                                <Path Data="{StaticResource CameraSVG}" Fill="White" Stretch="Uniform" Width="20" Margin="4" HorizontalAlignment="Center" />
+                                <TextBlock Text="Camera" HorizontalAlignment="Center" FontSize="9" TextWrapping="Wrap" TextAlignment="Center" />
                             </StackPanel>
-                        </Border>
-                    </StackPanel>
-
-                    <StackPanel Spacing="8" Width="480" Margin="0,0,24,24">
-                        <TextBlock Text="Telescope" FontSize="16" FontWeight="SemiBold" />
-                        <Grid ColumnDefinitions="*,Auto,Auto,Auto,Auto" ColumnSpacing="6">
-                            <ComboBox Grid.Column="0"
-                                      ItemsSource="{ReflectionBinding EquipmentVM.TelescopeVM.DeviceChooserVM.Devices}"
-                                      SelectedItem="{ReflectionBinding EquipmentVM.TelescopeVM.DeviceChooserVM.SelectedDevice}"
-                                      HorizontalAlignment="Stretch">
-                                <ComboBox.ItemTemplate>
-                                    <DataTemplate>
-                                        <!-- {ReflectionBinding}, not {Binding}: the ItemsSource
-                                             above is itself a ReflectionBinding (untyped at
-                                             compile time), so the compiler has no static item
-                                             type to check a compiled binding against here -
-                                             unlike Camera's version of this same template, where
-                                             ItemsSource is a plain typed {Binding} and the
-                                             compiler can infer IDevice for this nested one. -->
-                                        <TextBlock Text="{ReflectionBinding Name}" />
-                                    </DataTemplate>
-                                </ComboBox.ItemTemplate>
-                            </ComboBox>
-                            <Button Grid.Column="1" Content="Rescan" Command="{ReflectionBinding EquipmentVM.TelescopeVM.RescanDevicesCommand}" />
-                            <Button Grid.Column="2" Content="Connect" Command="{ReflectionBinding EquipmentVM.TelescopeVM.ConnectCommand}" />
-                            <Button Grid.Column="3" Content="Disconnect" Command="{ReflectionBinding EquipmentVM.TelescopeVM.DisconnectCommand}" />
-                            <Button Grid.Column="4" Content="Setup" Command="{ReflectionBinding EquipmentVM.TelescopeVM.DeviceChooserVM.SetupDialogCommand}" IsVisible="{ReflectionBinding EquipmentVM.TelescopeVM.DeviceChooserVM.SelectedDevice.HasSetupDialog}" />
-                        </Grid>
-
-                        <Border BorderBrush="Gray" BorderThickness="0,1,0,0" Padding="0,8,0,0">
-                            <Grid ColumnDefinitions="150,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto" RowSpacing="4">
-                                <TextBlock Grid.Row="0" Grid.Column="0" Text="Connected" FontWeight="SemiBold" />
-                                <TextBlock Grid.Row="0" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.TelescopeVM.TelescopeInfo.Connected}" />
-                                <TextBlock Grid.Row="1" Grid.Column="0" Text="Name" FontWeight="SemiBold" />
-                                <TextBlock Grid.Row="1" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.TelescopeVM.TelescopeInfo.Name}" />
-                                <TextBlock Grid.Row="2" Grid.Column="0" Text="RA / Dec" FontWeight="SemiBold" />
-                                <TextBlock Grid.Row="2" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.TelescopeVM.TelescopeInfo.RightAscension, StringFormat='{}{0:0.0000}h'}" />
-                                <TextBlock Grid.Row="3" Grid.Column="0" Text="Tracking" FontWeight="SemiBold" />
-                                <TextBlock Grid.Row="3" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.TelescopeVM.TelescopeInfo.TrackingEnabled}" />
-                                <TextBlock Grid.Row="4" Grid.Column="0" Text="At Park" FontWeight="SemiBold" />
-                                <TextBlock Grid.Row="4" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.TelescopeVM.TelescopeInfo.AtPark}" />
+                        </TabItem.Header>
+                        <TabItem.Content>
+                        <StackPanel Spacing="8" MaxWidth="700" Margin="16,12,0,0">
+                            <TextBlock Text="Camera" FontSize="16" FontWeight="SemiBold" />
+                            <Grid ColumnDefinitions="*,Auto,Auto,Auto,Auto" ColumnSpacing="6">
+                                <ComboBox Grid.Column="0"
+                                          ItemsSource="{Binding EquipmentVM.CameraVM.DeviceChooserVM.Devices}"
+                                          SelectedItem="{Binding EquipmentVM.CameraVM.DeviceChooserVM.SelectedDevice}"
+                                          HorizontalAlignment="Stretch">
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding Name}" />
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
+                                </ComboBox>
+                                <Button Grid.Column="1" Content="Rescan" Command="{ReflectionBinding EquipmentVM.CameraVM.RescanDevicesCommand}" />
+                                <Button Grid.Column="2" Content="Connect" Command="{ReflectionBinding EquipmentVM.CameraVM.ConnectCommand}" />
+                                <Button Grid.Column="3" Content="Disconnect" Command="{ReflectionBinding EquipmentVM.CameraVM.DisconnectCommand}" />
+                                <Button Grid.Column="4" Content="Setup" Command="{ReflectionBinding EquipmentVM.CameraVM.DeviceChooserVM.SetupDialogCommand}" IsVisible="{ReflectionBinding EquipmentVM.CameraVM.DeviceChooserVM.SelectedDevice.HasSetupDialog}" />
                             </Grid>
-                        </Border>
 
-                        <!-- Real ITelescopeVM.ParkTelescope/UnparkTelescope/StopSlew/
-                             SetTrackingEnabled, via new EquipmentViewModel wrapper commands
-                             (see their own doc comment) - deliberately scoped to these
-                             well-understood operations, not a full manual slew-to-coordinates
-                             UI (see the doc comment for why). -->
-                        <Border BorderBrush="Gray" BorderThickness="0,1,0,0" Padding="0,8,0,0">
-                            <StackPanel Orientation="Horizontal" Spacing="6">
-                                <Button Content="Park" Command="{ReflectionBinding EquipmentVM.ParkTelescopeCommand}" />
-                                <Button Content="Unpark" Command="{ReflectionBinding EquipmentVM.UnparkTelescopeCommand}" />
-                                <Button Content="Stop Slew" Command="{ReflectionBinding EquipmentVM.StopTelescopeSlewCommand}" />
-                                <Button Content="Toggle Tracking" Command="{ReflectionBinding EquipmentVM.ToggleTelescopeTrackingCommand}" />
+                            <Border BorderBrush="Gray" BorderThickness="0,1,0,0" Padding="0,8,0,0">
+                                <Grid ColumnDefinitions="150,*" RowDefinitions="Auto,Auto,Auto,Auto" RowSpacing="4">
+                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Connected" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="0" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.CameraVM.CameraInfo.Connected}" />
+                                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Name" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="1" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.CameraVM.CameraInfo.Name}" />
+                                    <TextBlock Grid.Row="2" Grid.Column="0" Text="Temperature" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="2" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.CameraVM.CameraInfo.Temperature, StringFormat='{}{0:0.0} °C'}" />
+                                    <TextBlock Grid.Row="3" Grid.Column="0" Text="Cooler" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="3" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.CameraVM.CameraInfo.CoolerOn, StringFormat='On: {0}'}" />
+                                </Grid>
+                            </Border>
+
+                            <!-- Real ICameraVM.SetCooler/SetTemperature, via new EquipmentViewModel
+                                 wrapper commands (see their own doc comment). -->
+                            <Border BorderBrush="Gray" BorderThickness="0,1,0,0" Padding="0,8,0,0">
+                                <StackPanel Orientation="Horizontal" Spacing="6">
+                                    <Button Content="Cooler On" Command="{ReflectionBinding EquipmentVM.SetCoolerOnCommand}" />
+                                    <Button Content="Cooler Off" Command="{ReflectionBinding EquipmentVM.SetCoolerOffCommand}" />
+                                    <NumericUpDown Value="{ReflectionBinding EquipmentVM.TargetCoolingTemp}" FormatString="0.0" Width="110" />
+                                    <Button Content="Set Temp" Command="{ReflectionBinding EquipmentVM.SetCameraTemperatureCommand}" />
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+
+                        </TabItem.Content>
+                    </TabItem>
+                    <TabItem>
+                        <TabItem.Header>
+                            <StackPanel Width="46" Spacing="2" Margin="0,4">
+                                <Path Data="{StaticResource TelescopeSVG}" Fill="White" Stretch="Uniform" Width="20" Margin="4" HorizontalAlignment="Center" />
+                                <TextBlock Text="Telescope" HorizontalAlignment="Center" FontSize="9" TextWrapping="Wrap" TextAlignment="Center" />
                             </StackPanel>
-                        </Border>
-                    </StackPanel>
-
-                    <StackPanel Spacing="8" Width="480" Margin="0,0,24,24">
-                        <TextBlock Text="Filter Wheel" FontSize="16" FontWeight="SemiBold" />
-                        <Grid ColumnDefinitions="*,Auto,Auto,Auto,Auto" ColumnSpacing="6">
-                            <ComboBox Grid.Column="0"
-                                      ItemsSource="{ReflectionBinding EquipmentVM.FilterWheelVM.DeviceChooserVM.Devices}"
-                                      SelectedItem="{ReflectionBinding EquipmentVM.FilterWheelVM.DeviceChooserVM.SelectedDevice}"
-                                      HorizontalAlignment="Stretch">
-                                <ComboBox.ItemTemplate>
-                                    <DataTemplate>
-                                        <TextBlock Text="{ReflectionBinding Name}" />
-                                    </DataTemplate>
-                                </ComboBox.ItemTemplate>
-                            </ComboBox>
-                            <Button Grid.Column="1" Content="Rescan" Command="{ReflectionBinding EquipmentVM.FilterWheelVM.RescanDevicesCommand}" />
-                            <Button Grid.Column="2" Content="Connect" Command="{ReflectionBinding EquipmentVM.FilterWheelVM.ConnectCommand}" />
-                            <Button Grid.Column="3" Content="Disconnect" Command="{ReflectionBinding EquipmentVM.FilterWheelVM.DisconnectCommand}" />
-                            <Button Grid.Column="4" Content="Setup" Command="{ReflectionBinding EquipmentVM.FilterWheelVM.DeviceChooserVM.SetupDialogCommand}" IsVisible="{ReflectionBinding EquipmentVM.FilterWheelVM.DeviceChooserVM.SelectedDevice.HasSetupDialog}" />
-                        </Grid>
-
-                        <Border BorderBrush="Gray" BorderThickness="0,1,0,0" Padding="0,8,0,0">
-                            <Grid ColumnDefinitions="150,*" RowDefinitions="Auto,Auto,Auto,Auto" RowSpacing="4">
-                                <TextBlock Grid.Row="0" Grid.Column="0" Text="Connected" FontWeight="SemiBold" />
-                                <TextBlock Grid.Row="0" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.FilterWheelVM.FilterWheelInfo.Connected}" />
-                                <TextBlock Grid.Row="1" Grid.Column="0" Text="Name" FontWeight="SemiBold" />
-                                <TextBlock Grid.Row="1" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.FilterWheelVM.FilterWheelInfo.Name}" />
-                                <TextBlock Grid.Row="2" Grid.Column="0" Text="Selected Filter" FontWeight="SemiBold" />
-                                <TextBlock Grid.Row="2" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.FilterWheelVM.FilterWheelInfo.SelectedFilter.Name}" />
-                                <TextBlock Grid.Row="3" Grid.Column="0" Text="Moving" FontWeight="SemiBold" />
-                                <TextBlock Grid.Row="3" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.FilterWheelVM.FilterWheelInfo.IsMoving}" />
+                        </TabItem.Header>
+                        <TabItem.Content>
+                        <StackPanel Spacing="8" MaxWidth="700" Margin="16,12,0,0">
+                            <TextBlock Text="Telescope" FontSize="16" FontWeight="SemiBold" />
+                            <Grid ColumnDefinitions="*,Auto,Auto,Auto,Auto" ColumnSpacing="6">
+                                <ComboBox Grid.Column="0"
+                                          ItemsSource="{ReflectionBinding EquipmentVM.TelescopeVM.DeviceChooserVM.Devices}"
+                                          SelectedItem="{ReflectionBinding EquipmentVM.TelescopeVM.DeviceChooserVM.SelectedDevice}"
+                                          HorizontalAlignment="Stretch">
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <!-- {ReflectionBinding}, not {Binding}: the ItemsSource
+                                                 above is itself a ReflectionBinding (untyped at
+                                                 compile time), so the compiler has no static item
+                                                 type to check a compiled binding against here -
+                                                 unlike Camera's version of this same template, where
+                                                 ItemsSource is a plain typed {Binding} and the
+                                                 compiler can infer IDevice for this nested one. -->
+                                            <TextBlock Text="{ReflectionBinding Name}" />
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
+                                </ComboBox>
+                                <Button Grid.Column="1" Content="Rescan" Command="{ReflectionBinding EquipmentVM.TelescopeVM.RescanDevicesCommand}" />
+                                <Button Grid.Column="2" Content="Connect" Command="{ReflectionBinding EquipmentVM.TelescopeVM.ConnectCommand}" />
+                                <Button Grid.Column="3" Content="Disconnect" Command="{ReflectionBinding EquipmentVM.TelescopeVM.DisconnectCommand}" />
+                                <Button Grid.Column="4" Content="Setup" Command="{ReflectionBinding EquipmentVM.TelescopeVM.DeviceChooserVM.SetupDialogCommand}" IsVisible="{ReflectionBinding EquipmentVM.TelescopeVM.DeviceChooserVM.SelectedDevice.HasSetupDialog}" />
                             </Grid>
-                        </Border>
 
-                        <!-- Real FilterWheelVM.ChangeFilterCommand/TargetFilter (2026-08-22) -
-                             concrete-class-only members, same ReflectionBinding-only situation as
-                             SetupDialogCommand. AvailableFilters is new on EquipmentViewModel -
-                             GetAllFilters() is device-reported and only real once connected. -->
-                        <Border BorderBrush="Gray" BorderThickness="0,1,0,0" Padding="0,8,0,0">
-                            <StackPanel Orientation="Horizontal" Spacing="6">
-                                <ComboBox Width="220"
-                                          ItemsSource="{ReflectionBinding EquipmentVM.AvailableFilters}"
-                                          SelectedItem="{ReflectionBinding EquipmentVM.FilterWheelVM.TargetFilter}">
+                            <Border BorderBrush="Gray" BorderThickness="0,1,0,0" Padding="0,8,0,0">
+                                <Grid ColumnDefinitions="150,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto" RowSpacing="4">
+                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Connected" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="0" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.TelescopeVM.TelescopeInfo.Connected}" />
+                                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Name" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="1" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.TelescopeVM.TelescopeInfo.Name}" />
+                                    <TextBlock Grid.Row="2" Grid.Column="0" Text="RA / Dec" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="2" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.TelescopeVM.TelescopeInfo.RightAscension, StringFormat='{}{0:0.0000}h'}" />
+                                    <TextBlock Grid.Row="3" Grid.Column="0" Text="Tracking" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="3" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.TelescopeVM.TelescopeInfo.TrackingEnabled}" />
+                                    <TextBlock Grid.Row="4" Grid.Column="0" Text="At Park" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="4" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.TelescopeVM.TelescopeInfo.AtPark}" />
+                                </Grid>
+                            </Border>
+
+                            <!-- Real ITelescopeVM.ParkTelescope/UnparkTelescope/StopSlew/
+                                 SetTrackingEnabled, via new EquipmentViewModel wrapper commands
+                                 (see their own doc comment) - deliberately scoped to these
+                                 well-understood operations, not a full manual slew-to-coordinates
+                                 UI (see the doc comment for why). -->
+                            <Border BorderBrush="Gray" BorderThickness="0,1,0,0" Padding="0,8,0,0">
+                                <StackPanel Orientation="Horizontal" Spacing="6">
+                                    <Button Content="Park" Command="{ReflectionBinding EquipmentVM.ParkTelescopeCommand}" />
+                                    <Button Content="Unpark" Command="{ReflectionBinding EquipmentVM.UnparkTelescopeCommand}" />
+                                    <Button Content="Stop Slew" Command="{ReflectionBinding EquipmentVM.StopTelescopeSlewCommand}" />
+                                    <Button Content="Toggle Tracking" Command="{ReflectionBinding EquipmentVM.ToggleTelescopeTrackingCommand}" />
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+
+                        </TabItem.Content>
+                    </TabItem>
+                    <TabItem>
+                        <TabItem.Header>
+                            <StackPanel Width="46" Spacing="2" Margin="0,4">
+                                <Path Data="{StaticResource FWSVG}" Fill="White" Stretch="Uniform" Width="20" Margin="4" HorizontalAlignment="Center" />
+                                <TextBlock Text="Filter Wheel" HorizontalAlignment="Center" FontSize="9" TextWrapping="Wrap" TextAlignment="Center" />
+                            </StackPanel>
+                        </TabItem.Header>
+                        <TabItem.Content>
+                        <StackPanel Spacing="8" MaxWidth="700" Margin="16,12,0,0">
+                            <TextBlock Text="Filter Wheel" FontSize="16" FontWeight="SemiBold" />
+                            <Grid ColumnDefinitions="*,Auto,Auto,Auto,Auto" ColumnSpacing="6">
+                                <ComboBox Grid.Column="0"
+                                          ItemsSource="{ReflectionBinding EquipmentVM.FilterWheelVM.DeviceChooserVM.Devices}"
+                                          SelectedItem="{ReflectionBinding EquipmentVM.FilterWheelVM.DeviceChooserVM.SelectedDevice}"
+                                          HorizontalAlignment="Stretch">
                                     <ComboBox.ItemTemplate>
                                         <DataTemplate>
                                             <TextBlock Text="{ReflectionBinding Name}" />
                                         </DataTemplate>
                                     </ComboBox.ItemTemplate>
                                 </ComboBox>
-                                <Button Content="Change Filter" Command="{ReflectionBinding EquipmentVM.FilterWheelVM.ChangeFilterCommand}" />
-                            </StackPanel>
-                        </Border>
-                    </StackPanel>
-
-                    <StackPanel Spacing="8" Width="480" Margin="0,0,24,24">
-                        <TextBlock Text="Focuser" FontSize="16" FontWeight="SemiBold" />
-                        <Grid ColumnDefinitions="*,Auto,Auto,Auto,Auto" ColumnSpacing="6">
-                            <ComboBox Grid.Column="0"
-                                      ItemsSource="{ReflectionBinding EquipmentVM.FocuserVM.DeviceChooserVM.Devices}"
-                                      SelectedItem="{ReflectionBinding EquipmentVM.FocuserVM.DeviceChooserVM.SelectedDevice}"
-                                      HorizontalAlignment="Stretch">
-                                <ComboBox.ItemTemplate>
-                                    <DataTemplate>
-                                        <TextBlock Text="{ReflectionBinding Name}" />
-                                    </DataTemplate>
-                                </ComboBox.ItemTemplate>
-                            </ComboBox>
-                            <Button Grid.Column="1" Content="Rescan" Command="{ReflectionBinding EquipmentVM.FocuserVM.RescanDevicesCommand}" />
-                            <Button Grid.Column="2" Content="Connect" Command="{ReflectionBinding EquipmentVM.FocuserVM.ConnectCommand}" />
-                            <Button Grid.Column="3" Content="Disconnect" Command="{ReflectionBinding EquipmentVM.FocuserVM.DisconnectCommand}" />
-                            <Button Grid.Column="4" Content="Setup" Command="{ReflectionBinding EquipmentVM.FocuserVM.DeviceChooserVM.SetupDialogCommand}" IsVisible="{ReflectionBinding EquipmentVM.FocuserVM.DeviceChooserVM.SelectedDevice.HasSetupDialog}" />
-                        </Grid>
-
-                        <Border BorderBrush="Gray" BorderThickness="0,1,0,0" Padding="0,8,0,0">
-                            <Grid ColumnDefinitions="150,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto" RowSpacing="4">
-                                <TextBlock Grid.Row="0" Grid.Column="0" Text="Connected" FontWeight="SemiBold" />
-                                <TextBlock Grid.Row="0" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.FocuserVM.FocuserInfo.Connected}" />
-                                <TextBlock Grid.Row="1" Grid.Column="0" Text="Name" FontWeight="SemiBold" />
-                                <TextBlock Grid.Row="1" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.FocuserVM.FocuserInfo.Name}" />
-                                <TextBlock Grid.Row="2" Grid.Column="0" Text="Position" FontWeight="SemiBold" />
-                                <TextBlock Grid.Row="2" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.FocuserVM.FocuserInfo.Position}" />
-                                <TextBlock Grid.Row="3" Grid.Column="0" Text="Temperature" FontWeight="SemiBold" />
-                                <TextBlock Grid.Row="3" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.FocuserVM.FocuserInfo.Temperature, StringFormat='{}{0:0.0} °C'}" />
-                                <TextBlock Grid.Row="4" Grid.Column="0" Text="Moving" FontWeight="SemiBold" />
-                                <TextBlock Grid.Row="4" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.FocuserVM.FocuserInfo.IsMoving}" />
+                                <Button Grid.Column="1" Content="Rescan" Command="{ReflectionBinding EquipmentVM.FilterWheelVM.RescanDevicesCommand}" />
+                                <Button Grid.Column="2" Content="Connect" Command="{ReflectionBinding EquipmentVM.FilterWheelVM.ConnectCommand}" />
+                                <Button Grid.Column="3" Content="Disconnect" Command="{ReflectionBinding EquipmentVM.FilterWheelVM.DisconnectCommand}" />
+                                <Button Grid.Column="4" Content="Setup" Command="{ReflectionBinding EquipmentVM.FilterWheelVM.DeviceChooserVM.SetupDialogCommand}" IsVisible="{ReflectionBinding EquipmentVM.FilterWheelVM.DeviceChooserVM.SelectedDevice.HasSetupDialog}" />
                             </Grid>
-                        </Border>
 
-                        <!-- Real IFocuserVM.MoveFocuser/ToggleTempComp (2026-08-22), via new
-                             EquipmentViewModel wrapper commands - same "existing method, no
-                             command wired to it" gap as Camera/Telescope. TempComp checkbox is
-                             display-only (device-reported, updated by the polling loop); the
-                             button is the real user action, matching how Cooler On/Off buttons
-                             sit next to Camera's own read-only Cooler status line above. -->
-                        <Border BorderBrush="Gray" BorderThickness="0,1,0,0" Padding="0,8,0,0">
-                            <StackPanel Spacing="6">
+                            <Border BorderBrush="Gray" BorderThickness="0,1,0,0" Padding="0,8,0,0">
+                                <Grid ColumnDefinitions="150,*" RowDefinitions="Auto,Auto,Auto,Auto" RowSpacing="4">
+                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Connected" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="0" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.FilterWheelVM.FilterWheelInfo.Connected}" />
+                                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Name" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="1" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.FilterWheelVM.FilterWheelInfo.Name}" />
+                                    <TextBlock Grid.Row="2" Grid.Column="0" Text="Selected Filter" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="2" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.FilterWheelVM.FilterWheelInfo.SelectedFilter.Name}" />
+                                    <TextBlock Grid.Row="3" Grid.Column="0" Text="Moving" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="3" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.FilterWheelVM.FilterWheelInfo.IsMoving}" />
+                                </Grid>
+                            </Border>
+
+                            <!-- Real FilterWheelVM.ChangeFilterCommand/TargetFilter (2026-08-22) -
+                                 concrete-class-only members, same ReflectionBinding-only situation as
+                                 SetupDialogCommand. AvailableFilters is new on EquipmentViewModel -
+                                 GetAllFilters() is device-reported and only real once connected. -->
+                            <Border BorderBrush="Gray" BorderThickness="0,1,0,0" Padding="0,8,0,0">
                                 <StackPanel Orientation="Horizontal" Spacing="6">
-                                    <NumericUpDown Value="{ReflectionBinding EquipmentVM.TargetFocuserPosition}" FormatString="0" Width="110" />
-                                    <Button Content="Move To" Command="{ReflectionBinding EquipmentVM.MoveFocuserCommand}" />
+                                    <ComboBox Width="220"
+                                              ItemsSource="{ReflectionBinding EquipmentVM.AvailableFilters}"
+                                              SelectedItem="{ReflectionBinding EquipmentVM.FilterWheelVM.TargetFilter}">
+                                        <ComboBox.ItemTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="{ReflectionBinding Name}" />
+                                            </DataTemplate>
+                                        </ComboBox.ItemTemplate>
+                                    </ComboBox>
+                                    <Button Content="Change Filter" Command="{ReflectionBinding EquipmentVM.FilterWheelVM.ChangeFilterCommand}" />
                                 </StackPanel>
-                                <StackPanel Orientation="Horizontal" Spacing="6">
-                                    <CheckBox Content="Temp Comp" IsChecked="{ReflectionBinding EquipmentVM.FocuserVM.FocuserInfo.TempComp, Mode=OneWay}" IsHitTestVisible="False" />
-                                    <Button Content="Toggle Temp Comp" Command="{ReflectionBinding EquipmentVM.ToggleFocuserTempCompCommand}"
-                                            IsVisible="{ReflectionBinding EquipmentVM.FocuserVM.FocuserInfo.TempCompAvailable}" />
-                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+
+                        </TabItem.Content>
+                    </TabItem>
+                    <TabItem>
+                        <TabItem.Header>
+                            <StackPanel Width="46" Spacing="2" Margin="0,4">
+                                <Path Data="{StaticResource FocusSVG}" Fill="White" Stretch="Uniform" Width="20" Margin="4" HorizontalAlignment="Center" />
+                                <TextBlock Text="Focuser" HorizontalAlignment="Center" FontSize="9" TextWrapping="Wrap" TextAlignment="Center" />
                             </StackPanel>
-                        </Border>
-                    </StackPanel>
-
-                    <StackPanel Spacing="8" Width="480" Margin="0,0,24,24">
-                        <TextBlock Text="Rotator" FontSize="16" FontWeight="SemiBold" />
-                        <Grid ColumnDefinitions="*,Auto,Auto,Auto,Auto" ColumnSpacing="6">
-                            <ComboBox Grid.Column="0"
-                                      ItemsSource="{ReflectionBinding EquipmentVM.RotatorVM.DeviceChooserVM.Devices}"
-                                      SelectedItem="{ReflectionBinding EquipmentVM.RotatorVM.DeviceChooserVM.SelectedDevice}"
-                                      HorizontalAlignment="Stretch">
-                                <ComboBox.ItemTemplate>
-                                    <DataTemplate>
-                                        <TextBlock Text="{ReflectionBinding Name}" />
-                                    </DataTemplate>
-                                </ComboBox.ItemTemplate>
-                            </ComboBox>
-                            <Button Grid.Column="1" Content="Rescan" Command="{ReflectionBinding EquipmentVM.RotatorVM.RescanDevicesCommand}" />
-                            <Button Grid.Column="2" Content="Connect" Command="{ReflectionBinding EquipmentVM.RotatorVM.ConnectCommand}" />
-                            <Button Grid.Column="3" Content="Disconnect" Command="{ReflectionBinding EquipmentVM.RotatorVM.DisconnectCommand}" />
-                            <Button Grid.Column="4" Content="Setup" Command="{ReflectionBinding EquipmentVM.RotatorVM.DeviceChooserVM.SetupDialogCommand}" IsVisible="{ReflectionBinding EquipmentVM.RotatorVM.DeviceChooserVM.SelectedDevice.HasSetupDialog}" />
-                        </Grid>
-
-                        <Border BorderBrush="Gray" BorderThickness="0,1,0,0" Padding="0,8,0,0">
-                            <Grid ColumnDefinitions="150,*" RowDefinitions="Auto,Auto,Auto,Auto" RowSpacing="4">
-                                <TextBlock Grid.Row="0" Grid.Column="0" Text="Connected" FontWeight="SemiBold" />
-                                <TextBlock Grid.Row="0" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.RotatorVM.RotatorInfo.Connected}" />
-                                <TextBlock Grid.Row="1" Grid.Column="0" Text="Name" FontWeight="SemiBold" />
-                                <TextBlock Grid.Row="1" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.RotatorVM.RotatorInfo.Name}" />
-                                <TextBlock Grid.Row="2" Grid.Column="0" Text="Position" FontWeight="SemiBold" />
-                                <TextBlock Grid.Row="2" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.RotatorVM.RotatorInfo.Position}" />
-                                <TextBlock Grid.Row="3" Grid.Column="0" Text="Moving" FontWeight="SemiBold" />
-                                <TextBlock Grid.Row="3" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.RotatorVM.RotatorInfo.IsMoving}" />
-                            </Grid>
-                        </Border>
-
-                        <!-- Real IRotatorVM.Move/Sync (2026-08-22), via new EquipmentViewModel
-                             wrapper commands. Move is the sky-position rotate (matches Position
-                             above); Sync recalibrates the rotator's own notion of sky angle
-                             without physically moving it - two distinct, both well-understood,
-                             commonly-used operations, same scoping call as Telescope's
-                             Park/Unpark/Stop set. -->
-                        <Border BorderBrush="Gray" BorderThickness="0,1,0,0" Padding="0,8,0,0">
-                            <StackPanel Spacing="6">
-                                <StackPanel Orientation="Horizontal" Spacing="6">
-                                    <NumericUpDown Value="{ReflectionBinding EquipmentVM.TargetRotatorPosition}" FormatString="0.0" Width="110" />
-                                    <Button Content="Move To" Command="{ReflectionBinding EquipmentVM.MoveRotatorCommand}" />
-                                </StackPanel>
-                                <StackPanel Orientation="Horizontal" Spacing="6">
-                                    <NumericUpDown Value="{ReflectionBinding EquipmentVM.TargetRotatorSyncAngle}" FormatString="0.0" Width="110" />
-                                    <Button Content="Sync" Command="{ReflectionBinding EquipmentVM.SyncRotatorCommand}" />
-                                </StackPanel>
-                            </StackPanel>
-                        </Border>
-                    </StackPanel>
-
-                    <StackPanel Spacing="8" Width="480" Margin="0,0,24,24">
-                        <TextBlock Text="Dome" FontSize="16" FontWeight="SemiBold" />
-                        <Grid ColumnDefinitions="*,Auto,Auto,Auto,Auto" ColumnSpacing="6">
-                            <ComboBox Grid.Column="0"
-                                      ItemsSource="{ReflectionBinding EquipmentVM.DomeVM.DeviceChooserVM.Devices}"
-                                      SelectedItem="{ReflectionBinding EquipmentVM.DomeVM.DeviceChooserVM.SelectedDevice}"
-                                      HorizontalAlignment="Stretch">
-                                <ComboBox.ItemTemplate>
-                                    <DataTemplate>
-                                        <TextBlock Text="{ReflectionBinding Name}" />
-                                    </DataTemplate>
-                                </ComboBox.ItemTemplate>
-                            </ComboBox>
-                            <Button Grid.Column="1" Content="Rescan" Command="{ReflectionBinding EquipmentVM.DomeVM.RescanDevicesCommand}" />
-                            <Button Grid.Column="2" Content="Connect" Command="{ReflectionBinding EquipmentVM.DomeVM.ConnectCommand}" />
-                            <Button Grid.Column="3" Content="Disconnect" Command="{ReflectionBinding EquipmentVM.DomeVM.DisconnectCommand}" />
-                            <Button Grid.Column="4" Content="Setup" Command="{ReflectionBinding EquipmentVM.DomeVM.DeviceChooserVM.SetupDialogCommand}" IsVisible="{ReflectionBinding EquipmentVM.DomeVM.DeviceChooserVM.SelectedDevice.HasSetupDialog}" />
-                        </Grid>
-
-                        <Border BorderBrush="Gray" BorderThickness="0,1,0,0" Padding="0,8,0,0">
-                            <Grid ColumnDefinitions="150,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto" RowSpacing="4">
-                                <TextBlock Grid.Row="0" Grid.Column="0" Text="Connected" FontWeight="SemiBold" />
-                                <TextBlock Grid.Row="0" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.DomeVM.DomeInfo.Connected}" />
-                                <TextBlock Grid.Row="1" Grid.Column="0" Text="Name" FontWeight="SemiBold" />
-                                <TextBlock Grid.Row="1" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.DomeVM.DomeInfo.Name}" />
-                                <TextBlock Grid.Row="2" Grid.Column="0" Text="Shutter" FontWeight="SemiBold" />
-                                <TextBlock Grid.Row="2" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.DomeVM.DomeInfo.ShutterStatus}" />
-                                <TextBlock Grid.Row="3" Grid.Column="0" Text="At Park" FontWeight="SemiBold" />
-                                <TextBlock Grid.Row="3" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.DomeVM.DomeInfo.AtPark}" />
-                                <TextBlock Grid.Row="4" Grid.Column="0" Text="Slewing" FontWeight="SemiBold" />
-                                <TextBlock Grid.Row="4" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.DomeVM.DomeInfo.Slewing}" />
-                            </Grid>
-                        </Border>
-
-                        <!-- Real IDomeVM.OpenShutter/CloseShutter/Park/FindHome/Enable-
-                             DisableFollowing/SlewToAzimuth (2026-08-22), via new
-                             EquipmentViewModel wrapper commands - same "existing method, no
-                             command wired to it" gap as elsewhere. ToggleDomeFollow picks
-                             Enable/Disable based on the real, read-only IDomeVM.FollowEnabled
-                             rather than exposing both as separate always-visible buttons. Slew-
-                             to-coordinates (as opposed to a raw azimuth) is out of scope, same
-                             reasoning as Telescope's manual slew being deferred. -->
-                        <Border BorderBrush="Gray" BorderThickness="0,1,0,0" Padding="0,8,0,0">
-                            <StackPanel Spacing="6">
-                                <StackPanel Orientation="Horizontal" Spacing="6">
-                                    <Button Content="Open Shutter" Command="{ReflectionBinding EquipmentVM.OpenDomeShutterCommand}" />
-                                    <Button Content="Close Shutter" Command="{ReflectionBinding EquipmentVM.CloseDomeShutterCommand}" />
-                                    <Button Content="Park" Command="{ReflectionBinding EquipmentVM.ParkDomeCommand}" />
-                                    <Button Content="Home" Command="{ReflectionBinding EquipmentVM.HomeDomeCommand}" />
-                                </StackPanel>
-                                <StackPanel Orientation="Horizontal" Spacing="6">
-                                    <Button Content="{ReflectionBinding EquipmentVM.DomeVM.FollowEnabled, StringFormat='Follow: {0}'}" Command="{ReflectionBinding EquipmentVM.ToggleDomeFollowCommand}" />
-                                    <NumericUpDown Value="{ReflectionBinding EquipmentVM.TargetDomeAzimuth}" FormatString="0.0" Width="110" />
-                                    <Button Content="Slew" Command="{ReflectionBinding EquipmentVM.SlewDomeToAzimuthCommand}" />
-                                </StackPanel>
-                            </StackPanel>
-                        </Border>
-                    </StackPanel>
-
-                    <StackPanel Spacing="8" Width="480" Margin="0,0,24,24">
-                        <TextBlock Text="Guider" FontSize="16" FontWeight="SemiBold" />
-                        <Grid ColumnDefinitions="*,Auto,Auto,Auto,Auto" ColumnSpacing="6">
-                            <ComboBox Grid.Column="0"
-                                      ItemsSource="{ReflectionBinding EquipmentVM.GuiderVM.DeviceChooserVM.Devices}"
-                                      SelectedItem="{ReflectionBinding EquipmentVM.GuiderVM.DeviceChooserVM.SelectedDevice}"
-                                      HorizontalAlignment="Stretch">
-                                <ComboBox.ItemTemplate>
-                                    <DataTemplate>
-                                        <TextBlock Text="{ReflectionBinding Name}" />
-                                    </DataTemplate>
-                                </ComboBox.ItemTemplate>
-                            </ComboBox>
-                            <Button Grid.Column="1" Content="Rescan" Command="{ReflectionBinding EquipmentVM.GuiderVM.RescanDevicesCommand}" />
-                            <Button Grid.Column="2" Content="Connect" Command="{ReflectionBinding EquipmentVM.GuiderVM.ConnectCommand}" />
-                            <Button Grid.Column="3" Content="Disconnect" Command="{ReflectionBinding EquipmentVM.GuiderVM.DisconnectCommand}" />
-                            <Button Grid.Column="4" Content="Setup" Command="{ReflectionBinding EquipmentVM.GuiderVM.DeviceChooserVM.SetupDialogCommand}" IsVisible="{ReflectionBinding EquipmentVM.GuiderVM.DeviceChooserVM.SelectedDevice.HasSetupDialog}" />
-                        </Grid>
-
-                        <Border BorderBrush="Gray" BorderThickness="0,1,0,0" Padding="0,8,0,0">
-                            <Grid ColumnDefinitions="150,*" RowDefinitions="Auto,Auto,Auto" RowSpacing="4">
-                                <TextBlock Grid.Row="0" Grid.Column="0" Text="Connected" FontWeight="SemiBold" />
-                                <TextBlock Grid.Row="0" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.GuiderVM.GuiderInfo.Connected}" />
-                                <TextBlock Grid.Row="1" Grid.Column="0" Text="Name" FontWeight="SemiBold" />
-                                <TextBlock Grid.Row="1" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.GuiderVM.GuiderInfo.Name}" />
-                                <TextBlock Grid.Row="2" Grid.Column="0" Text="Pixel Scale" FontWeight="SemiBold" />
-                                <TextBlock Grid.Row="2" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.GuiderVM.GuiderInfo.PixelScale, StringFormat='{}{0:0.00} arcsec/px'}" />
-                            </Grid>
-                        </Border>
-
-                        <!-- Real IGuiderVM.StartGuiding/StopGuiding (2026-08-22), via new
-                             EquipmentViewModel wrapper commands. forceCalibration is hardcoded
-                             false - a real calibrate-from-scratch toggle needs its own explicit
-                             UI affordance so it isn't tripped accidentally, out of scope for this
-                             pass; Dither/AutoSelectGuideStar/shift-rate similarly deferred as
-                             less commonly needed than the core start/stop pair. -->
-                        <Border BorderBrush="Gray" BorderThickness="0,1,0,0" Padding="0,8,0,0">
-                            <StackPanel Orientation="Horizontal" Spacing="6">
-                                <Button Content="Start Guiding" Command="{ReflectionBinding EquipmentVM.StartGuidingCommand}" />
-                                <Button Content="Stop Guiding" Command="{ReflectionBinding EquipmentVM.StopGuidingCommand}" />
-                            </StackPanel>
-                        </Border>
-                    </StackPanel>
-
-                    <!-- Real writable/readonly switch-value grid (2026-08-02) - SwitchInfo.
-                         WritableSwitches/ReadonlySwitches, the real per-switch data the other
-                         device types don't have (they reduce to a few scalar status fields).
-                         "Set" calls the real, unchanged ISwitchVM.SetSwitchValue via
-                         EquipmentViewModel.SetSwitchValueCommand (new - see its own doc
-                         comment); readonly switches are display-only, matching what the
-                         hardware itself allows. -->
-                    <StackPanel Spacing="8" Width="480" Margin="0,0,24,24">
-                        <TextBlock Text="Switch" FontSize="16" FontWeight="SemiBold" />
-                        <Grid ColumnDefinitions="*,Auto,Auto,Auto,Auto" ColumnSpacing="6">
-                            <ComboBox Grid.Column="0"
-                                      ItemsSource="{ReflectionBinding EquipmentVM.SwitchVM.DeviceChooserVM.Devices}"
-                                      SelectedItem="{ReflectionBinding EquipmentVM.SwitchVM.DeviceChooserVM.SelectedDevice}"
-                                      HorizontalAlignment="Stretch">
-                                <ComboBox.ItemTemplate>
-                                    <DataTemplate>
-                                        <TextBlock Text="{ReflectionBinding Name}" />
-                                    </DataTemplate>
-                                </ComboBox.ItemTemplate>
-                            </ComboBox>
-                            <Button Grid.Column="1" Content="Rescan" Command="{ReflectionBinding EquipmentVM.SwitchVM.RescanDevicesCommand}" />
-                            <Button Grid.Column="2" Content="Connect" Command="{ReflectionBinding EquipmentVM.SwitchVM.ConnectCommand}" />
-                            <Button Grid.Column="3" Content="Disconnect" Command="{ReflectionBinding EquipmentVM.SwitchVM.DisconnectCommand}" />
-                            <Button Grid.Column="4" Content="Setup" Command="{ReflectionBinding EquipmentVM.SwitchVM.DeviceChooserVM.SetupDialogCommand}" IsVisible="{ReflectionBinding EquipmentVM.SwitchVM.DeviceChooserVM.SelectedDevice.HasSetupDialog}" />
-                        </Grid>
-
-                        <Border BorderBrush="Gray" BorderThickness="0,1,0,0" Padding="0,8,0,0">
-                            <Grid ColumnDefinitions="150,*" RowDefinitions="Auto,Auto" RowSpacing="4">
-                                <TextBlock Grid.Row="0" Grid.Column="0" Text="Connected" FontWeight="SemiBold" />
-                                <TextBlock Grid.Row="0" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.SwitchVM.SwitchInfo.Connected}" />
-                                <TextBlock Grid.Row="1" Grid.Column="0" Text="Name" FontWeight="SemiBold" />
-                                <TextBlock Grid.Row="1" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.SwitchVM.SwitchInfo.Name}" />
-                            </Grid>
-                        </Border>
-
-                        <Border BorderBrush="Gray" BorderThickness="0,1,0,0" Padding="0,8,0,0">
-                            <StackPanel Spacing="4">
-                                <TextBlock Text="Writable switches" FontWeight="SemiBold" />
-                                <ItemsControl ItemsSource="{ReflectionBinding EquipmentVM.SwitchVM.SwitchInfo.WritableSwitches}">
-                                    <ItemsControl.ItemTemplate>
+                        </TabItem.Header>
+                        <TabItem.Content>
+                        <StackPanel Spacing="8" MaxWidth="700" Margin="16,12,0,0">
+                            <TextBlock Text="Focuser" FontSize="16" FontWeight="SemiBold" />
+                            <Grid ColumnDefinitions="*,Auto,Auto,Auto,Auto" ColumnSpacing="6">
+                                <ComboBox Grid.Column="0"
+                                          ItemsSource="{ReflectionBinding EquipmentVM.FocuserVM.DeviceChooserVM.Devices}"
+                                          SelectedItem="{ReflectionBinding EquipmentVM.FocuserVM.DeviceChooserVM.SelectedDevice}"
+                                          HorizontalAlignment="Stretch">
+                                    <ComboBox.ItemTemplate>
                                         <DataTemplate>
-                                            <Grid ColumnDefinitions="140,Auto,Auto" ColumnSpacing="6" Margin="0,2">
-                                                <TextBlock Grid.Column="0" Text="{ReflectionBinding Name}" VerticalAlignment="Center" ToolTip.Tip="{ReflectionBinding Description}" />
-                                                <NumericUpDown Grid.Column="1" Value="{ReflectionBinding TargetValue}" Minimum="{ReflectionBinding Minimum}" Maximum="{ReflectionBinding Maximum}" Increment="{ReflectionBinding StepSize}" Width="110" />
-                                                <Button Grid.Column="2" Content="Set"
-                                                        Command="{ReflectionBinding #RootWindow.DataContext.EquipmentVM.SetSwitchValueCommand}"
-                                                        CommandParameter="{ReflectionBinding}" />
-                                            </Grid>
+                                            <TextBlock Text="{ReflectionBinding Name}" />
                                         </DataTemplate>
-                                    </ItemsControl.ItemTemplate>
-                                </ItemsControl>
-                            </StackPanel>
-                        </Border>
+                                    </ComboBox.ItemTemplate>
+                                </ComboBox>
+                                <Button Grid.Column="1" Content="Rescan" Command="{ReflectionBinding EquipmentVM.FocuserVM.RescanDevicesCommand}" />
+                                <Button Grid.Column="2" Content="Connect" Command="{ReflectionBinding EquipmentVM.FocuserVM.ConnectCommand}" />
+                                <Button Grid.Column="3" Content="Disconnect" Command="{ReflectionBinding EquipmentVM.FocuserVM.DisconnectCommand}" />
+                                <Button Grid.Column="4" Content="Setup" Command="{ReflectionBinding EquipmentVM.FocuserVM.DeviceChooserVM.SetupDialogCommand}" IsVisible="{ReflectionBinding EquipmentVM.FocuserVM.DeviceChooserVM.SelectedDevice.HasSetupDialog}" />
+                            </Grid>
 
-                        <Border BorderBrush="Gray" BorderThickness="0,1,0,0" Padding="0,8,0,0">
-                            <StackPanel Spacing="4">
-                                <TextBlock Text="Readonly switches" FontWeight="SemiBold" />
-                                <ItemsControl ItemsSource="{ReflectionBinding EquipmentVM.SwitchVM.SwitchInfo.ReadonlySwitches}">
-                                    <ItemsControl.ItemTemplate>
+                            <Border BorderBrush="Gray" BorderThickness="0,1,0,0" Padding="0,8,0,0">
+                                <Grid ColumnDefinitions="150,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto" RowSpacing="4">
+                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Connected" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="0" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.FocuserVM.FocuserInfo.Connected}" />
+                                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Name" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="1" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.FocuserVM.FocuserInfo.Name}" />
+                                    <TextBlock Grid.Row="2" Grid.Column="0" Text="Position" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="2" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.FocuserVM.FocuserInfo.Position}" />
+                                    <TextBlock Grid.Row="3" Grid.Column="0" Text="Temperature" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="3" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.FocuserVM.FocuserInfo.Temperature, StringFormat='{}{0:0.0} °C'}" />
+                                    <TextBlock Grid.Row="4" Grid.Column="0" Text="Moving" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="4" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.FocuserVM.FocuserInfo.IsMoving}" />
+                                </Grid>
+                            </Border>
+
+                            <!-- Real IFocuserVM.MoveFocuser/ToggleTempComp (2026-08-22), via new
+                                 EquipmentViewModel wrapper commands - same "existing method, no
+                                 command wired to it" gap as Camera/Telescope. TempComp checkbox is
+                                 display-only (device-reported, updated by the polling loop); the
+                                 button is the real user action, matching how Cooler On/Off buttons
+                                 sit next to Camera's own read-only Cooler status line above. -->
+                            <Border BorderBrush="Gray" BorderThickness="0,1,0,0" Padding="0,8,0,0">
+                                <StackPanel Spacing="6">
+                                    <StackPanel Orientation="Horizontal" Spacing="6">
+                                        <NumericUpDown Value="{ReflectionBinding EquipmentVM.TargetFocuserPosition}" FormatString="0" Width="110" />
+                                        <Button Content="Move To" Command="{ReflectionBinding EquipmentVM.MoveFocuserCommand}" />
+                                    </StackPanel>
+                                    <StackPanel Orientation="Horizontal" Spacing="6">
+                                        <CheckBox Content="Temp Comp" IsChecked="{ReflectionBinding EquipmentVM.FocuserVM.FocuserInfo.TempComp, Mode=OneWay}" IsHitTestVisible="False" />
+                                        <Button Content="Toggle Temp Comp" Command="{ReflectionBinding EquipmentVM.ToggleFocuserTempCompCommand}"
+                                                IsVisible="{ReflectionBinding EquipmentVM.FocuserVM.FocuserInfo.TempCompAvailable}" />
+                                    </StackPanel>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+
+                        </TabItem.Content>
+                    </TabItem>
+                    <TabItem>
+                        <TabItem.Header>
+                            <StackPanel Width="46" Spacing="2" Margin="0,4">
+                                <Path Data="{StaticResource RotatorSVG}" Fill="White" Stretch="Uniform" Width="20" Margin="4" HorizontalAlignment="Center" />
+                                <TextBlock Text="Rotator" HorizontalAlignment="Center" FontSize="9" TextWrapping="Wrap" TextAlignment="Center" />
+                            </StackPanel>
+                        </TabItem.Header>
+                        <TabItem.Content>
+                        <StackPanel Spacing="8" MaxWidth="700" Margin="16,12,0,0">
+                            <TextBlock Text="Rotator" FontSize="16" FontWeight="SemiBold" />
+                            <Grid ColumnDefinitions="*,Auto,Auto,Auto,Auto" ColumnSpacing="6">
+                                <ComboBox Grid.Column="0"
+                                          ItemsSource="{ReflectionBinding EquipmentVM.RotatorVM.DeviceChooserVM.Devices}"
+                                          SelectedItem="{ReflectionBinding EquipmentVM.RotatorVM.DeviceChooserVM.SelectedDevice}"
+                                          HorizontalAlignment="Stretch">
+                                    <ComboBox.ItemTemplate>
                                         <DataTemplate>
-                                            <Grid ColumnDefinitions="140,*" ColumnSpacing="6" Margin="0,2">
-                                                <TextBlock Grid.Column="0" Text="{ReflectionBinding Name}" ToolTip.Tip="{ReflectionBinding Description}" />
-                                                <TextBlock Grid.Column="1" Text="{ReflectionBinding Value}" />
-                                            </Grid>
+                                            <TextBlock Text="{ReflectionBinding Name}" />
                                         </DataTemplate>
-                                    </ItemsControl.ItemTemplate>
-                                </ItemsControl>
-                            </StackPanel>
-                        </Border>
-                    </StackPanel>
-
-                    <StackPanel Spacing="8" Width="480" Margin="0,0,24,24">
-                        <TextBlock Text="Flat Device" FontSize="16" FontWeight="SemiBold" />
-                        <Grid ColumnDefinitions="*,Auto,Auto,Auto,Auto" ColumnSpacing="6">
-                            <ComboBox Grid.Column="0"
-                                      ItemsSource="{ReflectionBinding EquipmentVM.FlatDeviceVM.DeviceChooserVM.Devices}"
-                                      SelectedItem="{ReflectionBinding EquipmentVM.FlatDeviceVM.DeviceChooserVM.SelectedDevice}"
-                                      HorizontalAlignment="Stretch">
-                                <ComboBox.ItemTemplate>
-                                    <DataTemplate>
-                                        <TextBlock Text="{ReflectionBinding Name}" />
-                                    </DataTemplate>
-                                </ComboBox.ItemTemplate>
-                            </ComboBox>
-                            <Button Grid.Column="1" Content="Rescan" Command="{ReflectionBinding EquipmentVM.FlatDeviceVM.RescanDevicesCommand}" />
-                            <Button Grid.Column="2" Content="Connect" Command="{ReflectionBinding EquipmentVM.FlatDeviceVM.ConnectCommand}" />
-                            <Button Grid.Column="3" Content="Disconnect" Command="{ReflectionBinding EquipmentVM.FlatDeviceVM.DisconnectCommand}" />
-                            <Button Grid.Column="4" Content="Setup" Command="{ReflectionBinding EquipmentVM.FlatDeviceVM.DeviceChooserVM.SetupDialogCommand}" IsVisible="{ReflectionBinding EquipmentVM.FlatDeviceVM.DeviceChooserVM.SelectedDevice.HasSetupDialog}" />
-                        </Grid>
-
-                        <Border BorderBrush="Gray" BorderThickness="0,1,0,0" Padding="0,8,0,0">
-                            <Grid ColumnDefinitions="150,*" RowDefinitions="Auto,Auto,Auto,Auto" RowSpacing="4">
-                                <TextBlock Grid.Row="0" Grid.Column="0" Text="Connected" FontWeight="SemiBold" />
-                                <TextBlock Grid.Row="0" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.FlatDeviceVM.FlatDeviceInfo.Connected}" />
-                                <TextBlock Grid.Row="1" Grid.Column="0" Text="Name" FontWeight="SemiBold" />
-                                <TextBlock Grid.Row="1" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.FlatDeviceVM.FlatDeviceInfo.Name}" />
-                                <TextBlock Grid.Row="2" Grid.Column="0" Text="Cover" FontWeight="SemiBold" />
-                                <TextBlock Grid.Row="2" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.FlatDeviceVM.FlatDeviceInfo.CoverState}" />
-                                <TextBlock Grid.Row="3" Grid.Column="0" Text="Light" FontWeight="SemiBold" />
-                                <TextBlock Grid.Row="3" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.FlatDeviceVM.FlatDeviceInfo.LightOn, StringFormat='On: {0}'}" />
+                                    </ComboBox.ItemTemplate>
+                                </ComboBox>
+                                <Button Grid.Column="1" Content="Rescan" Command="{ReflectionBinding EquipmentVM.RotatorVM.RescanDevicesCommand}" />
+                                <Button Grid.Column="2" Content="Connect" Command="{ReflectionBinding EquipmentVM.RotatorVM.ConnectCommand}" />
+                                <Button Grid.Column="3" Content="Disconnect" Command="{ReflectionBinding EquipmentVM.RotatorVM.DisconnectCommand}" />
+                                <Button Grid.Column="4" Content="Setup" Command="{ReflectionBinding EquipmentVM.RotatorVM.DeviceChooserVM.SetupDialogCommand}" IsVisible="{ReflectionBinding EquipmentVM.RotatorVM.DeviceChooserVM.SelectedDevice.HasSetupDialog}" />
                             </Grid>
-                        </Border>
 
-                        <!-- Real IFlatDeviceVM.OpenCover/CloseCover/ToggleLight/SetBrightness
-                             (2026-08-22), via new EquipmentViewModel wrapper commands. Cover
-                             buttons gated on SupportsOpenClose, brightness row on SupportsOnOff -
-                             both real IFlatDeviceInfo capability flags, same IsVisible-gating
-                             idea as Setup's HasSetupDialog check above (not every flat panel has
-                             a motorized cover or dimmable light). -->
-                        <Border BorderBrush="Gray" BorderThickness="0,1,0,0" Padding="0,8,0,0">
-                            <StackPanel Spacing="6">
-                                <StackPanel Orientation="Horizontal" Spacing="6" IsVisible="{ReflectionBinding EquipmentVM.FlatDeviceVM.FlatDeviceInfo.SupportsOpenClose}">
-                                    <Button Content="Open Cover" Command="{ReflectionBinding EquipmentVM.OpenFlatCoverCommand}" />
-                                    <Button Content="Close Cover" Command="{ReflectionBinding EquipmentVM.CloseFlatCoverCommand}" />
+                            <Border BorderBrush="Gray" BorderThickness="0,1,0,0" Padding="0,8,0,0">
+                                <Grid ColumnDefinitions="150,*" RowDefinitions="Auto,Auto,Auto,Auto" RowSpacing="4">
+                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Connected" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="0" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.RotatorVM.RotatorInfo.Connected}" />
+                                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Name" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="1" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.RotatorVM.RotatorInfo.Name}" />
+                                    <TextBlock Grid.Row="2" Grid.Column="0" Text="Position" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="2" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.RotatorVM.RotatorInfo.Position}" />
+                                    <TextBlock Grid.Row="3" Grid.Column="0" Text="Moving" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="3" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.RotatorVM.RotatorInfo.IsMoving}" />
+                                </Grid>
+                            </Border>
+
+                            <!-- Real IRotatorVM.Move/Sync (2026-08-22), via new EquipmentViewModel
+                                 wrapper commands. Move is the sky-position rotate (matches Position
+                                 above); Sync recalibrates the rotator's own notion of sky angle
+                                 without physically moving it - two distinct, both well-understood,
+                                 commonly-used operations, same scoping call as Telescope's
+                                 Park/Unpark/Stop set. -->
+                            <Border BorderBrush="Gray" BorderThickness="0,1,0,0" Padding="0,8,0,0">
+                                <StackPanel Spacing="6">
+                                    <StackPanel Orientation="Horizontal" Spacing="6">
+                                        <NumericUpDown Value="{ReflectionBinding EquipmentVM.TargetRotatorPosition}" FormatString="0.0" Width="110" />
+                                        <Button Content="Move To" Command="{ReflectionBinding EquipmentVM.MoveRotatorCommand}" />
+                                    </StackPanel>
+                                    <StackPanel Orientation="Horizontal" Spacing="6">
+                                        <NumericUpDown Value="{ReflectionBinding EquipmentVM.TargetRotatorSyncAngle}" FormatString="0.0" Width="110" />
+                                        <Button Content="Sync" Command="{ReflectionBinding EquipmentVM.SyncRotatorCommand}" />
+                                    </StackPanel>
                                 </StackPanel>
-                                <StackPanel Orientation="Horizontal" Spacing="6" IsVisible="{ReflectionBinding EquipmentVM.FlatDeviceVM.FlatDeviceInfo.SupportsOnOff}">
-                                    <Button Content="Toggle Light" Command="{ReflectionBinding EquipmentVM.ToggleFlatLightCommand}" />
-                                    <NumericUpDown Value="{ReflectionBinding EquipmentVM.TargetFlatBrightness}"
-                                                   Minimum="{ReflectionBinding EquipmentVM.FlatDeviceVM.FlatDeviceInfo.MinBrightness}"
-                                                   Maximum="{ReflectionBinding EquipmentVM.FlatDeviceVM.FlatDeviceInfo.MaxBrightness}"
-                                                   FormatString="0" Width="90" />
-                                    <Button Content="Set Brightness" Command="{ReflectionBinding EquipmentVM.SetFlatBrightnessCommand}" />
-                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+
+                        </TabItem.Content>
+                    </TabItem>
+                    <TabItem>
+                        <TabItem.Header>
+                            <StackPanel Width="46" Spacing="2" Margin="0,4">
+                                <Path Data="{StaticResource ObservatorySVG}" Fill="White" Stretch="Uniform" Width="20" Margin="4" HorizontalAlignment="Center" />
+                                <TextBlock Text="Dome" HorizontalAlignment="Center" FontSize="9" TextWrapping="Wrap" TextAlignment="Center" />
                             </StackPanel>
-                        </Border>
-                    </StackPanel>
-
-                    <StackPanel Spacing="8" Width="480" Margin="0,0,24,24">
-                        <TextBlock Text="Weather Data" FontSize="16" FontWeight="SemiBold" />
-                        <Grid ColumnDefinitions="*,Auto,Auto,Auto,Auto" ColumnSpacing="6">
-                            <ComboBox Grid.Column="0"
-                                      ItemsSource="{ReflectionBinding EquipmentVM.WeatherDataVM.DeviceChooserVM.Devices}"
-                                      SelectedItem="{ReflectionBinding EquipmentVM.WeatherDataVM.DeviceChooserVM.SelectedDevice}"
-                                      HorizontalAlignment="Stretch">
-                                <ComboBox.ItemTemplate>
-                                    <DataTemplate>
-                                        <TextBlock Text="{ReflectionBinding Name}" />
-                                    </DataTemplate>
-                                </ComboBox.ItemTemplate>
-                            </ComboBox>
-                            <Button Grid.Column="1" Content="Rescan" Command="{ReflectionBinding EquipmentVM.WeatherDataVM.RescanDevicesCommand}" />
-                            <Button Grid.Column="2" Content="Connect" Command="{ReflectionBinding EquipmentVM.WeatherDataVM.ConnectCommand}" />
-                            <Button Grid.Column="3" Content="Disconnect" Command="{ReflectionBinding EquipmentVM.WeatherDataVM.DisconnectCommand}" />
-                            <Button Grid.Column="4" Content="Setup" Command="{ReflectionBinding EquipmentVM.WeatherDataVM.DeviceChooserVM.SetupDialogCommand}" IsVisible="{ReflectionBinding EquipmentVM.WeatherDataVM.DeviceChooserVM.SelectedDevice.HasSetupDialog}" />
-                        </Grid>
-
-                        <Border BorderBrush="Gray" BorderThickness="0,1,0,0" Padding="0,8,0,0">
-                            <Grid ColumnDefinitions="150,*" RowDefinitions="Auto,Auto,Auto,Auto" RowSpacing="4">
-                                <TextBlock Grid.Row="0" Grid.Column="0" Text="Connected" FontWeight="SemiBold" />
-                                <TextBlock Grid.Row="0" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.WeatherDataVM.WeatherDataInfo.Connected}" />
-                                <TextBlock Grid.Row="1" Grid.Column="0" Text="Name" FontWeight="SemiBold" />
-                                <TextBlock Grid.Row="1" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.WeatherDataVM.WeatherDataInfo.Name}" />
-                                <TextBlock Grid.Row="2" Grid.Column="0" Text="Cloud Cover" FontWeight="SemiBold" />
-                                <TextBlock Grid.Row="2" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.WeatherDataVM.WeatherDataInfo.CloudCover, StringFormat='{}{0:0.0}%'}" />
-                                <TextBlock Grid.Row="3" Grid.Column="0" Text="Humidity" FontWeight="SemiBold" />
-                                <TextBlock Grid.Row="3" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.WeatherDataVM.WeatherDataInfo.Humidity, StringFormat='{}{0:0.0}%'}" />
+                        </TabItem.Header>
+                        <TabItem.Content>
+                        <StackPanel Spacing="8" MaxWidth="700" Margin="16,12,0,0">
+                            <TextBlock Text="Dome" FontSize="16" FontWeight="SemiBold" />
+                            <Grid ColumnDefinitions="*,Auto,Auto,Auto,Auto" ColumnSpacing="6">
+                                <ComboBox Grid.Column="0"
+                                          ItemsSource="{ReflectionBinding EquipmentVM.DomeVM.DeviceChooserVM.Devices}"
+                                          SelectedItem="{ReflectionBinding EquipmentVM.DomeVM.DeviceChooserVM.SelectedDevice}"
+                                          HorizontalAlignment="Stretch">
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{ReflectionBinding Name}" />
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
+                                </ComboBox>
+                                <Button Grid.Column="1" Content="Rescan" Command="{ReflectionBinding EquipmentVM.DomeVM.RescanDevicesCommand}" />
+                                <Button Grid.Column="2" Content="Connect" Command="{ReflectionBinding EquipmentVM.DomeVM.ConnectCommand}" />
+                                <Button Grid.Column="3" Content="Disconnect" Command="{ReflectionBinding EquipmentVM.DomeVM.DisconnectCommand}" />
+                                <Button Grid.Column="4" Content="Setup" Command="{ReflectionBinding EquipmentVM.DomeVM.DeviceChooserVM.SetupDialogCommand}" IsVisible="{ReflectionBinding EquipmentVM.DomeVM.DeviceChooserVM.SelectedDevice.HasSetupDialog}" />
                             </Grid>
-                        </Border>
-                    </StackPanel>
 
-                    <!-- Last of the 11 device types - Phase 1 complete once this builds. -->
-                    <StackPanel Spacing="8" Width="480" Margin="0,0,24,24">
-                        <TextBlock Text="Safety Monitor" FontSize="16" FontWeight="SemiBold" />
-                        <Grid ColumnDefinitions="*,Auto,Auto,Auto,Auto" ColumnSpacing="6">
-                            <ComboBox Grid.Column="0"
-                                      ItemsSource="{ReflectionBinding EquipmentVM.SafetyMonitorVM.DeviceChooserVM.Devices}"
-                                      SelectedItem="{ReflectionBinding EquipmentVM.SafetyMonitorVM.DeviceChooserVM.SelectedDevice}"
-                                      HorizontalAlignment="Stretch">
-                                <ComboBox.ItemTemplate>
-                                    <DataTemplate>
-                                        <TextBlock Text="{ReflectionBinding Name}" />
-                                    </DataTemplate>
-                                </ComboBox.ItemTemplate>
-                            </ComboBox>
-                            <Button Grid.Column="1" Content="Rescan" Command="{ReflectionBinding EquipmentVM.SafetyMonitorVM.RescanDevicesCommand}" />
-                            <Button Grid.Column="2" Content="Connect" Command="{ReflectionBinding EquipmentVM.SafetyMonitorVM.ConnectCommand}" />
-                            <Button Grid.Column="3" Content="Disconnect" Command="{ReflectionBinding EquipmentVM.SafetyMonitorVM.DisconnectCommand}" />
-                            <Button Grid.Column="4" Content="Setup" Command="{ReflectionBinding EquipmentVM.SafetyMonitorVM.DeviceChooserVM.SetupDialogCommand}" IsVisible="{ReflectionBinding EquipmentVM.SafetyMonitorVM.DeviceChooserVM.SelectedDevice.HasSetupDialog}" />
-                        </Grid>
+                            <Border BorderBrush="Gray" BorderThickness="0,1,0,0" Padding="0,8,0,0">
+                                <Grid ColumnDefinitions="150,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto" RowSpacing="4">
+                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Connected" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="0" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.DomeVM.DomeInfo.Connected}" />
+                                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Name" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="1" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.DomeVM.DomeInfo.Name}" />
+                                    <TextBlock Grid.Row="2" Grid.Column="0" Text="Shutter" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="2" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.DomeVM.DomeInfo.ShutterStatus}" />
+                                    <TextBlock Grid.Row="3" Grid.Column="0" Text="At Park" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="3" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.DomeVM.DomeInfo.AtPark}" />
+                                    <TextBlock Grid.Row="4" Grid.Column="0" Text="Slewing" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="4" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.DomeVM.DomeInfo.Slewing}" />
+                                </Grid>
+                            </Border>
 
-                        <Border BorderBrush="Gray" BorderThickness="0,1,0,0" Padding="0,8,0,0">
-                            <Grid ColumnDefinitions="150,*" RowDefinitions="Auto,Auto,Auto" RowSpacing="4">
-                                <TextBlock Grid.Row="0" Grid.Column="0" Text="Connected" FontWeight="SemiBold" />
-                                <TextBlock Grid.Row="0" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.SafetyMonitorVM.SafetyMonitorInfo.Connected}" />
-                                <TextBlock Grid.Row="1" Grid.Column="0" Text="Name" FontWeight="SemiBold" />
-                                <TextBlock Grid.Row="1" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.SafetyMonitorVM.SafetyMonitorInfo.Name}" />
-                                <TextBlock Grid.Row="2" Grid.Column="0" Text="Is Safe" FontWeight="SemiBold" />
-                                <TextBlock Grid.Row="2" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.SafetyMonitorVM.SafetyMonitorInfo.IsSafe}" />
+                            <!-- Real IDomeVM.OpenShutter/CloseShutter/Park/FindHome/Enable-
+                                 DisableFollowing/SlewToAzimuth (2026-08-22), via new
+                                 EquipmentViewModel wrapper commands - same "existing method, no
+                                 command wired to it" gap as elsewhere. ToggleDomeFollow picks
+                                 Enable/Disable based on the real, read-only IDomeVM.FollowEnabled
+                                 rather than exposing both as separate always-visible buttons. Slew-
+                                 to-coordinates (as opposed to a raw azimuth) is out of scope, same
+                                 reasoning as Telescope's manual slew being deferred. -->
+                            <Border BorderBrush="Gray" BorderThickness="0,1,0,0" Padding="0,8,0,0">
+                                <StackPanel Spacing="6">
+                                    <StackPanel Orientation="Horizontal" Spacing="6">
+                                        <Button Content="Open Shutter" Command="{ReflectionBinding EquipmentVM.OpenDomeShutterCommand}" />
+                                        <Button Content="Close Shutter" Command="{ReflectionBinding EquipmentVM.CloseDomeShutterCommand}" />
+                                        <Button Content="Park" Command="{ReflectionBinding EquipmentVM.ParkDomeCommand}" />
+                                        <Button Content="Home" Command="{ReflectionBinding EquipmentVM.HomeDomeCommand}" />
+                                    </StackPanel>
+                                    <StackPanel Orientation="Horizontal" Spacing="6">
+                                        <Button Content="{ReflectionBinding EquipmentVM.DomeVM.FollowEnabled, StringFormat='Follow: {0}'}" Command="{ReflectionBinding EquipmentVM.ToggleDomeFollowCommand}" />
+                                        <NumericUpDown Value="{ReflectionBinding EquipmentVM.TargetDomeAzimuth}" FormatString="0.0" Width="110" />
+                                        <Button Content="Slew" Command="{ReflectionBinding EquipmentVM.SlewDomeToAzimuthCommand}" />
+                                    </StackPanel>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+
+                        </TabItem.Content>
+                    </TabItem>
+                    <TabItem>
+                        <TabItem.Header>
+                            <StackPanel Width="46" Spacing="2" Margin="0,4">
+                                <Path Data="{StaticResource GuiderSVG}" Fill="White" Stretch="Uniform" Width="20" Margin="4" HorizontalAlignment="Center" />
+                                <TextBlock Text="Guider" HorizontalAlignment="Center" FontSize="9" TextWrapping="Wrap" TextAlignment="Center" />
+                            </StackPanel>
+                        </TabItem.Header>
+                        <TabItem.Content>
+                        <StackPanel Spacing="8" MaxWidth="700" Margin="16,12,0,0">
+                            <TextBlock Text="Guider" FontSize="16" FontWeight="SemiBold" />
+                            <Grid ColumnDefinitions="*,Auto,Auto,Auto,Auto" ColumnSpacing="6">
+                                <ComboBox Grid.Column="0"
+                                          ItemsSource="{ReflectionBinding EquipmentVM.GuiderVM.DeviceChooserVM.Devices}"
+                                          SelectedItem="{ReflectionBinding EquipmentVM.GuiderVM.DeviceChooserVM.SelectedDevice}"
+                                          HorizontalAlignment="Stretch">
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{ReflectionBinding Name}" />
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
+                                </ComboBox>
+                                <Button Grid.Column="1" Content="Rescan" Command="{ReflectionBinding EquipmentVM.GuiderVM.RescanDevicesCommand}" />
+                                <Button Grid.Column="2" Content="Connect" Command="{ReflectionBinding EquipmentVM.GuiderVM.ConnectCommand}" />
+                                <Button Grid.Column="3" Content="Disconnect" Command="{ReflectionBinding EquipmentVM.GuiderVM.DisconnectCommand}" />
+                                <Button Grid.Column="4" Content="Setup" Command="{ReflectionBinding EquipmentVM.GuiderVM.DeviceChooserVM.SetupDialogCommand}" IsVisible="{ReflectionBinding EquipmentVM.GuiderVM.DeviceChooserVM.SelectedDevice.HasSetupDialog}" />
                             </Grid>
-                        </Border>
-                    </StackPanel>
-                </WrapPanel>
+
+                            <Border BorderBrush="Gray" BorderThickness="0,1,0,0" Padding="0,8,0,0">
+                                <Grid ColumnDefinitions="150,*" RowDefinitions="Auto,Auto,Auto" RowSpacing="4">
+                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Connected" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="0" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.GuiderVM.GuiderInfo.Connected}" />
+                                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Name" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="1" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.GuiderVM.GuiderInfo.Name}" />
+                                    <TextBlock Grid.Row="2" Grid.Column="0" Text="Pixel Scale" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="2" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.GuiderVM.GuiderInfo.PixelScale, StringFormat='{}{0:0.00} arcsec/px'}" />
+                                </Grid>
+                            </Border>
+
+                            <!-- Real IGuiderVM.StartGuiding/StopGuiding (2026-08-22), via new
+                                 EquipmentViewModel wrapper commands. forceCalibration is hardcoded
+                                 false - a real calibrate-from-scratch toggle needs its own explicit
+                                 UI affordance so it isn't tripped accidentally, out of scope for this
+                                 pass; Dither/AutoSelectGuideStar/shift-rate similarly deferred as
+                                 less commonly needed than the core start/stop pair. -->
+                            <Border BorderBrush="Gray" BorderThickness="0,1,0,0" Padding="0,8,0,0">
+                                <StackPanel Orientation="Horizontal" Spacing="6">
+                                    <Button Content="Start Guiding" Command="{ReflectionBinding EquipmentVM.StartGuidingCommand}" />
+                                    <Button Content="Stop Guiding" Command="{ReflectionBinding EquipmentVM.StopGuidingCommand}" />
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+
+                        <!-- Real writable/readonly switch-value grid (2026-08-02) - SwitchInfo.
+                             WritableSwitches/ReadonlySwitches, the real per-switch data the other
+                             device types don't have (they reduce to a few scalar status fields).
+                             "Set" calls the real, unchanged ISwitchVM.SetSwitchValue via
+                             EquipmentViewModel.SetSwitchValueCommand (new - see its own doc
+                             comment); readonly switches are display-only, matching what the
+                             hardware itself allows. -->
+                        </TabItem.Content>
+                    </TabItem>
+                    <TabItem>
+                        <TabItem.Header>
+                            <StackPanel Width="46" Spacing="2" Margin="0,4">
+                                <Path Data="{StaticResource SwitchesSVG}" Fill="White" Stretch="Uniform" Width="20" Margin="4" HorizontalAlignment="Center" />
+                                <TextBlock Text="Switch" HorizontalAlignment="Center" FontSize="9" TextWrapping="Wrap" TextAlignment="Center" />
+                            </StackPanel>
+                        </TabItem.Header>
+                        <TabItem.Content>
+                        <StackPanel Spacing="8" MaxWidth="700" Margin="16,12,0,0">
+                            <TextBlock Text="Switch" FontSize="16" FontWeight="SemiBold" />
+                            <Grid ColumnDefinitions="*,Auto,Auto,Auto,Auto" ColumnSpacing="6">
+                                <ComboBox Grid.Column="0"
+                                          ItemsSource="{ReflectionBinding EquipmentVM.SwitchVM.DeviceChooserVM.Devices}"
+                                          SelectedItem="{ReflectionBinding EquipmentVM.SwitchVM.DeviceChooserVM.SelectedDevice}"
+                                          HorizontalAlignment="Stretch">
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{ReflectionBinding Name}" />
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
+                                </ComboBox>
+                                <Button Grid.Column="1" Content="Rescan" Command="{ReflectionBinding EquipmentVM.SwitchVM.RescanDevicesCommand}" />
+                                <Button Grid.Column="2" Content="Connect" Command="{ReflectionBinding EquipmentVM.SwitchVM.ConnectCommand}" />
+                                <Button Grid.Column="3" Content="Disconnect" Command="{ReflectionBinding EquipmentVM.SwitchVM.DisconnectCommand}" />
+                                <Button Grid.Column="4" Content="Setup" Command="{ReflectionBinding EquipmentVM.SwitchVM.DeviceChooserVM.SetupDialogCommand}" IsVisible="{ReflectionBinding EquipmentVM.SwitchVM.DeviceChooserVM.SelectedDevice.HasSetupDialog}" />
+                            </Grid>
+
+                            <Border BorderBrush="Gray" BorderThickness="0,1,0,0" Padding="0,8,0,0">
+                                <Grid ColumnDefinitions="150,*" RowDefinitions="Auto,Auto" RowSpacing="4">
+                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Connected" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="0" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.SwitchVM.SwitchInfo.Connected}" />
+                                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Name" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="1" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.SwitchVM.SwitchInfo.Name}" />
+                                </Grid>
+                            </Border>
+
+                            <Border BorderBrush="Gray" BorderThickness="0,1,0,0" Padding="0,8,0,0">
+                                <StackPanel Spacing="4">
+                                    <TextBlock Text="Writable switches" FontWeight="SemiBold" />
+                                    <ItemsControl ItemsSource="{ReflectionBinding EquipmentVM.SwitchVM.SwitchInfo.WritableSwitches}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Grid ColumnDefinitions="140,Auto,Auto" ColumnSpacing="6" Margin="0,2">
+                                                    <TextBlock Grid.Column="0" Text="{ReflectionBinding Name}" VerticalAlignment="Center" ToolTip.Tip="{ReflectionBinding Description}" />
+                                                    <NumericUpDown Grid.Column="1" Value="{ReflectionBinding TargetValue}" Minimum="{ReflectionBinding Minimum}" Maximum="{ReflectionBinding Maximum}" Increment="{ReflectionBinding StepSize}" Width="110" />
+                                                    <Button Grid.Column="2" Content="Set"
+                                                            Command="{ReflectionBinding #RootWindow.DataContext.EquipmentVM.SetSwitchValueCommand}"
+                                                            CommandParameter="{ReflectionBinding}" />
+                                                </Grid>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </StackPanel>
+                            </Border>
+
+                            <Border BorderBrush="Gray" BorderThickness="0,1,0,0" Padding="0,8,0,0">
+                                <StackPanel Spacing="4">
+                                    <TextBlock Text="Readonly switches" FontWeight="SemiBold" />
+                                    <ItemsControl ItemsSource="{ReflectionBinding EquipmentVM.SwitchVM.SwitchInfo.ReadonlySwitches}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Grid ColumnDefinitions="140,*" ColumnSpacing="6" Margin="0,2">
+                                                    <TextBlock Grid.Column="0" Text="{ReflectionBinding Name}" ToolTip.Tip="{ReflectionBinding Description}" />
+                                                    <TextBlock Grid.Column="1" Text="{ReflectionBinding Value}" />
+                                                </Grid>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+
+                        </TabItem.Content>
+                    </TabItem>
+                    <TabItem>
+                        <TabItem.Header>
+                            <StackPanel Width="46" Spacing="2" Margin="0,4">
+                                <Path Data="{StaticResource LightBulbSVG}" Fill="White" Stretch="Uniform" Width="20" Margin="4" HorizontalAlignment="Center" />
+                                <TextBlock Text="Flat Device" HorizontalAlignment="Center" FontSize="9" TextWrapping="Wrap" TextAlignment="Center" />
+                            </StackPanel>
+                        </TabItem.Header>
+                        <TabItem.Content>
+                        <StackPanel Spacing="8" MaxWidth="700" Margin="16,12,0,0">
+                            <TextBlock Text="Flat Device" FontSize="16" FontWeight="SemiBold" />
+                            <Grid ColumnDefinitions="*,Auto,Auto,Auto,Auto" ColumnSpacing="6">
+                                <ComboBox Grid.Column="0"
+                                          ItemsSource="{ReflectionBinding EquipmentVM.FlatDeviceVM.DeviceChooserVM.Devices}"
+                                          SelectedItem="{ReflectionBinding EquipmentVM.FlatDeviceVM.DeviceChooserVM.SelectedDevice}"
+                                          HorizontalAlignment="Stretch">
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{ReflectionBinding Name}" />
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
+                                </ComboBox>
+                                <Button Grid.Column="1" Content="Rescan" Command="{ReflectionBinding EquipmentVM.FlatDeviceVM.RescanDevicesCommand}" />
+                                <Button Grid.Column="2" Content="Connect" Command="{ReflectionBinding EquipmentVM.FlatDeviceVM.ConnectCommand}" />
+                                <Button Grid.Column="3" Content="Disconnect" Command="{ReflectionBinding EquipmentVM.FlatDeviceVM.DisconnectCommand}" />
+                                <Button Grid.Column="4" Content="Setup" Command="{ReflectionBinding EquipmentVM.FlatDeviceVM.DeviceChooserVM.SetupDialogCommand}" IsVisible="{ReflectionBinding EquipmentVM.FlatDeviceVM.DeviceChooserVM.SelectedDevice.HasSetupDialog}" />
+                            </Grid>
+
+                            <Border BorderBrush="Gray" BorderThickness="0,1,0,0" Padding="0,8,0,0">
+                                <Grid ColumnDefinitions="150,*" RowDefinitions="Auto,Auto,Auto,Auto" RowSpacing="4">
+                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Connected" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="0" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.FlatDeviceVM.FlatDeviceInfo.Connected}" />
+                                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Name" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="1" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.FlatDeviceVM.FlatDeviceInfo.Name}" />
+                                    <TextBlock Grid.Row="2" Grid.Column="0" Text="Cover" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="2" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.FlatDeviceVM.FlatDeviceInfo.CoverState}" />
+                                    <TextBlock Grid.Row="3" Grid.Column="0" Text="Light" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="3" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.FlatDeviceVM.FlatDeviceInfo.LightOn, StringFormat='On: {0}'}" />
+                                </Grid>
+                            </Border>
+
+                            <!-- Real IFlatDeviceVM.OpenCover/CloseCover/ToggleLight/SetBrightness
+                                 (2026-08-22), via new EquipmentViewModel wrapper commands. Cover
+                                 buttons gated on SupportsOpenClose, brightness row on SupportsOnOff -
+                                 both real IFlatDeviceInfo capability flags, same IsVisible-gating
+                                 idea as Setup's HasSetupDialog check above (not every flat panel has
+                                 a motorized cover or dimmable light). -->
+                            <Border BorderBrush="Gray" BorderThickness="0,1,0,0" Padding="0,8,0,0">
+                                <StackPanel Spacing="6">
+                                    <StackPanel Orientation="Horizontal" Spacing="6" IsVisible="{ReflectionBinding EquipmentVM.FlatDeviceVM.FlatDeviceInfo.SupportsOpenClose}">
+                                        <Button Content="Open Cover" Command="{ReflectionBinding EquipmentVM.OpenFlatCoverCommand}" />
+                                        <Button Content="Close Cover" Command="{ReflectionBinding EquipmentVM.CloseFlatCoverCommand}" />
+                                    </StackPanel>
+                                    <StackPanel Orientation="Horizontal" Spacing="6" IsVisible="{ReflectionBinding EquipmentVM.FlatDeviceVM.FlatDeviceInfo.SupportsOnOff}">
+                                        <Button Content="Toggle Light" Command="{ReflectionBinding EquipmentVM.ToggleFlatLightCommand}" />
+                                        <NumericUpDown Value="{ReflectionBinding EquipmentVM.TargetFlatBrightness}"
+                                                       Minimum="{ReflectionBinding EquipmentVM.FlatDeviceVM.FlatDeviceInfo.MinBrightness}"
+                                                       Maximum="{ReflectionBinding EquipmentVM.FlatDeviceVM.FlatDeviceInfo.MaxBrightness}"
+                                                       FormatString="0" Width="90" />
+                                        <Button Content="Set Brightness" Command="{ReflectionBinding EquipmentVM.SetFlatBrightnessCommand}" />
+                                    </StackPanel>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+
+                        </TabItem.Content>
+                    </TabItem>
+                    <TabItem>
+                        <TabItem.Header>
+                            <StackPanel Width="46" Spacing="2" Margin="0,4">
+                                <Path Data="{StaticResource CloudSVG}" Fill="White" Stretch="Uniform" Width="20" Margin="4" HorizontalAlignment="Center" />
+                                <TextBlock Text="Weather Data" HorizontalAlignment="Center" FontSize="9" TextWrapping="Wrap" TextAlignment="Center" />
+                            </StackPanel>
+                        </TabItem.Header>
+                        <TabItem.Content>
+                        <StackPanel Spacing="8" MaxWidth="700" Margin="16,12,0,0">
+                            <TextBlock Text="Weather Data" FontSize="16" FontWeight="SemiBold" />
+                            <Grid ColumnDefinitions="*,Auto,Auto,Auto,Auto" ColumnSpacing="6">
+                                <ComboBox Grid.Column="0"
+                                          ItemsSource="{ReflectionBinding EquipmentVM.WeatherDataVM.DeviceChooserVM.Devices}"
+                                          SelectedItem="{ReflectionBinding EquipmentVM.WeatherDataVM.DeviceChooserVM.SelectedDevice}"
+                                          HorizontalAlignment="Stretch">
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{ReflectionBinding Name}" />
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
+                                </ComboBox>
+                                <Button Grid.Column="1" Content="Rescan" Command="{ReflectionBinding EquipmentVM.WeatherDataVM.RescanDevicesCommand}" />
+                                <Button Grid.Column="2" Content="Connect" Command="{ReflectionBinding EquipmentVM.WeatherDataVM.ConnectCommand}" />
+                                <Button Grid.Column="3" Content="Disconnect" Command="{ReflectionBinding EquipmentVM.WeatherDataVM.DisconnectCommand}" />
+                                <Button Grid.Column="4" Content="Setup" Command="{ReflectionBinding EquipmentVM.WeatherDataVM.DeviceChooserVM.SetupDialogCommand}" IsVisible="{ReflectionBinding EquipmentVM.WeatherDataVM.DeviceChooserVM.SelectedDevice.HasSetupDialog}" />
+                            </Grid>
+
+                            <Border BorderBrush="Gray" BorderThickness="0,1,0,0" Padding="0,8,0,0">
+                                <Grid ColumnDefinitions="150,*" RowDefinitions="Auto,Auto,Auto,Auto" RowSpacing="4">
+                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Connected" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="0" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.WeatherDataVM.WeatherDataInfo.Connected}" />
+                                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Name" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="1" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.WeatherDataVM.WeatherDataInfo.Name}" />
+                                    <TextBlock Grid.Row="2" Grid.Column="0" Text="Cloud Cover" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="2" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.WeatherDataVM.WeatherDataInfo.CloudCover, StringFormat='{}{0:0.0}%'}" />
+                                    <TextBlock Grid.Row="3" Grid.Column="0" Text="Humidity" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="3" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.WeatherDataVM.WeatherDataInfo.Humidity, StringFormat='{}{0:0.0}%'}" />
+                                </Grid>
+                            </Border>
+                        </StackPanel>
+
+                        <!-- Last of the 11 device types - Phase 1 complete once this builds. -->
+                        </TabItem.Content>
+                    </TabItem>
+                    <TabItem>
+                        <TabItem.Header>
+                            <StackPanel Width="46" Spacing="2" Margin="0,4">
+                                <Path Data="{StaticResource ShieldSVG}" Fill="White" Stretch="Uniform" Width="20" Margin="4" HorizontalAlignment="Center" />
+                                <TextBlock Text="Safety Monitor" HorizontalAlignment="Center" FontSize="9" TextWrapping="Wrap" TextAlignment="Center" />
+                            </StackPanel>
+                        </TabItem.Header>
+                        <TabItem.Content>
+                        <StackPanel Spacing="8" MaxWidth="700" Margin="16,12,0,0">
+                            <TextBlock Text="Safety Monitor" FontSize="16" FontWeight="SemiBold" />
+                            <Grid ColumnDefinitions="*,Auto,Auto,Auto,Auto" ColumnSpacing="6">
+                                <ComboBox Grid.Column="0"
+                                          ItemsSource="{ReflectionBinding EquipmentVM.SafetyMonitorVM.DeviceChooserVM.Devices}"
+                                          SelectedItem="{ReflectionBinding EquipmentVM.SafetyMonitorVM.DeviceChooserVM.SelectedDevice}"
+                                          HorizontalAlignment="Stretch">
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{ReflectionBinding Name}" />
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
+                                </ComboBox>
+                                <Button Grid.Column="1" Content="Rescan" Command="{ReflectionBinding EquipmentVM.SafetyMonitorVM.RescanDevicesCommand}" />
+                                <Button Grid.Column="2" Content="Connect" Command="{ReflectionBinding EquipmentVM.SafetyMonitorVM.ConnectCommand}" />
+                                <Button Grid.Column="3" Content="Disconnect" Command="{ReflectionBinding EquipmentVM.SafetyMonitorVM.DisconnectCommand}" />
+                                <Button Grid.Column="4" Content="Setup" Command="{ReflectionBinding EquipmentVM.SafetyMonitorVM.DeviceChooserVM.SetupDialogCommand}" IsVisible="{ReflectionBinding EquipmentVM.SafetyMonitorVM.DeviceChooserVM.SelectedDevice.HasSetupDialog}" />
+                            </Grid>
+
+                            <Border BorderBrush="Gray" BorderThickness="0,1,0,0" Padding="0,8,0,0">
+                                <Grid ColumnDefinitions="150,*" RowDefinitions="Auto,Auto,Auto" RowSpacing="4">
+                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Connected" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="0" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.SafetyMonitorVM.SafetyMonitorInfo.Connected}" />
+                                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Name" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="1" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.SafetyMonitorVM.SafetyMonitorInfo.Name}" />
+                                    <TextBlock Grid.Row="2" Grid.Column="0" Text="Is Safe" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="2" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.SafetyMonitorVM.SafetyMonitorInfo.IsSafe}" />
+                                </Grid>
+                            </Border>
+                        </StackPanel>
+                        </TabItem.Content>
+                    </TabItem>
+                </TabControl>
             </TabItem>
             <TabItem>
                 <TabItem.Header>
