@@ -18,6 +18,17 @@
          instantiated for the XAML previewer. Runtime DataContext is set in App.axaml.cs. -->
 
     <Window.Styles>
+        <!-- Tighten the left nav rail (2026-08-22) - FluentTheme's default TabItem padding is
+             sized for horizontal text tabs, not a narrow icon rail; left as default it left a
+             large blank gap between the window edge and each icon (user feedback against the
+             reference screenshot). Unconditional (not scoped to "nina-themed" - this is a
+             layout fix, not a color one). -->
+        <Style Selector="TabControl TabItem">
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="MinHeight" Value="0" />
+            <Setter Property="HorizontalContentAlignment" Value="Center" />
+        </Style>
+
         <!-- Real NINA theme support (2026-08-22) - only matches while the root Window carries
              the "nina-themed" class (MainWindow.axaml.cs toggles it from OptionsViewModel's
              UsePlainDefault/SelectedTheme); with the class absent (today's default), none of
