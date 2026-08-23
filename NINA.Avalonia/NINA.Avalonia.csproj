@@ -38,7 +38,17 @@
     </PackageReference>
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.2" />
-    <PackageReference Include="OxyPlot.Avalonia" Version="2.1.0" />
+    <!-- 2.1.0-Avalonia11, not plain 2.1.0 (2026-08-22): the base 2.1.0 release's own NuGet
+         metadata depends on Avalonia 0.10.11 - a pre-11.x version whose types/assemblies (this
+         package's compiled DLL references the old "Avalonia.Visuals" assembly, merged into
+         Avalonia.Base since 11.0) no longer exist at all in this project's Avalonia 12.1.0.
+         Compiles clean either way (nothing here fails a build-time type check), but at runtime
+         loading OxyPlot.Avalonia.dll throws FileNotFoundException for Avalonia.Visuals - this
+         project's first-ever real GUI launch is what caught it, since no earlier compile check
+         or console harness ever actually constructed MainWindow (the only thing that touches
+         this package, via the Imaging tab's histogram PlotView). This exact prerelease build
+         targets Avalonia [11.0.0, ) instead - real fix, not a downgrade workaround. -->
+    <PackageReference Include="OxyPlot.Avalonia" Version="2.1.0-Avalonia11" />
   </ItemGroup>
 
   <ItemGroup>
