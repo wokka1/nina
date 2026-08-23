@@ -32,6 +32,8 @@
         </Style>
         <Style Selector="TabControl">
             <Setter Property="Padding" Value="0" />
+            <Setter Property="HorizontalContentAlignment" Value="Left" />
+            <Setter Property="VerticalContentAlignment" Value="Top" />
         </Style>
 
         <!-- Real NINA theme support (2026-08-22) - only matches while the root Window carries
@@ -141,7 +143,7 @@
                      whether that device's chooser binding otherwise could be plain {Binding};
                      IsVisible checks IDevice.HasSetupDialog (a real interface member) so the
                      button only shows for devices that actually have one. -->
-                <TabControl TabStripPlacement="Left" Padding="0">
+                <TabControl TabStripPlacement="Left" Padding="0" HorizontalContentAlignment="Left">
                     <TabItem>
                         <TabItem.Header>
                             <StackPanel Width="46" Spacing="2" Margin="0,4">
@@ -150,7 +152,7 @@
                             </StackPanel>
                         </TabItem.Header>
                         <TabItem.Content>
-                        <StackPanel Spacing="8" MaxWidth="700" Margin="16,12,0,0">
+                        <StackPanel Spacing="8" MaxWidth="700" Margin="12,12,0,0" HorizontalAlignment="Left">
                             <TextBlock Text="Camera" FontSize="16" FontWeight="SemiBold" />
                             <Grid ColumnDefinitions="*,Auto,Auto,Auto,Auto" ColumnSpacing="6">
                                 <ComboBox Grid.Column="0"
@@ -250,7 +252,7 @@
                             </StackPanel>
                         </TabItem.Header>
                         <TabItem.Content>
-                        <StackPanel Spacing="8" MaxWidth="700" Margin="16,12,0,0">
+                        <StackPanel Spacing="8" MaxWidth="700" Margin="12,12,0,0" HorizontalAlignment="Left">
                             <TextBlock Text="Telescope" FontSize="16" FontWeight="SemiBold" />
                             <Grid ColumnDefinitions="*,Auto,Auto,Auto,Auto" ColumnSpacing="6">
                                 <ComboBox Grid.Column="0"
@@ -370,7 +372,7 @@
                             </StackPanel>
                         </TabItem.Header>
                         <TabItem.Content>
-                        <StackPanel Spacing="8" MaxWidth="700" Margin="16,12,0,0">
+                        <StackPanel Spacing="8" MaxWidth="700" Margin="12,12,0,0" HorizontalAlignment="Left">
                             <TextBlock Text="Filter Wheel" FontSize="16" FontWeight="SemiBold" />
                             <Grid ColumnDefinitions="*,Auto,Auto,Auto,Auto" ColumnSpacing="6">
                                 <ComboBox Grid.Column="0"
@@ -456,7 +458,7 @@
                             </StackPanel>
                         </TabItem.Header>
                         <TabItem.Content>
-                        <StackPanel Spacing="8" MaxWidth="700" Margin="16,12,0,0">
+                        <StackPanel Spacing="8" MaxWidth="700" Margin="12,12,0,0" HorizontalAlignment="Left">
                             <TextBlock Text="Focuser" FontSize="16" FontWeight="SemiBold" />
                             <Grid ColumnDefinitions="*,Auto,Auto,Auto,Auto" ColumnSpacing="6">
                                 <ComboBox Grid.Column="0"
@@ -545,7 +547,7 @@
                             </StackPanel>
                         </TabItem.Header>
                         <TabItem.Content>
-                        <StackPanel Spacing="8" MaxWidth="700" Margin="16,12,0,0">
+                        <StackPanel Spacing="8" MaxWidth="700" Margin="12,12,0,0" HorizontalAlignment="Left">
                             <TextBlock Text="Rotator" FontSize="16" FontWeight="SemiBold" />
                             <Grid ColumnDefinitions="*,Auto,Auto,Auto,Auto" ColumnSpacing="6">
                                 <ComboBox Grid.Column="0"
@@ -635,7 +637,7 @@
                             </StackPanel>
                         </TabItem.Header>
                         <TabItem.Content>
-                        <StackPanel Spacing="8" MaxWidth="700" Margin="16,12,0,0">
+                        <StackPanel Spacing="8" MaxWidth="700" Margin="12,12,0,0" HorizontalAlignment="Left">
                             <TextBlock Text="Dome" FontSize="16" FontWeight="SemiBold" />
                             <Grid ColumnDefinitions="*,Auto,Auto,Auto,Auto" ColumnSpacing="6">
                                 <ComboBox Grid.Column="0"
@@ -734,7 +736,7 @@
                             </StackPanel>
                         </TabItem.Header>
                         <TabItem.Content>
-                        <StackPanel Spacing="8" MaxWidth="700" Margin="16,12,0,0">
+                        <StackPanel Spacing="8" MaxWidth="700" Margin="12,12,0,0" HorizontalAlignment="Left">
                             <TextBlock Text="Guider" FontSize="16" FontWeight="SemiBold" />
                             <Grid ColumnDefinitions="*,Auto,Auto,Auto,Auto" ColumnSpacing="6">
                                 <ComboBox Grid.Column="0"
@@ -819,7 +821,7 @@
                             </StackPanel>
                         </TabItem.Header>
                         <TabItem.Content>
-                        <StackPanel Spacing="8" MaxWidth="700" Margin="16,12,0,0">
+                        <StackPanel Spacing="8" MaxWidth="700" Margin="12,12,0,0" HorizontalAlignment="Left">
                             <TextBlock Text="Switch" FontSize="16" FontWeight="SemiBold" />
                             <Grid ColumnDefinitions="*,Auto,Auto,Auto,Auto" ColumnSpacing="6">
                                 <ComboBox Grid.Column="0"
@@ -917,7 +919,7 @@
                             </StackPanel>
                         </TabItem.Header>
                         <TabItem.Content>
-                        <StackPanel Spacing="8" MaxWidth="700" Margin="16,12,0,0">
+                        <StackPanel Spacing="8" MaxWidth="700" Margin="12,12,0,0" HorizontalAlignment="Left">
                             <TextBlock Text="Flat Device" FontSize="16" FontWeight="SemiBold" />
                             <Grid ColumnDefinitions="*,Auto,Auto,Auto,Auto" ColumnSpacing="6">
                                 <ComboBox Grid.Column="0"
@@ -1007,7 +1009,7 @@
                             </StackPanel>
                         </TabItem.Header>
                         <TabItem.Content>
-                        <StackPanel Spacing="8" MaxWidth="700" Margin="16,12,0,0">
+                        <StackPanel Spacing="8" MaxWidth="700" Margin="12,12,0,0" HorizontalAlignment="Left">
                             <TextBlock Text="Weather Data" FontSize="16" FontWeight="SemiBold" />
                             <Grid ColumnDefinitions="*,Auto,Auto,Auto,Auto" ColumnSpacing="6">
                                 <ComboBox Grid.Column="0"
@@ -1100,7 +1102,7 @@
                             </StackPanel>
                         </TabItem.Header>
                         <TabItem.Content>
-                        <StackPanel Spacing="8" MaxWidth="700" Margin="16,12,0,0">
+                        <StackPanel Spacing="8" MaxWidth="700" Margin="12,12,0,0" HorizontalAlignment="Left">
                             <TextBlock Text="Safety Monitor" FontSize="16" FontWeight="SemiBold" />
                             <Grid ColumnDefinitions="*,Auto,Auto,Auto,Auto" ColumnSpacing="6">
                                 <ComboBox Grid.Column="0"
