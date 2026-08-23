@@ -8,6 +8,7 @@ using Avalonia.Interactivity;
 using Avalonia.Media;
 using Avalonia.Platform.Storage;
 using Avalonia.VisualTree;
+using NINA.Avalonia.Utility;
 using NINA.Avalonia.ViewModels;
 using NINA.Core.Enum;
 using NINA.Sequencer;
@@ -44,6 +45,37 @@ public partial class MainWindow : Window
         var tree = this.FindControl<TreeView>("SequencerTree");
         if (tree != null) {
             SetupSequencerDragDrop(tree);
+        }
+
+        DataContextChanged += OnDataContextChanged;
+    }
+
+    /// <summary>
+    /// Real NINA theme support (2026-08-22) - NinaThemeService only sets Avalonia resources, it
+    /// has no reference to the View, so the actual "does the theme visually apply" switch (the
+    /// "nina-themed" class on this root Window, matched by MainWindow.axaml's themed Styles
+    /// block) lives here, same as other view-layer glue this project keeps in code-behind
+    /// (OnLoadFromFileClick's file picker is the precedent). Defaults off (today's plain look)
+    /// until OptionsViewModel.UsePlainDefault/SelectedTheme say otherwise.
+    /// </summary>
+    private void OnDataContextChanged(object? sender, EventArgs e) {
+        if (DataContext is not MainViewModel mainViewModel) {
+            return;
+        }
+        ApplyThemeState(mainViewModel.OptionsVM);
+        mainViewModel.OptionsVM.PropertyChanged += (_, args) => {
+            if (args.PropertyName is nameof(OptionsViewModel.UsePlainDefault) or nameof(OptionsViewModel.SelectedTheme)) {
+                ApplyThemeState(mainViewModel.OptionsVM);
+            }
+        };
+    }
+
+    private void ApplyThemeState(OptionsViewModel optionsViewModel) {
+        if (!optionsViewModel.UsePlainDefault && optionsViewModel.SelectedTheme != null) {
+            NinaThemeService.ApplyTheme(optionsViewModel.SelectedTheme);
+            Classes.Add("nina-themed");
+        } else {
+            Classes.Remove("nina-themed");
         }
     }
 
