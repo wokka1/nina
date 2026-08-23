@@ -84,7 +84,7 @@
     </Window.Styles>
 
     <Panel>
-    <DockPanel Margin="16">
+    <DockPanel Margin="0,16,16,8">
         <!-- Real WPF NINA has no persistent top status banner - StatusMessage/
              NinaCoreIntegrationTest were Phase 0's own first-ever milestone scaffolding
              ("NINA Avalonia shell is running.", the Loc integration-test string), left in place
@@ -135,7 +135,7 @@
                      whether that device's chooser binding otherwise could be plain {Binding};
                      IsVisible checks IDevice.HasSetupDialog (a real interface member) so the
                      button only shows for devices that actually have one. -->
-                <WrapPanel Margin="0,12,0,0" Orientation="Horizontal">
+                <WrapPanel Margin="16,12,0,0" Orientation="Horizontal">
                     <StackPanel Spacing="8" Width="480" Margin="0,0,24,24">
                         <TextBlock Text="Camera" FontSize="16" FontWeight="SemiBold" />
                         <Grid ColumnDefinitions="*,Auto,Auto,Auto,Auto" ColumnSpacing="6">
@@ -813,7 +813,7 @@
                         <TextBlock Text="Flat Wizard" HorizontalAlignment="Center" FontSize="9" TextWrapping="Wrap" TextAlignment="Center" />
                     </StackPanel>
                 </TabItem.Header>
-                <TextBlock Margin="0,12,0,0" Opacity="0.6" Text="Flat Wizard - not yet scoped" />
+                <TextBlock Margin="16,12,0,0" Opacity="0.6" Text="Flat Wizard - not yet scoped" />
             </TabItem>
             <TabItem>
                 <TabItem.Header>
@@ -840,7 +840,7 @@
                      matching template in TreeView.DataTemplates, and containers are-a
                      ISequenceItem too, so order here is what makes containers get their
                      children shown instead of falling through to the leaf-item template. -->
-                <DockPanel Margin="0,12,0,0">
+                <DockPanel Margin="16,12,0,0">
                     <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="6" Margin="0,0,0,8">
                         <ComboBox ItemsSource="{Binding SequencerVM.Catalog.Entries}"
                                   SelectedItem="{Binding SequencerVM.SelectedCatalogEntry}"
@@ -906,7 +906,7 @@
                      real hardware) - Connected is bound compiled since ICameraVM declares it
                      directly (IDeviceVM&lt;T&gt; base member), unlike the ReflectionBinding
                      paths used for the concrete-only members on the Equipment tab's cards. -->
-                <StackPanel Margin="0,12,0,0" Spacing="8" MaxWidth="700">
+                <StackPanel Margin="16,12,0,0" Spacing="8" MaxWidth="700">
                     <!-- Exposure/binning/gain sourced from the connected camera's own
                          CameraInfo.BinningModes/Gains (ImagingViewModel.RefreshCameraSettings,
                          run on the Connected event) - not hardcoded, reflects whatever the real
@@ -1024,7 +1024,7 @@
                 <!-- Real IPluginLoader (NINA.Plugin, now portable - see project memory) behind
                      this tab. Load is user-triggered, not automatic at startup - real filesystem
                      scan + MEF composition, not something to run unprompted every dev launch. -->
-                <StackPanel Margin="0,12,0,0" Spacing="8">
+                <StackPanel Margin="16,12,0,0" Spacing="8">
                     <StackPanel Orientation="Horizontal" Spacing="8">
                         <Button Content="Load Plugins" Command="{Binding PluginsVM.LoadPluginsCommand}" />
                         <TextBlock Text="{Binding PluginsVM.StatusMessage}" VerticalAlignment="Center" Opacity="0.7" />
