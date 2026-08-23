@@ -190,15 +190,29 @@
                             </Border>
 
                             <Border BorderBrush="Gray" BorderThickness="0,1,0,0" Padding="0,8,0,0">
-                                <Grid ColumnDefinitions="150,*" RowDefinitions="Auto,Auto,Auto,Auto" RowSpacing="4">
+                                <Grid ColumnDefinitions="150,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto" RowSpacing="4">
                                     <TextBlock Grid.Row="0" Grid.Column="0" Text="Connected" FontWeight="SemiBold" />
                                     <TextBlock Grid.Row="0" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.CameraVM.CameraInfo.Connected}" />
                                     <TextBlock Grid.Row="1" Grid.Column="0" Text="Name" FontWeight="SemiBold" />
                                     <TextBlock Grid.Row="1" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.CameraVM.CameraInfo.Name}" />
-                                    <TextBlock Grid.Row="2" Grid.Column="0" Text="Temperature" FontWeight="SemiBold" />
-                                    <TextBlock Grid.Row="2" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.CameraVM.CameraInfo.Temperature, StringFormat='{}{0:0.0} °C'}" />
-                                    <TextBlock Grid.Row="3" Grid.Column="0" Text="Cooler" FontWeight="SemiBold" />
-                                    <TextBlock Grid.Row="3" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.CameraVM.CameraInfo.CoolerOn, StringFormat='On: {0}'}" />
+                                    <TextBlock Grid.Row="2" Grid.Column="0" Text="Camera State" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="2" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.CameraVM.CameraInfo.CameraState}" />
+                                    <TextBlock Grid.Row="3" Grid.Column="0" Text="Sensor Type" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="3" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.CameraVM.CameraInfo.SensorType}" />
+                                    <TextBlock Grid.Row="4" Grid.Column="0" Text="Sensor Size" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="4" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.CameraVM.CameraInfo.XSize, StringFormat='{}{0} x '}" />
+                                    <TextBlock Grid.Row="5" Grid.Column="0" Text="Exposure Range" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="5" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.CameraVM.CameraInfo.ExposureMin, StringFormat='{}{0:0.######} s min'}" />
+                                    <TextBlock Grid.Row="6" Grid.Column="0" Text="Gain" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="6" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.CameraVM.CameraInfo.Gain}" />
+                                    <TextBlock Grid.Row="7" Grid.Column="0" Text="Offset" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="7" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.CameraVM.CameraInfo.Offset}" />
+                                    <TextBlock Grid.Row="8" Grid.Column="0" Text="Battery" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="8" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.CameraVM.CameraInfo.Battery, StringFormat='{}{0}%'}" IsVisible="{ReflectionBinding EquipmentVM.CameraVM.CameraInfo.HasBattery}" />
+                                    <TextBlock Grid.Row="9" Grid.Column="0" Text="Temperature" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="9" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.CameraVM.CameraInfo.Temperature, StringFormat='{}{0:0.0} °C'}" />
+                                    <TextBlock Grid.Row="10" Grid.Column="0" Text="Cooler" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="10" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.CameraVM.CameraInfo.CoolerOn, StringFormat='On: {0}'}" />
                                 </Grid>
                             </Border>
 
@@ -276,18 +290,48 @@
                                 </Grid>
                             </Border>
 
+                            <!-- Expanded 2026-08-22 auto-mode pass - all real TelescopeInfo properties
+                                 the real WPF TelescopeView.xaml also shows (SiteLatitude/Longitude/
+                                 Elevation, SiderealTimeString, HoursToMeridianString, DeclinationString,
+                                 AltitudeString, AzimuthString, SideOfPier, EquatorialSystem), zero new
+                                 backend code - all already existed on the portable TelescopeInfo model. -->
                             <Border BorderBrush="Gray" BorderThickness="0,1,0,0" Padding="0,8,0,0">
-                                <Grid ColumnDefinitions="150,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto" RowSpacing="4">
+                                <Grid ColumnDefinitions="150,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto" RowSpacing="4">
                                     <TextBlock Grid.Row="0" Grid.Column="0" Text="Connected" FontWeight="SemiBold" />
                                     <TextBlock Grid.Row="0" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.TelescopeVM.TelescopeInfo.Connected}" />
                                     <TextBlock Grid.Row="1" Grid.Column="0" Text="Name" FontWeight="SemiBold" />
                                     <TextBlock Grid.Row="1" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.TelescopeVM.TelescopeInfo.Name}" />
-                                    <TextBlock Grid.Row="2" Grid.Column="0" Text="RA / Dec" FontWeight="SemiBold" />
-                                    <TextBlock Grid.Row="2" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.TelescopeVM.TelescopeInfo.RightAscension, StringFormat='{}{0:0.0000}h'}" />
-                                    <TextBlock Grid.Row="3" Grid.Column="0" Text="Tracking" FontWeight="SemiBold" />
-                                    <TextBlock Grid.Row="3" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.TelescopeVM.TelescopeInfo.TrackingEnabled}" />
-                                    <TextBlock Grid.Row="4" Grid.Column="0" Text="At Park" FontWeight="SemiBold" />
-                                    <TextBlock Grid.Row="4" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.TelescopeVM.TelescopeInfo.AtPark}" />
+                                    <TextBlock Grid.Row="2" Grid.Column="0" Text="Site Latitude" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="2" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.TelescopeVM.TelescopeInfo.SiteLatitude, StringFormat='{}{0:0.0000}°'}" />
+                                    <TextBlock Grid.Row="3" Grid.Column="0" Text="Site Longitude" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="3" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.TelescopeVM.TelescopeInfo.SiteLongitude, StringFormat='{}{0:0.0000}°'}" />
+                                    <TextBlock Grid.Row="4" Grid.Column="0" Text="Site Elevation" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="4" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.TelescopeVM.TelescopeInfo.SiteElevation, StringFormat='{}{0:0.0} m'}" />
+                                    <TextBlock Grid.Row="5" Grid.Column="0" Text="Epoch" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="5" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.TelescopeVM.TelescopeInfo.EquatorialSystem}" />
+                                    <TextBlock Grid.Row="6" Grid.Column="0" Text="Sidereal Time" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="6" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.TelescopeVM.TelescopeInfo.SiderealTimeString}" />
+                                    <TextBlock Grid.Row="7" Grid.Column="0" Text="Meridian In" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="7" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.TelescopeVM.TelescopeInfo.HoursToMeridianString}" />
+                                    <TextBlock Grid.Row="8" Grid.Column="0" Text="Right Ascension" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="8" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.TelescopeVM.TelescopeInfo.RightAscensionString}" />
+                                    <TextBlock Grid.Row="9" Grid.Column="0" Text="Declination" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="9" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.TelescopeVM.TelescopeInfo.DeclinationString}" />
+                                    <TextBlock Grid.Row="10" Grid.Column="0" Text="Altitude" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="10" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.TelescopeVM.TelescopeInfo.AltitudeString}" />
+                                    <TextBlock Grid.Row="11" Grid.Column="0" Text="Azimuth" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="11" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.TelescopeVM.TelescopeInfo.AzimuthString}" />
+                                    <TextBlock Grid.Row="12" Grid.Column="0" Text="Side of Pier" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="12" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.TelescopeVM.TelescopeInfo.SideOfPier}" />
+                                    <TextBlock Grid.Row="13" Grid.Column="0" Text="Tracking" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="13" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.TelescopeVM.TelescopeInfo.TrackingEnabled}" />
+                                </Grid>
+                            </Border>
+
+                            <Border BorderBrush="Gray" BorderThickness="0,1,0,0" Padding="0,8,0,0">
+                                <Grid ColumnDefinitions="150,*" RowDefinitions="Auto">
+                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="At Park" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="0" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.TelescopeVM.TelescopeInfo.AtPark}" />
                                 </Grid>
                             </Border>
 
@@ -629,17 +673,23 @@
                             </Border>
 
                             <Border BorderBrush="Gray" BorderThickness="0,1,0,0" Padding="0,8,0,0">
-                                <Grid ColumnDefinitions="150,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto" RowSpacing="4">
+                                <Grid ColumnDefinitions="150,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto" RowSpacing="4">
                                     <TextBlock Grid.Row="0" Grid.Column="0" Text="Connected" FontWeight="SemiBold" />
                                     <TextBlock Grid.Row="0" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.DomeVM.DomeInfo.Connected}" />
                                     <TextBlock Grid.Row="1" Grid.Column="0" Text="Name" FontWeight="SemiBold" />
                                     <TextBlock Grid.Row="1" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.DomeVM.DomeInfo.Name}" />
-                                    <TextBlock Grid.Row="2" Grid.Column="0" Text="Shutter" FontWeight="SemiBold" />
-                                    <TextBlock Grid.Row="2" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.DomeVM.DomeInfo.ShutterStatus}" />
-                                    <TextBlock Grid.Row="3" Grid.Column="0" Text="At Park" FontWeight="SemiBold" />
-                                    <TextBlock Grid.Row="3" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.DomeVM.DomeInfo.AtPark}" />
-                                    <TextBlock Grid.Row="4" Grid.Column="0" Text="Slewing" FontWeight="SemiBold" />
-                                    <TextBlock Grid.Row="4" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.DomeVM.DomeInfo.Slewing}" />
+                                    <TextBlock Grid.Row="2" Grid.Column="0" Text="Azimuth" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="2" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.DomeVM.DomeInfo.AzimuthDMS}" />
+                                    <TextBlock Grid.Row="3" Grid.Column="0" Text="Shutter" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="3" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.DomeVM.DomeInfo.ShutterStatus}" />
+                                    <TextBlock Grid.Row="4" Grid.Column="0" Text="Following" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="4" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.DomeVM.DomeInfo.FollowingType}" />
+                                    <TextBlock Grid.Row="5" Grid.Column="0" Text="At Park" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="5" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.DomeVM.DomeInfo.AtPark}" />
+                                    <TextBlock Grid.Row="6" Grid.Column="0" Text="At Home" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="6" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.DomeVM.DomeInfo.AtHome}" />
+                                    <TextBlock Grid.Row="7" Grid.Column="0" Text="Slewing" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="7" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.DomeVM.DomeInfo.Slewing}" />
                                 </Grid>
                             </Border>
 
@@ -1002,16 +1052,41 @@
                                 </Grid>
                             </Border>
 
+                            <!-- Expanded 2026-08-22 auto-mode pass - WeatherDataInfo already had every
+                                 field the real WPF WeatherDataView.xaml shows (Temperature/DewPoint/
+                                 Pressure/RainRate/WindDirection/WindGust/WindSpeed/StarFWHM/SkyQuality/
+                                 SkyBrightness/SkyTemperature), just not displayed yet - zero new backend
+                                 code, pure XAML expansion. -->
                             <Border BorderBrush="Gray" BorderThickness="0,1,0,0" Padding="0,8,0,0">
-                                <Grid ColumnDefinitions="150,*" RowDefinitions="Auto,Auto,Auto,Auto" RowSpacing="4">
+                                <Grid ColumnDefinitions="150,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto" RowSpacing="4">
                                     <TextBlock Grid.Row="0" Grid.Column="0" Text="Connected" FontWeight="SemiBold" />
                                     <TextBlock Grid.Row="0" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.WeatherDataVM.WeatherDataInfo.Connected}" />
                                     <TextBlock Grid.Row="1" Grid.Column="0" Text="Name" FontWeight="SemiBold" />
                                     <TextBlock Grid.Row="1" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.WeatherDataVM.WeatherDataInfo.Name}" />
-                                    <TextBlock Grid.Row="2" Grid.Column="0" Text="Cloud Cover" FontWeight="SemiBold" />
-                                    <TextBlock Grid.Row="2" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.WeatherDataVM.WeatherDataInfo.CloudCover, StringFormat='{}{0:0.0}%'}" />
+                                    <TextBlock Grid.Row="2" Grid.Column="0" Text="Temperature" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="2" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.WeatherDataVM.WeatherDataInfo.Temperature, StringFormat='{}{0:0.0} °C'}" />
                                     <TextBlock Grid.Row="3" Grid.Column="0" Text="Humidity" FontWeight="SemiBold" />
                                     <TextBlock Grid.Row="3" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.WeatherDataVM.WeatherDataInfo.Humidity, StringFormat='{}{0:0.0}%'}" />
+                                    <TextBlock Grid.Row="4" Grid.Column="0" Text="Dewpoint" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="4" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.WeatherDataVM.WeatherDataInfo.DewPoint, StringFormat='{}{0:0.0} °C'}" />
+                                    <TextBlock Grid.Row="5" Grid.Column="0" Text="Pressure" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="5" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.WeatherDataVM.WeatherDataInfo.Pressure, StringFormat='{}{0:0.0} hPa'}" />
+                                    <TextBlock Grid.Row="6" Grid.Column="0" Text="Cloud Cover" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="6" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.WeatherDataVM.WeatherDataInfo.CloudCover, StringFormat='{}{0:0.0}%'}" />
+                                    <TextBlock Grid.Row="7" Grid.Column="0" Text="Rain Rate" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="7" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.WeatherDataVM.WeatherDataInfo.RainRate, StringFormat='{}{0:0.0} mm/h'}" />
+                                    <TextBlock Grid.Row="8" Grid.Column="0" Text="Wind Direction" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="8" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.WeatherDataVM.WeatherDataInfo.WindDirection, StringFormat='{}{0:0}°'}" />
+                                    <TextBlock Grid.Row="9" Grid.Column="0" Text="Wind Gust" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="9" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.WeatherDataVM.WeatherDataInfo.WindGust, StringFormat='{}{0:0.0} m/s'}" />
+                                    <TextBlock Grid.Row="10" Grid.Column="0" Text="Wind Speed" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="10" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.WeatherDataVM.WeatherDataInfo.WindSpeed, StringFormat='{}{0:0.0} m/s'}" />
+                                    <TextBlock Grid.Row="11" Grid.Column="0" Text="Star FWHM" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="11" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.WeatherDataVM.WeatherDataInfo.StarFWHM}" />
+                                    <TextBlock Grid.Row="12" Grid.Column="0" Text="Sky Quality" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="12" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.WeatherDataVM.WeatherDataInfo.SkyQuality}" />
+                                    <TextBlock Grid.Row="13" Grid.Column="0" Text="Sky Temperature" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="13" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.WeatherDataVM.WeatherDataInfo.SkyTemperature, StringFormat='{}{0:0.0} °C'}" />
                                 </Grid>
                             </Border>
                         </StackPanel>
