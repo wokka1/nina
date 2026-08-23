@@ -157,11 +157,37 @@
                                         </DataTemplate>
                                     </ComboBox.ItemTemplate>
                                 </ComboBox>
-                                <Button Grid.Column="1" Content="Rescan" Command="{ReflectionBinding EquipmentVM.CameraVM.RescanDevicesCommand}" />
-                                <Button Grid.Column="2" Content="Connect" Command="{ReflectionBinding EquipmentVM.CameraVM.ConnectCommand}" />
-                                <Button Grid.Column="3" Content="Disconnect" Command="{ReflectionBinding EquipmentVM.CameraVM.DisconnectCommand}" />
-                                <Button Grid.Column="4" Content="Setup" Command="{ReflectionBinding EquipmentVM.CameraVM.DeviceChooserVM.SetupDialogCommand}" IsVisible="{ReflectionBinding EquipmentVM.CameraVM.DeviceChooserVM.SelectedDevice.HasSetupDialog}" />
+                                <Button Grid.Column="1" Width="32" Height="32" Padding="0" ToolTip.Tip="Setup" Command="{ReflectionBinding EquipmentVM.CameraVM.DeviceChooserVM.SetupDialogCommand}" IsVisible="{ReflectionBinding EquipmentVM.CameraVM.DeviceChooserVM.SelectedDevice.HasSetupDialog}">
+                                    <Path Data="{StaticResource SettingsSVG}" Fill="White" Stretch="Uniform" Width="15" Height="15" />
+                                </Button>
+                                <Button Grid.Column="2" Width="32" Height="32" Padding="0" ToolTip.Tip="Rescan" Command="{ReflectionBinding EquipmentVM.CameraVM.RescanDevicesCommand}">
+                                    <Path Data="{StaticResource LoopSVG}" Fill="White" Stretch="Uniform" Width="15" Height="15" />
+                                </Button>
+                                <Button Grid.Column="3" Width="32" Height="32" Padding="0" ToolTip.Tip="Connect" Command="{ReflectionBinding EquipmentVM.CameraVM.ConnectCommand}">
+                                    <Path Data="{StaticResource PowerSVG}" Fill="White" Stretch="Uniform" Width="15" Height="15" />
+                                </Button>
+                                <Button Grid.Column="4" Width="32" Height="32" Padding="0" ToolTip.Tip="Disconnect" Command="{ReflectionBinding EquipmentVM.CameraVM.DisconnectCommand}">
+                                    <Path Data="{StaticResource PowerSVG}" Fill="#FFCC4444" Stretch="Uniform" Width="15" Height="15" />
+                                </Button>
                             </Grid>
+
+                            <!-- Universal IDevice fields (2026-08-22 auto-mode pass) - real WPF NINA shows
+                                 Name/Description/Driver info/Driver version for every device type
+                                 (NINA/View/Equipment/*View.xaml all open with this same 4-row block). All four
+                                 are real IDevice interface members (NINA.Equipment.Interfaces.IDevice), already
+                                 reachable off DeviceChooserVM.SelectedDevice with zero new backend code. -->
+                            <Border BorderBrush="Gray" BorderThickness="0,1,0,0" Padding="0,8,0,0">
+                                <Grid ColumnDefinitions="150,*" RowDefinitions="Auto,Auto,Auto,Auto" RowSpacing="4">
+                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Name" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="0" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.CameraVM.DeviceChooserVM.SelectedDevice.Name}" />
+                                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Description" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="1" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.CameraVM.DeviceChooserVM.SelectedDevice.Description}" TextWrapping="Wrap" />
+                                    <TextBlock Grid.Row="2" Grid.Column="0" Text="Driver info" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="2" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.CameraVM.DeviceChooserVM.SelectedDevice.DriverInfo}" TextWrapping="Wrap" />
+                                    <TextBlock Grid.Row="3" Grid.Column="0" Text="Driver version" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="3" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.CameraVM.DeviceChooserVM.SelectedDevice.DriverVersion}" />
+                                </Grid>
+                            </Border>
 
                             <Border BorderBrush="Gray" BorderThickness="0,1,0,0" Padding="0,8,0,0">
                                 <Grid ColumnDefinitions="150,*" RowDefinitions="Auto,Auto,Auto,Auto" RowSpacing="4">
@@ -218,11 +244,37 @@
                                         </DataTemplate>
                                     </ComboBox.ItemTemplate>
                                 </ComboBox>
-                                <Button Grid.Column="1" Content="Rescan" Command="{ReflectionBinding EquipmentVM.TelescopeVM.RescanDevicesCommand}" />
-                                <Button Grid.Column="2" Content="Connect" Command="{ReflectionBinding EquipmentVM.TelescopeVM.ConnectCommand}" />
-                                <Button Grid.Column="3" Content="Disconnect" Command="{ReflectionBinding EquipmentVM.TelescopeVM.DisconnectCommand}" />
-                                <Button Grid.Column="4" Content="Setup" Command="{ReflectionBinding EquipmentVM.TelescopeVM.DeviceChooserVM.SetupDialogCommand}" IsVisible="{ReflectionBinding EquipmentVM.TelescopeVM.DeviceChooserVM.SelectedDevice.HasSetupDialog}" />
+                                <Button Grid.Column="1" Width="32" Height="32" Padding="0" ToolTip.Tip="Setup" Command="{ReflectionBinding EquipmentVM.TelescopeVM.DeviceChooserVM.SetupDialogCommand}" IsVisible="{ReflectionBinding EquipmentVM.TelescopeVM.DeviceChooserVM.SelectedDevice.HasSetupDialog}">
+                                    <Path Data="{StaticResource SettingsSVG}" Fill="White" Stretch="Uniform" Width="15" Height="15" />
+                                </Button>
+                                <Button Grid.Column="2" Width="32" Height="32" Padding="0" ToolTip.Tip="Rescan" Command="{ReflectionBinding EquipmentVM.TelescopeVM.RescanDevicesCommand}">
+                                    <Path Data="{StaticResource LoopSVG}" Fill="White" Stretch="Uniform" Width="15" Height="15" />
+                                </Button>
+                                <Button Grid.Column="3" Width="32" Height="32" Padding="0" ToolTip.Tip="Connect" Command="{ReflectionBinding EquipmentVM.TelescopeVM.ConnectCommand}">
+                                    <Path Data="{StaticResource PowerSVG}" Fill="White" Stretch="Uniform" Width="15" Height="15" />
+                                </Button>
+                                <Button Grid.Column="4" Width="32" Height="32" Padding="0" ToolTip.Tip="Disconnect" Command="{ReflectionBinding EquipmentVM.TelescopeVM.DisconnectCommand}">
+                                    <Path Data="{StaticResource PowerSVG}" Fill="#FFCC4444" Stretch="Uniform" Width="15" Height="15" />
+                                </Button>
                             </Grid>
+
+                            <!-- Universal IDevice fields (2026-08-22 auto-mode pass) - real WPF NINA shows
+                                 Name/Description/Driver info/Driver version for every device type
+                                 (NINA/View/Equipment/*View.xaml all open with this same 4-row block). All four
+                                 are real IDevice interface members (NINA.Equipment.Interfaces.IDevice), already
+                                 reachable off DeviceChooserVM.SelectedDevice with zero new backend code. -->
+                            <Border BorderBrush="Gray" BorderThickness="0,1,0,0" Padding="0,8,0,0">
+                                <Grid ColumnDefinitions="150,*" RowDefinitions="Auto,Auto,Auto,Auto" RowSpacing="4">
+                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Name" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="0" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.TelescopeVM.DeviceChooserVM.SelectedDevice.Name}" />
+                                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Description" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="1" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.TelescopeVM.DeviceChooserVM.SelectedDevice.Description}" TextWrapping="Wrap" />
+                                    <TextBlock Grid.Row="2" Grid.Column="0" Text="Driver info" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="2" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.TelescopeVM.DeviceChooserVM.SelectedDevice.DriverInfo}" TextWrapping="Wrap" />
+                                    <TextBlock Grid.Row="3" Grid.Column="0" Text="Driver version" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="3" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.TelescopeVM.DeviceChooserVM.SelectedDevice.DriverVersion}" />
+                                </Grid>
+                            </Border>
 
                             <Border BorderBrush="Gray" BorderThickness="0,1,0,0" Padding="0,8,0,0">
                                 <Grid ColumnDefinitions="150,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto" RowSpacing="4">
@@ -277,11 +329,37 @@
                                         </DataTemplate>
                                     </ComboBox.ItemTemplate>
                                 </ComboBox>
-                                <Button Grid.Column="1" Content="Rescan" Command="{ReflectionBinding EquipmentVM.FilterWheelVM.RescanDevicesCommand}" />
-                                <Button Grid.Column="2" Content="Connect" Command="{ReflectionBinding EquipmentVM.FilterWheelVM.ConnectCommand}" />
-                                <Button Grid.Column="3" Content="Disconnect" Command="{ReflectionBinding EquipmentVM.FilterWheelVM.DisconnectCommand}" />
-                                <Button Grid.Column="4" Content="Setup" Command="{ReflectionBinding EquipmentVM.FilterWheelVM.DeviceChooserVM.SetupDialogCommand}" IsVisible="{ReflectionBinding EquipmentVM.FilterWheelVM.DeviceChooserVM.SelectedDevice.HasSetupDialog}" />
+                                <Button Grid.Column="1" Width="32" Height="32" Padding="0" ToolTip.Tip="Setup" Command="{ReflectionBinding EquipmentVM.FilterWheelVM.DeviceChooserVM.SetupDialogCommand}" IsVisible="{ReflectionBinding EquipmentVM.FilterWheelVM.DeviceChooserVM.SelectedDevice.HasSetupDialog}">
+                                    <Path Data="{StaticResource SettingsSVG}" Fill="White" Stretch="Uniform" Width="15" Height="15" />
+                                </Button>
+                                <Button Grid.Column="2" Width="32" Height="32" Padding="0" ToolTip.Tip="Rescan" Command="{ReflectionBinding EquipmentVM.FilterWheelVM.RescanDevicesCommand}">
+                                    <Path Data="{StaticResource LoopSVG}" Fill="White" Stretch="Uniform" Width="15" Height="15" />
+                                </Button>
+                                <Button Grid.Column="3" Width="32" Height="32" Padding="0" ToolTip.Tip="Connect" Command="{ReflectionBinding EquipmentVM.FilterWheelVM.ConnectCommand}">
+                                    <Path Data="{StaticResource PowerSVG}" Fill="White" Stretch="Uniform" Width="15" Height="15" />
+                                </Button>
+                                <Button Grid.Column="4" Width="32" Height="32" Padding="0" ToolTip.Tip="Disconnect" Command="{ReflectionBinding EquipmentVM.FilterWheelVM.DisconnectCommand}">
+                                    <Path Data="{StaticResource PowerSVG}" Fill="#FFCC4444" Stretch="Uniform" Width="15" Height="15" />
+                                </Button>
                             </Grid>
+
+                            <!-- Universal IDevice fields (2026-08-22 auto-mode pass) - real WPF NINA shows
+                                 Name/Description/Driver info/Driver version for every device type
+                                 (NINA/View/Equipment/*View.xaml all open with this same 4-row block). All four
+                                 are real IDevice interface members (NINA.Equipment.Interfaces.IDevice), already
+                                 reachable off DeviceChooserVM.SelectedDevice with zero new backend code. -->
+                            <Border BorderBrush="Gray" BorderThickness="0,1,0,0" Padding="0,8,0,0">
+                                <Grid ColumnDefinitions="150,*" RowDefinitions="Auto,Auto,Auto,Auto" RowSpacing="4">
+                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Name" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="0" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.FilterWheelVM.DeviceChooserVM.SelectedDevice.Name}" />
+                                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Description" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="1" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.FilterWheelVM.DeviceChooserVM.SelectedDevice.Description}" TextWrapping="Wrap" />
+                                    <TextBlock Grid.Row="2" Grid.Column="0" Text="Driver info" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="2" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.FilterWheelVM.DeviceChooserVM.SelectedDevice.DriverInfo}" TextWrapping="Wrap" />
+                                    <TextBlock Grid.Row="3" Grid.Column="0" Text="Driver version" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="3" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.FilterWheelVM.DeviceChooserVM.SelectedDevice.DriverVersion}" />
+                                </Grid>
+                            </Border>
 
                             <Border BorderBrush="Gray" BorderThickness="0,1,0,0" Padding="0,8,0,0">
                                 <Grid ColumnDefinitions="150,*" RowDefinitions="Auto,Auto,Auto,Auto" RowSpacing="4">
@@ -339,11 +417,37 @@
                                         </DataTemplate>
                                     </ComboBox.ItemTemplate>
                                 </ComboBox>
-                                <Button Grid.Column="1" Content="Rescan" Command="{ReflectionBinding EquipmentVM.FocuserVM.RescanDevicesCommand}" />
-                                <Button Grid.Column="2" Content="Connect" Command="{ReflectionBinding EquipmentVM.FocuserVM.ConnectCommand}" />
-                                <Button Grid.Column="3" Content="Disconnect" Command="{ReflectionBinding EquipmentVM.FocuserVM.DisconnectCommand}" />
-                                <Button Grid.Column="4" Content="Setup" Command="{ReflectionBinding EquipmentVM.FocuserVM.DeviceChooserVM.SetupDialogCommand}" IsVisible="{ReflectionBinding EquipmentVM.FocuserVM.DeviceChooserVM.SelectedDevice.HasSetupDialog}" />
+                                <Button Grid.Column="1" Width="32" Height="32" Padding="0" ToolTip.Tip="Setup" Command="{ReflectionBinding EquipmentVM.FocuserVM.DeviceChooserVM.SetupDialogCommand}" IsVisible="{ReflectionBinding EquipmentVM.FocuserVM.DeviceChooserVM.SelectedDevice.HasSetupDialog}">
+                                    <Path Data="{StaticResource SettingsSVG}" Fill="White" Stretch="Uniform" Width="15" Height="15" />
+                                </Button>
+                                <Button Grid.Column="2" Width="32" Height="32" Padding="0" ToolTip.Tip="Rescan" Command="{ReflectionBinding EquipmentVM.FocuserVM.RescanDevicesCommand}">
+                                    <Path Data="{StaticResource LoopSVG}" Fill="White" Stretch="Uniform" Width="15" Height="15" />
+                                </Button>
+                                <Button Grid.Column="3" Width="32" Height="32" Padding="0" ToolTip.Tip="Connect" Command="{ReflectionBinding EquipmentVM.FocuserVM.ConnectCommand}">
+                                    <Path Data="{StaticResource PowerSVG}" Fill="White" Stretch="Uniform" Width="15" Height="15" />
+                                </Button>
+                                <Button Grid.Column="4" Width="32" Height="32" Padding="0" ToolTip.Tip="Disconnect" Command="{ReflectionBinding EquipmentVM.FocuserVM.DisconnectCommand}">
+                                    <Path Data="{StaticResource PowerSVG}" Fill="#FFCC4444" Stretch="Uniform" Width="15" Height="15" />
+                                </Button>
                             </Grid>
+
+                            <!-- Universal IDevice fields (2026-08-22 auto-mode pass) - real WPF NINA shows
+                                 Name/Description/Driver info/Driver version for every device type
+                                 (NINA/View/Equipment/*View.xaml all open with this same 4-row block). All four
+                                 are real IDevice interface members (NINA.Equipment.Interfaces.IDevice), already
+                                 reachable off DeviceChooserVM.SelectedDevice with zero new backend code. -->
+                            <Border BorderBrush="Gray" BorderThickness="0,1,0,0" Padding="0,8,0,0">
+                                <Grid ColumnDefinitions="150,*" RowDefinitions="Auto,Auto,Auto,Auto" RowSpacing="4">
+                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Name" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="0" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.FocuserVM.DeviceChooserVM.SelectedDevice.Name}" />
+                                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Description" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="1" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.FocuserVM.DeviceChooserVM.SelectedDevice.Description}" TextWrapping="Wrap" />
+                                    <TextBlock Grid.Row="2" Grid.Column="0" Text="Driver info" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="2" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.FocuserVM.DeviceChooserVM.SelectedDevice.DriverInfo}" TextWrapping="Wrap" />
+                                    <TextBlock Grid.Row="3" Grid.Column="0" Text="Driver version" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="3" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.FocuserVM.DeviceChooserVM.SelectedDevice.DriverVersion}" />
+                                </Grid>
+                            </Border>
 
                             <Border BorderBrush="Gray" BorderThickness="0,1,0,0" Padding="0,8,0,0">
                                 <Grid ColumnDefinitions="150,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto" RowSpacing="4">
@@ -404,11 +508,37 @@
                                         </DataTemplate>
                                     </ComboBox.ItemTemplate>
                                 </ComboBox>
-                                <Button Grid.Column="1" Content="Rescan" Command="{ReflectionBinding EquipmentVM.RotatorVM.RescanDevicesCommand}" />
-                                <Button Grid.Column="2" Content="Connect" Command="{ReflectionBinding EquipmentVM.RotatorVM.ConnectCommand}" />
-                                <Button Grid.Column="3" Content="Disconnect" Command="{ReflectionBinding EquipmentVM.RotatorVM.DisconnectCommand}" />
-                                <Button Grid.Column="4" Content="Setup" Command="{ReflectionBinding EquipmentVM.RotatorVM.DeviceChooserVM.SetupDialogCommand}" IsVisible="{ReflectionBinding EquipmentVM.RotatorVM.DeviceChooserVM.SelectedDevice.HasSetupDialog}" />
+                                <Button Grid.Column="1" Width="32" Height="32" Padding="0" ToolTip.Tip="Setup" Command="{ReflectionBinding EquipmentVM.RotatorVM.DeviceChooserVM.SetupDialogCommand}" IsVisible="{ReflectionBinding EquipmentVM.RotatorVM.DeviceChooserVM.SelectedDevice.HasSetupDialog}">
+                                    <Path Data="{StaticResource SettingsSVG}" Fill="White" Stretch="Uniform" Width="15" Height="15" />
+                                </Button>
+                                <Button Grid.Column="2" Width="32" Height="32" Padding="0" ToolTip.Tip="Rescan" Command="{ReflectionBinding EquipmentVM.RotatorVM.RescanDevicesCommand}">
+                                    <Path Data="{StaticResource LoopSVG}" Fill="White" Stretch="Uniform" Width="15" Height="15" />
+                                </Button>
+                                <Button Grid.Column="3" Width="32" Height="32" Padding="0" ToolTip.Tip="Connect" Command="{ReflectionBinding EquipmentVM.RotatorVM.ConnectCommand}">
+                                    <Path Data="{StaticResource PowerSVG}" Fill="White" Stretch="Uniform" Width="15" Height="15" />
+                                </Button>
+                                <Button Grid.Column="4" Width="32" Height="32" Padding="0" ToolTip.Tip="Disconnect" Command="{ReflectionBinding EquipmentVM.RotatorVM.DisconnectCommand}">
+                                    <Path Data="{StaticResource PowerSVG}" Fill="#FFCC4444" Stretch="Uniform" Width="15" Height="15" />
+                                </Button>
                             </Grid>
+
+                            <!-- Universal IDevice fields (2026-08-22 auto-mode pass) - real WPF NINA shows
+                                 Name/Description/Driver info/Driver version for every device type
+                                 (NINA/View/Equipment/*View.xaml all open with this same 4-row block). All four
+                                 are real IDevice interface members (NINA.Equipment.Interfaces.IDevice), already
+                                 reachable off DeviceChooserVM.SelectedDevice with zero new backend code. -->
+                            <Border BorderBrush="Gray" BorderThickness="0,1,0,0" Padding="0,8,0,0">
+                                <Grid ColumnDefinitions="150,*" RowDefinitions="Auto,Auto,Auto,Auto" RowSpacing="4">
+                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Name" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="0" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.RotatorVM.DeviceChooserVM.SelectedDevice.Name}" />
+                                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Description" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="1" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.RotatorVM.DeviceChooserVM.SelectedDevice.Description}" TextWrapping="Wrap" />
+                                    <TextBlock Grid.Row="2" Grid.Column="0" Text="Driver info" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="2" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.RotatorVM.DeviceChooserVM.SelectedDevice.DriverInfo}" TextWrapping="Wrap" />
+                                    <TextBlock Grid.Row="3" Grid.Column="0" Text="Driver version" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="3" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.RotatorVM.DeviceChooserVM.SelectedDevice.DriverVersion}" />
+                                </Grid>
+                            </Border>
 
                             <Border BorderBrush="Gray" BorderThickness="0,1,0,0" Padding="0,8,0,0">
                                 <Grid ColumnDefinitions="150,*" RowDefinitions="Auto,Auto,Auto,Auto" RowSpacing="4">
@@ -466,11 +596,37 @@
                                         </DataTemplate>
                                     </ComboBox.ItemTemplate>
                                 </ComboBox>
-                                <Button Grid.Column="1" Content="Rescan" Command="{ReflectionBinding EquipmentVM.DomeVM.RescanDevicesCommand}" />
-                                <Button Grid.Column="2" Content="Connect" Command="{ReflectionBinding EquipmentVM.DomeVM.ConnectCommand}" />
-                                <Button Grid.Column="3" Content="Disconnect" Command="{ReflectionBinding EquipmentVM.DomeVM.DisconnectCommand}" />
-                                <Button Grid.Column="4" Content="Setup" Command="{ReflectionBinding EquipmentVM.DomeVM.DeviceChooserVM.SetupDialogCommand}" IsVisible="{ReflectionBinding EquipmentVM.DomeVM.DeviceChooserVM.SelectedDevice.HasSetupDialog}" />
+                                <Button Grid.Column="1" Width="32" Height="32" Padding="0" ToolTip.Tip="Setup" Command="{ReflectionBinding EquipmentVM.DomeVM.DeviceChooserVM.SetupDialogCommand}" IsVisible="{ReflectionBinding EquipmentVM.DomeVM.DeviceChooserVM.SelectedDevice.HasSetupDialog}">
+                                    <Path Data="{StaticResource SettingsSVG}" Fill="White" Stretch="Uniform" Width="15" Height="15" />
+                                </Button>
+                                <Button Grid.Column="2" Width="32" Height="32" Padding="0" ToolTip.Tip="Rescan" Command="{ReflectionBinding EquipmentVM.DomeVM.RescanDevicesCommand}">
+                                    <Path Data="{StaticResource LoopSVG}" Fill="White" Stretch="Uniform" Width="15" Height="15" />
+                                </Button>
+                                <Button Grid.Column="3" Width="32" Height="32" Padding="0" ToolTip.Tip="Connect" Command="{ReflectionBinding EquipmentVM.DomeVM.ConnectCommand}">
+                                    <Path Data="{StaticResource PowerSVG}" Fill="White" Stretch="Uniform" Width="15" Height="15" />
+                                </Button>
+                                <Button Grid.Column="4" Width="32" Height="32" Padding="0" ToolTip.Tip="Disconnect" Command="{ReflectionBinding EquipmentVM.DomeVM.DisconnectCommand}">
+                                    <Path Data="{StaticResource PowerSVG}" Fill="#FFCC4444" Stretch="Uniform" Width="15" Height="15" />
+                                </Button>
                             </Grid>
+
+                            <!-- Universal IDevice fields (2026-08-22 auto-mode pass) - real WPF NINA shows
+                                 Name/Description/Driver info/Driver version for every device type
+                                 (NINA/View/Equipment/*View.xaml all open with this same 4-row block). All four
+                                 are real IDevice interface members (NINA.Equipment.Interfaces.IDevice), already
+                                 reachable off DeviceChooserVM.SelectedDevice with zero new backend code. -->
+                            <Border BorderBrush="Gray" BorderThickness="0,1,0,0" Padding="0,8,0,0">
+                                <Grid ColumnDefinitions="150,*" RowDefinitions="Auto,Auto,Auto,Auto" RowSpacing="4">
+                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Name" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="0" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.DomeVM.DeviceChooserVM.SelectedDevice.Name}" />
+                                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Description" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="1" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.DomeVM.DeviceChooserVM.SelectedDevice.Description}" TextWrapping="Wrap" />
+                                    <TextBlock Grid.Row="2" Grid.Column="0" Text="Driver info" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="2" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.DomeVM.DeviceChooserVM.SelectedDevice.DriverInfo}" TextWrapping="Wrap" />
+                                    <TextBlock Grid.Row="3" Grid.Column="0" Text="Driver version" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="3" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.DomeVM.DeviceChooserVM.SelectedDevice.DriverVersion}" />
+                                </Grid>
+                            </Border>
 
                             <Border BorderBrush="Gray" BorderThickness="0,1,0,0" Padding="0,8,0,0">
                                 <Grid ColumnDefinitions="150,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto" RowSpacing="4">
@@ -535,11 +691,37 @@
                                         </DataTemplate>
                                     </ComboBox.ItemTemplate>
                                 </ComboBox>
-                                <Button Grid.Column="1" Content="Rescan" Command="{ReflectionBinding EquipmentVM.GuiderVM.RescanDevicesCommand}" />
-                                <Button Grid.Column="2" Content="Connect" Command="{ReflectionBinding EquipmentVM.GuiderVM.ConnectCommand}" />
-                                <Button Grid.Column="3" Content="Disconnect" Command="{ReflectionBinding EquipmentVM.GuiderVM.DisconnectCommand}" />
-                                <Button Grid.Column="4" Content="Setup" Command="{ReflectionBinding EquipmentVM.GuiderVM.DeviceChooserVM.SetupDialogCommand}" IsVisible="{ReflectionBinding EquipmentVM.GuiderVM.DeviceChooserVM.SelectedDevice.HasSetupDialog}" />
+                                <Button Grid.Column="1" Width="32" Height="32" Padding="0" ToolTip.Tip="Setup" Command="{ReflectionBinding EquipmentVM.GuiderVM.DeviceChooserVM.SetupDialogCommand}" IsVisible="{ReflectionBinding EquipmentVM.GuiderVM.DeviceChooserVM.SelectedDevice.HasSetupDialog}">
+                                    <Path Data="{StaticResource SettingsSVG}" Fill="White" Stretch="Uniform" Width="15" Height="15" />
+                                </Button>
+                                <Button Grid.Column="2" Width="32" Height="32" Padding="0" ToolTip.Tip="Rescan" Command="{ReflectionBinding EquipmentVM.GuiderVM.RescanDevicesCommand}">
+                                    <Path Data="{StaticResource LoopSVG}" Fill="White" Stretch="Uniform" Width="15" Height="15" />
+                                </Button>
+                                <Button Grid.Column="3" Width="32" Height="32" Padding="0" ToolTip.Tip="Connect" Command="{ReflectionBinding EquipmentVM.GuiderVM.ConnectCommand}">
+                                    <Path Data="{StaticResource PowerSVG}" Fill="White" Stretch="Uniform" Width="15" Height="15" />
+                                </Button>
+                                <Button Grid.Column="4" Width="32" Height="32" Padding="0" ToolTip.Tip="Disconnect" Command="{ReflectionBinding EquipmentVM.GuiderVM.DisconnectCommand}">
+                                    <Path Data="{StaticResource PowerSVG}" Fill="#FFCC4444" Stretch="Uniform" Width="15" Height="15" />
+                                </Button>
                             </Grid>
+
+                            <!-- Universal IDevice fields (2026-08-22 auto-mode pass) - real WPF NINA shows
+                                 Name/Description/Driver info/Driver version for every device type
+                                 (NINA/View/Equipment/*View.xaml all open with this same 4-row block). All four
+                                 are real IDevice interface members (NINA.Equipment.Interfaces.IDevice), already
+                                 reachable off DeviceChooserVM.SelectedDevice with zero new backend code. -->
+                            <Border BorderBrush="Gray" BorderThickness="0,1,0,0" Padding="0,8,0,0">
+                                <Grid ColumnDefinitions="150,*" RowDefinitions="Auto,Auto,Auto,Auto" RowSpacing="4">
+                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Name" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="0" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.GuiderVM.DeviceChooserVM.SelectedDevice.Name}" />
+                                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Description" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="1" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.GuiderVM.DeviceChooserVM.SelectedDevice.Description}" TextWrapping="Wrap" />
+                                    <TextBlock Grid.Row="2" Grid.Column="0" Text="Driver info" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="2" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.GuiderVM.DeviceChooserVM.SelectedDevice.DriverInfo}" TextWrapping="Wrap" />
+                                    <TextBlock Grid.Row="3" Grid.Column="0" Text="Driver version" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="3" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.GuiderVM.DeviceChooserVM.SelectedDevice.DriverVersion}" />
+                                </Grid>
+                            </Border>
 
                             <Border BorderBrush="Gray" BorderThickness="0,1,0,0" Padding="0,8,0,0">
                                 <Grid ColumnDefinitions="150,*" RowDefinitions="Auto,Auto,Auto" RowSpacing="4">
@@ -596,11 +778,37 @@
                                         </DataTemplate>
                                     </ComboBox.ItemTemplate>
                                 </ComboBox>
-                                <Button Grid.Column="1" Content="Rescan" Command="{ReflectionBinding EquipmentVM.SwitchVM.RescanDevicesCommand}" />
-                                <Button Grid.Column="2" Content="Connect" Command="{ReflectionBinding EquipmentVM.SwitchVM.ConnectCommand}" />
-                                <Button Grid.Column="3" Content="Disconnect" Command="{ReflectionBinding EquipmentVM.SwitchVM.DisconnectCommand}" />
-                                <Button Grid.Column="4" Content="Setup" Command="{ReflectionBinding EquipmentVM.SwitchVM.DeviceChooserVM.SetupDialogCommand}" IsVisible="{ReflectionBinding EquipmentVM.SwitchVM.DeviceChooserVM.SelectedDevice.HasSetupDialog}" />
+                                <Button Grid.Column="1" Width="32" Height="32" Padding="0" ToolTip.Tip="Setup" Command="{ReflectionBinding EquipmentVM.SwitchVM.DeviceChooserVM.SetupDialogCommand}" IsVisible="{ReflectionBinding EquipmentVM.SwitchVM.DeviceChooserVM.SelectedDevice.HasSetupDialog}">
+                                    <Path Data="{StaticResource SettingsSVG}" Fill="White" Stretch="Uniform" Width="15" Height="15" />
+                                </Button>
+                                <Button Grid.Column="2" Width="32" Height="32" Padding="0" ToolTip.Tip="Rescan" Command="{ReflectionBinding EquipmentVM.SwitchVM.RescanDevicesCommand}">
+                                    <Path Data="{StaticResource LoopSVG}" Fill="White" Stretch="Uniform" Width="15" Height="15" />
+                                </Button>
+                                <Button Grid.Column="3" Width="32" Height="32" Padding="0" ToolTip.Tip="Connect" Command="{ReflectionBinding EquipmentVM.SwitchVM.ConnectCommand}">
+                                    <Path Data="{StaticResource PowerSVG}" Fill="White" Stretch="Uniform" Width="15" Height="15" />
+                                </Button>
+                                <Button Grid.Column="4" Width="32" Height="32" Padding="0" ToolTip.Tip="Disconnect" Command="{ReflectionBinding EquipmentVM.SwitchVM.DisconnectCommand}">
+                                    <Path Data="{StaticResource PowerSVG}" Fill="#FFCC4444" Stretch="Uniform" Width="15" Height="15" />
+                                </Button>
                             </Grid>
+
+                            <!-- Universal IDevice fields (2026-08-22 auto-mode pass) - real WPF NINA shows
+                                 Name/Description/Driver info/Driver version for every device type
+                                 (NINA/View/Equipment/*View.xaml all open with this same 4-row block). All four
+                                 are real IDevice interface members (NINA.Equipment.Interfaces.IDevice), already
+                                 reachable off DeviceChooserVM.SelectedDevice with zero new backend code. -->
+                            <Border BorderBrush="Gray" BorderThickness="0,1,0,0" Padding="0,8,0,0">
+                                <Grid ColumnDefinitions="150,*" RowDefinitions="Auto,Auto,Auto,Auto" RowSpacing="4">
+                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Name" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="0" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.SwitchVM.DeviceChooserVM.SelectedDevice.Name}" />
+                                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Description" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="1" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.SwitchVM.DeviceChooserVM.SelectedDevice.Description}" TextWrapping="Wrap" />
+                                    <TextBlock Grid.Row="2" Grid.Column="0" Text="Driver info" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="2" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.SwitchVM.DeviceChooserVM.SelectedDevice.DriverInfo}" TextWrapping="Wrap" />
+                                    <TextBlock Grid.Row="3" Grid.Column="0" Text="Driver version" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="3" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.SwitchVM.DeviceChooserVM.SelectedDevice.DriverVersion}" />
+                                </Grid>
+                            </Border>
 
                             <Border BorderBrush="Gray" BorderThickness="0,1,0,0" Padding="0,8,0,0">
                                 <Grid ColumnDefinitions="150,*" RowDefinitions="Auto,Auto" RowSpacing="4">
@@ -670,11 +878,37 @@
                                         </DataTemplate>
                                     </ComboBox.ItemTemplate>
                                 </ComboBox>
-                                <Button Grid.Column="1" Content="Rescan" Command="{ReflectionBinding EquipmentVM.FlatDeviceVM.RescanDevicesCommand}" />
-                                <Button Grid.Column="2" Content="Connect" Command="{ReflectionBinding EquipmentVM.FlatDeviceVM.ConnectCommand}" />
-                                <Button Grid.Column="3" Content="Disconnect" Command="{ReflectionBinding EquipmentVM.FlatDeviceVM.DisconnectCommand}" />
-                                <Button Grid.Column="4" Content="Setup" Command="{ReflectionBinding EquipmentVM.FlatDeviceVM.DeviceChooserVM.SetupDialogCommand}" IsVisible="{ReflectionBinding EquipmentVM.FlatDeviceVM.DeviceChooserVM.SelectedDevice.HasSetupDialog}" />
+                                <Button Grid.Column="1" Width="32" Height="32" Padding="0" ToolTip.Tip="Setup" Command="{ReflectionBinding EquipmentVM.FlatDeviceVM.DeviceChooserVM.SetupDialogCommand}" IsVisible="{ReflectionBinding EquipmentVM.FlatDeviceVM.DeviceChooserVM.SelectedDevice.HasSetupDialog}">
+                                    <Path Data="{StaticResource SettingsSVG}" Fill="White" Stretch="Uniform" Width="15" Height="15" />
+                                </Button>
+                                <Button Grid.Column="2" Width="32" Height="32" Padding="0" ToolTip.Tip="Rescan" Command="{ReflectionBinding EquipmentVM.FlatDeviceVM.RescanDevicesCommand}">
+                                    <Path Data="{StaticResource LoopSVG}" Fill="White" Stretch="Uniform" Width="15" Height="15" />
+                                </Button>
+                                <Button Grid.Column="3" Width="32" Height="32" Padding="0" ToolTip.Tip="Connect" Command="{ReflectionBinding EquipmentVM.FlatDeviceVM.ConnectCommand}">
+                                    <Path Data="{StaticResource PowerSVG}" Fill="White" Stretch="Uniform" Width="15" Height="15" />
+                                </Button>
+                                <Button Grid.Column="4" Width="32" Height="32" Padding="0" ToolTip.Tip="Disconnect" Command="{ReflectionBinding EquipmentVM.FlatDeviceVM.DisconnectCommand}">
+                                    <Path Data="{StaticResource PowerSVG}" Fill="#FFCC4444" Stretch="Uniform" Width="15" Height="15" />
+                                </Button>
                             </Grid>
+
+                            <!-- Universal IDevice fields (2026-08-22 auto-mode pass) - real WPF NINA shows
+                                 Name/Description/Driver info/Driver version for every device type
+                                 (NINA/View/Equipment/*View.xaml all open with this same 4-row block). All four
+                                 are real IDevice interface members (NINA.Equipment.Interfaces.IDevice), already
+                                 reachable off DeviceChooserVM.SelectedDevice with zero new backend code. -->
+                            <Border BorderBrush="Gray" BorderThickness="0,1,0,0" Padding="0,8,0,0">
+                                <Grid ColumnDefinitions="150,*" RowDefinitions="Auto,Auto,Auto,Auto" RowSpacing="4">
+                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Name" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="0" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.FlatDeviceVM.DeviceChooserVM.SelectedDevice.Name}" />
+                                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Description" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="1" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.FlatDeviceVM.DeviceChooserVM.SelectedDevice.Description}" TextWrapping="Wrap" />
+                                    <TextBlock Grid.Row="2" Grid.Column="0" Text="Driver info" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="2" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.FlatDeviceVM.DeviceChooserVM.SelectedDevice.DriverInfo}" TextWrapping="Wrap" />
+                                    <TextBlock Grid.Row="3" Grid.Column="0" Text="Driver version" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="3" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.FlatDeviceVM.DeviceChooserVM.SelectedDevice.DriverVersion}" />
+                                </Grid>
+                            </Border>
 
                             <Border BorderBrush="Gray" BorderThickness="0,1,0,0" Padding="0,8,0,0">
                                 <Grid ColumnDefinitions="150,*" RowDefinitions="Auto,Auto,Auto,Auto" RowSpacing="4">
@@ -736,11 +970,37 @@
                                         </DataTemplate>
                                     </ComboBox.ItemTemplate>
                                 </ComboBox>
-                                <Button Grid.Column="1" Content="Rescan" Command="{ReflectionBinding EquipmentVM.WeatherDataVM.RescanDevicesCommand}" />
-                                <Button Grid.Column="2" Content="Connect" Command="{ReflectionBinding EquipmentVM.WeatherDataVM.ConnectCommand}" />
-                                <Button Grid.Column="3" Content="Disconnect" Command="{ReflectionBinding EquipmentVM.WeatherDataVM.DisconnectCommand}" />
-                                <Button Grid.Column="4" Content="Setup" Command="{ReflectionBinding EquipmentVM.WeatherDataVM.DeviceChooserVM.SetupDialogCommand}" IsVisible="{ReflectionBinding EquipmentVM.WeatherDataVM.DeviceChooserVM.SelectedDevice.HasSetupDialog}" />
+                                <Button Grid.Column="1" Width="32" Height="32" Padding="0" ToolTip.Tip="Setup" Command="{ReflectionBinding EquipmentVM.WeatherDataVM.DeviceChooserVM.SetupDialogCommand}" IsVisible="{ReflectionBinding EquipmentVM.WeatherDataVM.DeviceChooserVM.SelectedDevice.HasSetupDialog}">
+                                    <Path Data="{StaticResource SettingsSVG}" Fill="White" Stretch="Uniform" Width="15" Height="15" />
+                                </Button>
+                                <Button Grid.Column="2" Width="32" Height="32" Padding="0" ToolTip.Tip="Rescan" Command="{ReflectionBinding EquipmentVM.WeatherDataVM.RescanDevicesCommand}">
+                                    <Path Data="{StaticResource LoopSVG}" Fill="White" Stretch="Uniform" Width="15" Height="15" />
+                                </Button>
+                                <Button Grid.Column="3" Width="32" Height="32" Padding="0" ToolTip.Tip="Connect" Command="{ReflectionBinding EquipmentVM.WeatherDataVM.ConnectCommand}">
+                                    <Path Data="{StaticResource PowerSVG}" Fill="White" Stretch="Uniform" Width="15" Height="15" />
+                                </Button>
+                                <Button Grid.Column="4" Width="32" Height="32" Padding="0" ToolTip.Tip="Disconnect" Command="{ReflectionBinding EquipmentVM.WeatherDataVM.DisconnectCommand}">
+                                    <Path Data="{StaticResource PowerSVG}" Fill="#FFCC4444" Stretch="Uniform" Width="15" Height="15" />
+                                </Button>
                             </Grid>
+
+                            <!-- Universal IDevice fields (2026-08-22 auto-mode pass) - real WPF NINA shows
+                                 Name/Description/Driver info/Driver version for every device type
+                                 (NINA/View/Equipment/*View.xaml all open with this same 4-row block). All four
+                                 are real IDevice interface members (NINA.Equipment.Interfaces.IDevice), already
+                                 reachable off DeviceChooserVM.SelectedDevice with zero new backend code. -->
+                            <Border BorderBrush="Gray" BorderThickness="0,1,0,0" Padding="0,8,0,0">
+                                <Grid ColumnDefinitions="150,*" RowDefinitions="Auto,Auto,Auto,Auto" RowSpacing="4">
+                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Name" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="0" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.WeatherDataVM.DeviceChooserVM.SelectedDevice.Name}" />
+                                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Description" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="1" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.WeatherDataVM.DeviceChooserVM.SelectedDevice.Description}" TextWrapping="Wrap" />
+                                    <TextBlock Grid.Row="2" Grid.Column="0" Text="Driver info" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="2" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.WeatherDataVM.DeviceChooserVM.SelectedDevice.DriverInfo}" TextWrapping="Wrap" />
+                                    <TextBlock Grid.Row="3" Grid.Column="0" Text="Driver version" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="3" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.WeatherDataVM.DeviceChooserVM.SelectedDevice.DriverVersion}" />
+                                </Grid>
+                            </Border>
 
                             <Border BorderBrush="Gray" BorderThickness="0,1,0,0" Padding="0,8,0,0">
                                 <Grid ColumnDefinitions="150,*" RowDefinitions="Auto,Auto,Auto,Auto" RowSpacing="4">
@@ -780,11 +1040,37 @@
                                         </DataTemplate>
                                     </ComboBox.ItemTemplate>
                                 </ComboBox>
-                                <Button Grid.Column="1" Content="Rescan" Command="{ReflectionBinding EquipmentVM.SafetyMonitorVM.RescanDevicesCommand}" />
-                                <Button Grid.Column="2" Content="Connect" Command="{ReflectionBinding EquipmentVM.SafetyMonitorVM.ConnectCommand}" />
-                                <Button Grid.Column="3" Content="Disconnect" Command="{ReflectionBinding EquipmentVM.SafetyMonitorVM.DisconnectCommand}" />
-                                <Button Grid.Column="4" Content="Setup" Command="{ReflectionBinding EquipmentVM.SafetyMonitorVM.DeviceChooserVM.SetupDialogCommand}" IsVisible="{ReflectionBinding EquipmentVM.SafetyMonitorVM.DeviceChooserVM.SelectedDevice.HasSetupDialog}" />
+                                <Button Grid.Column="1" Width="32" Height="32" Padding="0" ToolTip.Tip="Setup" Command="{ReflectionBinding EquipmentVM.SafetyMonitorVM.DeviceChooserVM.SetupDialogCommand}" IsVisible="{ReflectionBinding EquipmentVM.SafetyMonitorVM.DeviceChooserVM.SelectedDevice.HasSetupDialog}">
+                                    <Path Data="{StaticResource SettingsSVG}" Fill="White" Stretch="Uniform" Width="15" Height="15" />
+                                </Button>
+                                <Button Grid.Column="2" Width="32" Height="32" Padding="0" ToolTip.Tip="Rescan" Command="{ReflectionBinding EquipmentVM.SafetyMonitorVM.RescanDevicesCommand}">
+                                    <Path Data="{StaticResource LoopSVG}" Fill="White" Stretch="Uniform" Width="15" Height="15" />
+                                </Button>
+                                <Button Grid.Column="3" Width="32" Height="32" Padding="0" ToolTip.Tip="Connect" Command="{ReflectionBinding EquipmentVM.SafetyMonitorVM.ConnectCommand}">
+                                    <Path Data="{StaticResource PowerSVG}" Fill="White" Stretch="Uniform" Width="15" Height="15" />
+                                </Button>
+                                <Button Grid.Column="4" Width="32" Height="32" Padding="0" ToolTip.Tip="Disconnect" Command="{ReflectionBinding EquipmentVM.SafetyMonitorVM.DisconnectCommand}">
+                                    <Path Data="{StaticResource PowerSVG}" Fill="#FFCC4444" Stretch="Uniform" Width="15" Height="15" />
+                                </Button>
                             </Grid>
+
+                            <!-- Universal IDevice fields (2026-08-22 auto-mode pass) - real WPF NINA shows
+                                 Name/Description/Driver info/Driver version for every device type
+                                 (NINA/View/Equipment/*View.xaml all open with this same 4-row block). All four
+                                 are real IDevice interface members (NINA.Equipment.Interfaces.IDevice), already
+                                 reachable off DeviceChooserVM.SelectedDevice with zero new backend code. -->
+                            <Border BorderBrush="Gray" BorderThickness="0,1,0,0" Padding="0,8,0,0">
+                                <Grid ColumnDefinitions="150,*" RowDefinitions="Auto,Auto,Auto,Auto" RowSpacing="4">
+                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Name" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="0" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.SafetyMonitorVM.DeviceChooserVM.SelectedDevice.Name}" />
+                                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Description" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="1" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.SafetyMonitorVM.DeviceChooserVM.SelectedDevice.Description}" TextWrapping="Wrap" />
+                                    <TextBlock Grid.Row="2" Grid.Column="0" Text="Driver info" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="2" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.SafetyMonitorVM.DeviceChooserVM.SelectedDevice.DriverInfo}" TextWrapping="Wrap" />
+                                    <TextBlock Grid.Row="3" Grid.Column="0" Text="Driver version" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="3" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.SafetyMonitorVM.DeviceChooserVM.SelectedDevice.DriverVersion}" />
+                                </Grid>
+                            </Border>
 
                             <Border BorderBrush="Gray" BorderThickness="0,1,0,0" Padding="0,8,0,0">
                                 <Grid ColumnDefinitions="150,*" RowDefinitions="Auto,Auto,Auto" RowSpacing="4">
