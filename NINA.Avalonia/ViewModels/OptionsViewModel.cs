@@ -64,13 +64,14 @@ public partial class OptionsViewModel : ViewModelBase {
     /// <summary>
     /// Real NINA.Profile theme support (2026-08-22) - 16 named built-in palettes plus 2 custom
     /// slots (NINA.Core.Utility.ColorSchema.ColorSchemas.ReadColorSchemas), the real data behind
-    /// the WPF app's Options -> Application -> Theme picker. UsePlainDefault defaults to true
-    /// (today's existing look, kept - see wokka1/nina#1) rather than defaulting to whatever
-    /// ColorSchemaSettings.SetDefaultValues picks ("Persian Faint") - a real product decision,
-    /// not an oversight: this port's plain look predates theme support entirely and the user
-    /// explicitly asked to keep it as the default, real NINA colors as an opt-in. MainWindow.axaml.cs
-    /// owns actually applying the change (adds/removes the "nina-themed" class on the root
-    /// Window) since NinaThemeService only touches resources, not the View.
+    /// the WPF app's Options -> Application -> Theme picker. SelectedTheme naturally starts on
+    /// "Persian Faint" - the real WPF app's own default (ColorSchemaSettings.SetDefaultValues),
+    /// nothing special needed since it's read straight off the active profile. UsePlainDefault
+    /// defaults to false (real NINA colors on by default) per user decision, superseding this
+    /// port's own original default of true, kept as an opt-out for anyone who prefers this
+    /// port's plainer look - see wokka1/nina#1. MainWindow.axaml.cs owns actually applying the
+    /// change (adds/removes the "nina-themed" class on the root Window) since NinaThemeService
+    /// only touches resources, not the View.
     /// </summary>
     public ObservableCollection<ColorSchema> AvailableThemes { get; }
 
@@ -86,7 +87,7 @@ public partial class OptionsViewModel : ViewModelBase {
     }
 
     [ObservableProperty]
-    public partial bool UsePlainDefault { get; set; } = true;
+    public partial bool UsePlainDefault { get; set; } = false;
 
     public ObservableCollection<string> Categories { get; }
 

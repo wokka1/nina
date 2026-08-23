@@ -911,10 +911,10 @@
 
                     <!-- Real NINA theme support (2026-08-22) - the real, portable
                          ColorSchemaSettings.ColorSchemas.Items (16 built-in palettes + 2 custom
-                         slots), same data the real WPF app's own Theme picker uses. "Use plain
-                         default" defaults on (today's existing look, kept per user request in
-                         wokka1/nina#1) - real NINA colors are opt-in via this checkbox, not
-                         forced on switch. -->
+                         slots), same data the real WPF app's own Theme picker uses. Real NINA
+                         colors are on by default (SelectedTheme starts on "Persian Faint", the
+                         real app's own default) - "Use plain default" is an opt-out back to this
+                         port's own plainer look, per user decision in wokka1/nina#1. -->
                     <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="8" Margin="0,0,0,12">
                         <TextBlock Text="Theme" FontWeight="SemiBold" VerticalAlignment="Center" />
                         <ComboBox ItemsSource="{Binding OptionsVM.AvailableThemes}" SelectedItem="{Binding OptionsVM.SelectedTheme}" Width="180">
