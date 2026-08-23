@@ -77,7 +77,13 @@
              same order as the real app. Equipment now has real Camera + Telescope panels
              (Phase 1) - the rest get built out phase by phase per the roadmap in
              wokka1/nina#1, one device-card WrapPanel entry at a time. -->
-        <TabControl SelectedIndex="{Binding TabIndex}">
+        <!-- TabStripPlacement="Left" (2026-08-22): real WPF NINA's own MainWindow.xaml has its
+             8 top-level sections as a left-side icon strip (a Grid + ListBox-driven nav, not a
+             plain TabControl at all), not a top tab bar. Avalonia's TabControl has a built-in
+             TabStripPlacement property that covers the actual layout difference the user flagged
+             without rebuilding the whole navigation shell to match the real app's fancier
+             icon-strip control - real, visible parity for the win, proportionate effort. -->
+        <TabControl SelectedIndex="{Binding TabIndex}" TabStripPlacement="Left">
             <TabItem Header="Equipment">
                 <!-- Real NINA.WPF.Base ViewModels underneath each card (CameraVM/TelescopeVM
                      etc. via CompositionRoot.Compose), not rewrites. Every device VM's
