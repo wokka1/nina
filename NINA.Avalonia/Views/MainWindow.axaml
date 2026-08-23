@@ -81,6 +81,9 @@
         <Style Selector="Window.nina-themed TabItem Path">
             <Setter Property="Fill" Value="{DynamicResource PrimaryBrush}" />
         </Style>
+        <Style Selector="Window.nina-themed StackPanel.nav-footer Path">
+            <Setter Property="Fill" Value="{DynamicResource PrimaryBrush}" />
+        </Style>
     </Window.Styles>
 
     <Panel>
@@ -1530,7 +1533,7 @@
          expose a slot for extra footer content without deeper templating) - real NINA's book/info
          icons open documentation/about dialogs with no portable content behind them yet, skipped
          for this pass. -->
-    <StackPanel HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="0,0,0,8" Spacing="4">
+    <StackPanel Classes="nav-footer" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="0,0,0,8" Spacing="4">
         <Button Width="36" Height="36" Padding="0" HorizontalAlignment="Center"
                 ToolTip.Tip="Toggle color scheme" Command="{Binding ToggleColorSchemeCommand}">
             <Path Data="{StaticResource EyeSVG}" Fill="White" Stretch="Uniform" Width="18" Height="18" />
