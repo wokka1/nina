@@ -108,7 +108,7 @@
                 <TabItem.Header>
                     <StackPanel Width="72" Spacing="4" Margin="0,8">
                         <Path Data="{StaticResource EquipmentSVG}" Fill="White" Stretch="Uniform" Width="26" Margin="4" HorizontalAlignment="Center" />
-                        <TextBlock Text="Equipment" HorizontalAlignment="Center" FontSize="11" TextWrapping="Wrap" TextAlignment="Center" />
+                        <TextBlock Text="Equipment" HorizontalAlignment="Center" FontSize="9" TextWrapping="Wrap" TextAlignment="Center" />
                     </StackPanel>
                 </TabItem.Header>
                 <!-- Real NINA.WPF.Base ViewModels underneath each card (CameraVM/TelescopeVM
@@ -690,7 +690,7 @@
                 <TabItem.Header>
                     <StackPanel Width="72" Spacing="4" Margin="0,8">
                         <Path Data="{StaticResource MapSVG}" Fill="White" Stretch="Uniform" Width="26" Margin="4" HorizontalAlignment="Center" />
-                        <TextBlock Text="Sky Atlas" HorizontalAlignment="Center" FontSize="11" TextWrapping="Wrap" TextAlignment="Center" />
+                        <TextBlock Text="Sky Atlas" HorizontalAlignment="Center" FontSize="9" TextWrapping="Wrap" TextAlignment="Center" />
                     </StackPanel>
                 </TabItem.Header>
                 <!-- Phase 4 first slice: real DSO catalog search via the unchanged, portable
@@ -748,7 +748,7 @@
                 <TabItem.Header>
                     <StackPanel Width="72" Spacing="4" Margin="0,8">
                         <Path Data="{StaticResource FocusAssistantSVG}" Fill="White" Stretch="Uniform" Width="26" Margin="4" HorizontalAlignment="Center" />
-                        <TextBlock Text="Framing" HorizontalAlignment="Center" FontSize="11" TextWrapping="Wrap" TextAlignment="Center" />
+                        <TextBlock Text="Framing" HorizontalAlignment="Center" FontSize="9" TextWrapping="Wrap" TextAlignment="Center" />
                     </StackPanel>
                 </TabItem.Header>
                 <!-- First real slice (2026-07-24): renders the grid/DSO/constellation overlay
@@ -805,7 +805,7 @@
                 <TabItem.Header>
                     <StackPanel Width="72" Spacing="4" Margin="0,8">
                         <Path Data="{StaticResource FlatWizardSVG}" Fill="White" Stretch="Uniform" Width="26" Margin="4" HorizontalAlignment="Center" />
-                        <TextBlock Text="Flat Wizard" HorizontalAlignment="Center" FontSize="11" TextWrapping="Wrap" TextAlignment="Center" />
+                        <TextBlock Text="Flat Wizard" HorizontalAlignment="Center" FontSize="9" TextWrapping="Wrap" TextAlignment="Center" />
                     </StackPanel>
                 </TabItem.Header>
                 <TextBlock Margin="0,12,0,0" Opacity="0.6" Text="Flat Wizard - not yet scoped" />
@@ -814,7 +814,7 @@
                 <TabItem.Header>
                     <StackPanel Width="72" Spacing="4" Margin="0,8">
                         <Path Data="{StaticResource SequenceSVG}" Fill="White" Stretch="Uniform" Width="26" Margin="4" HorizontalAlignment="Center" />
-                        <TextBlock Text="Sequencer" HorizontalAlignment="Center" FontSize="11" TextWrapping="Wrap" TextAlignment="Center" />
+                        <TextBlock Text="Sequencer" HorizontalAlignment="Center" FontSize="9" TextWrapping="Wrap" TextAlignment="Center" />
                     </StackPanel>
                 </TabItem.Header>
                 <!-- Phase 3: a real NINA.Sequencer.Container.SequenceRootContainer
@@ -891,7 +891,7 @@
                 <TabItem.Header>
                     <StackPanel Width="72" Spacing="4" Margin="0,8">
                         <Path Data="{StaticResource PictureSVG}" Fill="White" Stretch="Uniform" Width="26" Margin="4" HorizontalAlignment="Center" />
-                        <TextBlock Text="Imaging" HorizontalAlignment="Center" FontSize="11" TextWrapping="Wrap" TextAlignment="Center" />
+                        <TextBlock Text="Imaging" HorizontalAlignment="Center" FontSize="9" TextWrapping="Wrap" TextAlignment="Center" />
                     </StackPanel>
                 </TabItem.Header>
                 <!-- Phase 2's first real slice: a real capture through the actual portable
@@ -953,7 +953,7 @@
                 <TabItem.Header>
                     <StackPanel Width="72" Spacing="4" Margin="0,8">
                         <Path Data="{StaticResource SettingsSVG}" Fill="White" Stretch="Uniform" Width="26" Margin="4" HorizontalAlignment="Center" />
-                        <TextBlock Text="Options" HorizontalAlignment="Center" FontSize="11" TextWrapping="Wrap" TextAlignment="Center" />
+                        <TextBlock Text="Options" HorizontalAlignment="Center" FontSize="9" TextWrapping="Wrap" TextAlignment="Center" />
                     </StackPanel>
                 </TabItem.Header>
                 <!-- Phase 5 first slice: a real settings editor over the active profile's real,
@@ -1013,7 +1013,7 @@
                 <TabItem.Header>
                     <StackPanel Width="72" Spacing="4" Margin="0,8">
                         <Path Data="{StaticResource PuzzlePieceSVG}" Fill="White" Stretch="Uniform" Width="26" Margin="4" HorizontalAlignment="Center" />
-                        <TextBlock Text="Plugins" HorizontalAlignment="Center" FontSize="11" TextWrapping="Wrap" TextAlignment="Center" />
+                        <TextBlock Text="Plugins" HorizontalAlignment="Center" FontSize="9" TextWrapping="Wrap" TextAlignment="Center" />
                     </StackPanel>
                 </TabItem.Header>
                 <!-- Real IPluginLoader (NINA.Plugin, now portable - see project memory) behind
