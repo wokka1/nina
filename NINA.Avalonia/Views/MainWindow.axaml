@@ -69,11 +69,17 @@
 
     <Panel>
     <DockPanel Margin="16">
-        <StackPanel DockPanel.Dock="Top" Spacing="4" Margin="0,0,0,16">
-            <TextBlock Text="{Binding StatusMessage}" FontSize="18" FontWeight="Bold" />
-            <TextBlock Text="{Binding CurrentTime}" FontSize="14" Opacity="0.7" />
-            <TextBlock Text="{Binding NinaCoreIntegrationTest}" FontSize="13" Opacity="0.9" Foreground="LightGreen" />
-            <TextBlock Text="{Binding ActiveProfileName, StringFormat='Active profile: {0}'}" FontSize="13" Opacity="0.9" Foreground="LightBlue" />
+        <!-- Real WPF NINA has no persistent top status banner - StatusMessage/
+             NinaCoreIntegrationTest were Phase 0's own first-ever milestone scaffolding
+             ("NINA Avalonia shell is running.", the Loc integration-test string), left in place
+             since there was no real UI yet to replace them (see project memory). Now that every
+             tab has real content, trimmed to a slim bottom status line (profile + clock) - the
+             only two of the four that carry any real ongoing information - matching the
+             unobtrusive footer real NINA itself uses, not a big top banner (2026-08-22, user
+             feedback against a reference screenshot). -->
+        <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Spacing="16" Margin="4,8,4,0">
+            <TextBlock Text="{Binding ActiveProfileName, StringFormat='Profile: {0}'}" FontSize="11" Opacity="0.6" />
+            <TextBlock Text="{Binding CurrentTime}" FontSize="11" Opacity="0.6" />
         </StackPanel>
 
         <!-- Real navigation shell (Phase 0): one TabItem per NINA.Core.Enum.ApplicationTab entry,
