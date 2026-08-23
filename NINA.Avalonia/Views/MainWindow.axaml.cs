@@ -42,6 +42,11 @@ public partial class MainWindow : Window
         dragGhostText = this.FindControl<TextBlock>("DragGhostText");
         dropZoneHighlight = this.FindControl<Border>("DropZoneHighlight");
 
+        var quitButton = this.FindControl<Button>("QuitButton");
+        if (quitButton != null) {
+            quitButton.Click += (_, _) => Close();
+        }
+
         var tree = this.FindControl<TreeView>("SequencerTree");
         if (tree != null) {
             SetupSequencerDragDrop(tree);

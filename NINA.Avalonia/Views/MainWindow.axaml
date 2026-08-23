@@ -585,15 +585,19 @@
                             </Border>
 
                             <Border BorderBrush="Gray" BorderThickness="0,1,0,0" Padding="0,8,0,0">
-                                <Grid ColumnDefinitions="150,*" RowDefinitions="Auto,Auto,Auto,Auto" RowSpacing="4">
+                                <Grid ColumnDefinitions="150,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto" RowSpacing="4">
                                     <TextBlock Grid.Row="0" Grid.Column="0" Text="Connected" FontWeight="SemiBold" />
                                     <TextBlock Grid.Row="0" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.RotatorVM.RotatorInfo.Connected}" />
                                     <TextBlock Grid.Row="1" Grid.Column="0" Text="Name" FontWeight="SemiBold" />
                                     <TextBlock Grid.Row="1" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.RotatorVM.RotatorInfo.Name}" />
-                                    <TextBlock Grid.Row="2" Grid.Column="0" Text="Position" FontWeight="SemiBold" />
-                                    <TextBlock Grid.Row="2" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.RotatorVM.RotatorInfo.Position}" />
-                                    <TextBlock Grid.Row="3" Grid.Column="0" Text="Moving" FontWeight="SemiBold" />
-                                    <TextBlock Grid.Row="3" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.RotatorVM.RotatorInfo.IsMoving}" />
+                                    <TextBlock Grid.Row="2" Grid.Column="0" Text="Mechanical Position" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="2" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.RotatorVM.RotatorInfo.MechanicalPosition}" />
+                                    <TextBlock Grid.Row="3" Grid.Column="0" Text="Sky Position" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="3" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.RotatorVM.RotatorInfo.Position}" />
+                                    <TextBlock Grid.Row="4" Grid.Column="0" Text="Reverse" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="4" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.RotatorVM.RotatorInfo.Reverse}" IsVisible="{ReflectionBinding EquipmentVM.RotatorVM.RotatorInfo.CanReverse}" />
+                                    <TextBlock Grid.Row="5" Grid.Column="0" Text="Moving" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="5" Grid.Column="1" Text="{ReflectionBinding EquipmentVM.RotatorVM.RotatorInfo.IsMoving}" />
                                 </Grid>
                             </Border>
 
@@ -1516,6 +1520,25 @@
             </TabItem>
         </TabControl>
     </DockPanel>
+
+    <!-- Real WPF nav-rail footer (2026-08-22, auto-mode pass) - the eye icon toggles
+         ColorSchemaSettings.ToggleSchema() (real, see MainViewModel.ToggleColorSchemeCommand's own
+         doc comment - existed on the portable profile model, never wired to anything before now);
+         the power icon quits the app (Window.Close(), code-behind - same "view-layer glue stays in
+         code-behind" precedent as OnLoadFromFileClick). Overlaid on the root Panel rather than
+         inside the TabControl's own strip (Avalonia's TabStripPlacement="Left" template doesn't
+         expose a slot for extra footer content without deeper templating) - real NINA's book/info
+         icons open documentation/about dialogs with no portable content behind them yet, skipped
+         for this pass. -->
+    <StackPanel HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="0,0,0,8" Spacing="4">
+        <Button Width="36" Height="36" Padding="0" HorizontalAlignment="Center"
+                ToolTip.Tip="Toggle color scheme" Command="{Binding ToggleColorSchemeCommand}">
+            <Path Data="{StaticResource EyeSVG}" Fill="White" Stretch="Uniform" Width="18" Height="18" />
+        </Button>
+        <Button Name="QuitButton" Width="36" Height="36" Padding="0" HorizontalAlignment="Center" ToolTip.Tip="Quit">
+            <Path Data="{StaticResource PowerSVG}" Fill="White" Stretch="Uniform" Width="18" Height="18" />
+        </Button>
+    </StackPanel>
 
     <!-- Sequencer drag-and-drop visual polish (2026-08-22): the OS-level DoDragDropAsync call in
          MainWindow.axaml.cs doesn't render any custom drag-clone image (that's entirely up to the

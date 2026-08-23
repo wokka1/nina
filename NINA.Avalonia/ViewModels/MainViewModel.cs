@@ -2,6 +2,7 @@ using System;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using NINA.Avalonia.Utility;
 using NINA.Core.Enum;
 using NINA.Core.Locale;
 using NINA.Profile.Interfaces;
@@ -105,5 +106,24 @@ public partial class MainViewModel : ViewModelBase {
         }
         FramingAssistantVM.SetTarget(SkyAtlasVM.SelectedResult);
         TabIndex = (int)ApplicationTab.FRAMINGASSISTANT;
+    }
+
+    /// <summary>
+    /// Real ColorSchemaSettings.ToggleSchema() (2026-08-22, auto-mode pass) - the real WPF app's
+    /// eye-icon "night vision" toggle at the bottom of its nav rail, swapping the active/alternate
+    /// color scheme. Existed on the portable NINA.Profile model since before this project started
+    /// (defaults: "Persian Faint" <-> "Dark") but nothing had ever called it. Only re-applies
+    /// visually when a theme is already active (OptionsVM.UsePlainDefault false) - toggling the
+    /// underlying schema while in plain-default mode is harmless but has nothing to visibly
+    /// re-render, matching how UsePlainDefault already gates NinaThemeService everywhere else.
+    /// </summary>
+    [RelayCommand]
+    private void ToggleColorScheme() {
+        profileService.ActiveProfile.ColorSchemaSettings.ToggleSchema();
+        var newSchema = profileService.ActiveProfile.ColorSchemaSettings.ColorSchema;
+        OptionsVM.SelectedTheme = newSchema;
+        if (!OptionsVM.UsePlainDefault) {
+            NinaThemeService.ApplyTheme(newSchema);
+        }
     }
 }
