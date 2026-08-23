@@ -9,6 +9,15 @@
         <local:ViewLocator />
     </Application.DataTemplates>
 
+    <!-- Real NINA nav icon geometry (2026-08-22) - see Assets/NavIcons.axaml's own doc comment. -->
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceInclude Source="avares://NINA.Avalonia/Assets/NavIcons.axaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Application.Resources>
+
     <Application.Styles>
         <FluentTheme />
     </Application.Styles>

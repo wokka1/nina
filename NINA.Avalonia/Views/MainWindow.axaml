@@ -62,6 +62,9 @@
         <Style Selector="Window.nina-themed CheckBox">
             <Setter Property="Foreground" Value="{DynamicResource PrimaryBrush}" />
         </Style>
+        <Style Selector="Window.nina-themed TabItem Path">
+            <Setter Property="Fill" Value="{DynamicResource PrimaryBrush}" />
+        </Style>
     </Window.Styles>
 
     <Panel>
@@ -84,7 +87,13 @@
              without rebuilding the whole navigation shell to match the real app's fancier
              icon-strip control - real, visible parity for the win, proportionate effort. -->
         <TabControl SelectedIndex="{Binding TabIndex}" TabStripPlacement="Left">
-            <TabItem Header="Equipment">
+            <TabItem>
+                <TabItem.Header>
+                    <StackPanel Width="72" Spacing="4" Margin="0,8">
+                        <Path Data="{StaticResource EquipmentSVG}" Fill="White" Stretch="Uniform" Width="26" Height="26" HorizontalAlignment="Center" />
+                        <TextBlock Text="Equipment" HorizontalAlignment="Center" FontSize="11" TextWrapping="Wrap" TextAlignment="Center" />
+                    </StackPanel>
+                </TabItem.Header>
                 <!-- Real NINA.WPF.Base ViewModels underneath each card (CameraVM/TelescopeVM
                      etc. via CompositionRoot.Compose), not rewrites. Every device VM's
                      interface (ICameraVM/ITelescopeVM/IDeviceChooserVM - deliberately kept for
@@ -660,7 +669,13 @@
                     </StackPanel>
                 </WrapPanel>
             </TabItem>
-            <TabItem Header="Sky Atlas">
+            <TabItem>
+                <TabItem.Header>
+                    <StackPanel Width="72" Spacing="4" Margin="0,8">
+                        <Path Data="{StaticResource MapSVG}" Fill="White" Stretch="Uniform" Width="26" Height="26" HorizontalAlignment="Center" />
+                        <TextBlock Text="Sky Atlas" HorizontalAlignment="Center" FontSize="11" TextWrapping="Wrap" TextAlignment="Center" />
+                    </StackPanel>
+                </TabItem.Header>
                 <!-- Phase 4 first slice: real DSO catalog search via the unchanged, portable
                      NINA.Astrometry.DatabaseInteraction (same SQLite catalog the WPF app reads).
                      No framing/rendering yet - that needs Avalonia-native sky survey image
@@ -712,7 +727,13 @@
                     </ListBox>
                 </Grid>
             </TabItem>
-            <TabItem Header="Framing Assistant">
+            <TabItem>
+                <TabItem.Header>
+                    <StackPanel Width="72" Spacing="4" Margin="0,8">
+                        <Path Data="{StaticResource FocusAssistantSVG}" Fill="White" Stretch="Uniform" Width="26" Height="26" HorizontalAlignment="Center" />
+                        <TextBlock Text="Framing" HorizontalAlignment="Center" FontSize="11" TextWrapping="Wrap" TextAlignment="Center" />
+                    </StackPanel>
+                </TabItem.Header>
                 <!-- First real slice (2026-07-24): renders the grid/DSO/constellation overlay
                      (SkyMapAnnotator.RenderPortable) and the cached-sky-image background
                      (CacheSkySurveyImageFactory.RenderPortable) for a manually-entered target -
@@ -763,10 +784,22 @@
                     </Panel>
                 </Grid>
             </TabItem>
-            <TabItem Header="Flat Wizard">
+            <TabItem>
+                <TabItem.Header>
+                    <StackPanel Width="72" Spacing="4" Margin="0,8">
+                        <Path Data="{StaticResource FlatWizardSVG}" Fill="White" Stretch="Uniform" Width="26" Height="26" HorizontalAlignment="Center" />
+                        <TextBlock Text="Flat Wizard" HorizontalAlignment="Center" FontSize="11" TextWrapping="Wrap" TextAlignment="Center" />
+                    </StackPanel>
+                </TabItem.Header>
                 <TextBlock Margin="0,12,0,0" Opacity="0.6" Text="Flat Wizard - not yet scoped" />
             </TabItem>
-            <TabItem Header="Sequencer">
+            <TabItem>
+                <TabItem.Header>
+                    <StackPanel Width="72" Spacing="4" Margin="0,8">
+                        <Path Data="{StaticResource SequenceSVG}" Fill="White" Stretch="Uniform" Width="26" Height="26" HorizontalAlignment="Center" />
+                        <TextBlock Text="Sequencer" HorizontalAlignment="Center" FontSize="11" TextWrapping="Wrap" TextAlignment="Center" />
+                    </StackPanel>
+                </TabItem.Header>
                 <!-- Phase 3: a real NINA.Sequencer.Container.SequenceRootContainer
                      (multi-targeted, portable, unchanged from the WPF app's own domain model),
                      hand-populated with a couple of real Annotation items in a nested
@@ -837,7 +870,13 @@
                     </Grid>
                 </DockPanel>
             </TabItem>
-            <TabItem Header="Imaging">
+            <TabItem>
+                <TabItem.Header>
+                    <StackPanel Width="72" Spacing="4" Margin="0,8">
+                        <Path Data="{StaticResource PictureSVG}" Fill="White" Stretch="Uniform" Width="26" Height="26" HorizontalAlignment="Center" />
+                        <TextBlock Text="Imaging" HorizontalAlignment="Center" FontSize="11" TextWrapping="Wrap" TextAlignment="Center" />
+                    </StackPanel>
+                </TabItem.Header>
                 <!-- Phase 2's first real slice: a real capture through the actual portable
                      pipeline (CameraVM.Capture/Download -> ToImageData -> RenderImage ->
                      Stretch -> RawPixels -> a real Avalonia bitmap), not a placeholder. Connect
@@ -893,7 +932,13 @@
                     <oxy:PlotView Model="{Binding ImagingVM.HistogramModel}" Height="180" />
                 </StackPanel>
             </TabItem>
-            <TabItem Header="Options">
+            <TabItem>
+                <TabItem.Header>
+                    <StackPanel Width="72" Spacing="4" Margin="0,8">
+                        <Path Data="{StaticResource SettingsSVG}" Fill="White" Stretch="Uniform" Width="26" Height="26" HorizontalAlignment="Center" />
+                        <TextBlock Text="Options" HorizontalAlignment="Center" FontSize="11" TextWrapping="Wrap" TextAlignment="Center" />
+                    </StackPanel>
+                </TabItem.Header>
                 <!-- Phase 5 first slice: a real settings editor over the active profile's real,
                      unchanged NINA.Profile settings objects, using the same generic
                      reflection-based PropertyEditRow built for the Sequencer's property panel
@@ -947,7 +992,13 @@
                     </Grid>
                 </Grid>
             </TabItem>
-            <TabItem Header="Plugins">
+            <TabItem>
+                <TabItem.Header>
+                    <StackPanel Width="72" Spacing="4" Margin="0,8">
+                        <Path Data="{StaticResource PuzzlePieceSVG}" Fill="White" Stretch="Uniform" Width="26" Height="26" HorizontalAlignment="Center" />
+                        <TextBlock Text="Plugins" HorizontalAlignment="Center" FontSize="11" TextWrapping="Wrap" TextAlignment="Center" />
+                    </StackPanel>
+                </TabItem.Header>
                 <!-- Real IPluginLoader (NINA.Plugin, now portable - see project memory) behind
                      this tab. Load is user-triggered, not automatic at startup - real filesystem
                      scan + MEF composition, not something to run unprompted every dev launch. -->
